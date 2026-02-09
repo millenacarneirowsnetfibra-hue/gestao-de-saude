@@ -2312,12 +2312,10 @@
             });
         }
 
-        // Carregar exames
+        // Carregar exames - MODIFICADO: Agora ordena por vencimento (mais próximos primeiro)
         async function loadExames() {
             try {
-                const examesQuery = await db.collection('exames')
-                    .orderBy('dataExame', 'desc')
-                    .get();
+                const examesQuery = await db.collection('exames').get();
                 
                 const examesBody = document.getElementById('examesBody');
                 examesBody.innerHTML = '';
@@ -2356,24 +2354,44 @@
                     };
                     
                     examesFiltrados.push(exameInfo);
+                });
+                
+                // Ordenar exames por vencimento (mais próximos primeiro)
+                // Primeiro vencidos, depois próximos a vencer, depois em dia
+                examesFiltrados.sort((a, b) => {
+                    const dataA = a.data.vencimento ? new Date(a.data.vencimento) : new Date(9999, 11, 31);
+                    const dataB = b.data.vencimento ? new Date(b.data.vencimento) : new Date(9999, 11, 31);
                     
+                    // Se a data for a mesma, ordena por status
+                    if (dataA.getTime() === dataB.getTime()) {
+                        const statusOrder = { 'vencido': 1, 'proximo-vencer': 2, 'em-dia': 3 };
+                        return statusOrder[a.status] - statusOrder[b.status];
+                    }
+                    
+                    // Ordena por data de vencimento (mais próximos primeiro)
+                    return dataA - dataB;
+                });
+                
+                // Exibir exames ordenados
+                examesFiltrados.forEach(exameInfo => {
+                    const data = exameInfo.data;
                     examesBody.innerHTML += `
                         <tr>
                             <td>
                                 <strong>${data.funcionario || 'N/A'}</strong>
-                                ${colaboradorInfo ? `<br><small>${colaboradorInfo.departamento || ''} - ${colaboradorInfo.empresa || ''}</small>` : ''}
+                                ${exameInfo.colaborador ? `<br><small>${exameInfo.colaborador.departamento || ''} - ${exameInfo.colaborador.empresa || ''}</small>` : ''}
                             </td>
                             <td>${formatTipoExame(data.tipo)}</td>
                             <td>${data.dataExame ? formatDate(new Date(data.dataExame)) : 'N/A'}</td>
                             <td>${data.vencimento ? formatDate(new Date(data.vencimento)) : 'N/A'}</td>
-                            <td>${diasRestantes > 0 ? `${diasRestantes} dias` : '<span style="color: var(--danger);">Vencido</span>'}</td>
-                            <td><span class="status ${status}">${formatStatusExame(status)}</span></td>
+                            <td>${exameInfo.diasRestantes > 0 ? `${exameInfo.diasRestantes} dias` : '<span style="color: var(--danger);">Vencido</span>'}</td>
+                            <td><span class="status ${exameInfo.status}">${formatStatusExame(exameInfo.status)}</span></td>
                             <td>
                                 <div class="actions-cell">
-                                    <button class="btn btn-primary btn-small" onclick="editarExame('${doc.id}')">
+                                    <button class="btn btn-primary btn-small" onclick="editarExame('${exameInfo.id}')">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <button class="btn btn-danger btn-small" onclick="solicitarExclusao('exames', '${doc.id}', '${data.funcionario || "Sem nome"} - ${formatTipoExame(data.tipo)}')">
+                                    <button class="btn btn-danger btn-small" onclick="solicitarExclusao('exames', '${exameInfo.id}', '${data.funcionario || "Sem nome"} - ${formatTipoExame(data.tipo)}')">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </div>
@@ -2402,7 +2420,7 @@
             });
         }
 
-        // Filtrar exames
+        // Filtrar exames - MODIFICADO: Mantém ordenação por vencimento após filtragem
         function filtrarExames() {
             const filtroNome = document.getElementById('filtro-nome-exame').value.toLowerCase();
             const filtroDepartamento = document.getElementById('filtro-departamento-exame').value;
@@ -2484,14 +2502,23 @@
                 return;
             }
             
-            // Ordenar por data do exame (mais recente primeiro)
+            // Ordenar por vencimento (mais próximos primeiro)
+            // Primeiro vencidos, depois próximos a vencer, depois em dia
             examesFiltradosResultado.sort((a, b) => {
-                const dataA = new Date(a.data.dataExame);
-                const dataB = new Date(b.data.dataExame);
-                return dataB - dataA;
+                const dataA = a.data.vencimento ? new Date(a.data.vencimento) : new Date(9999, 11, 31);
+                const dataB = b.data.vencimento ? new Date(b.data.vencimento) : new Date(9999, 11, 31);
+                
+                // Se a data for a mesma, ordena por status
+                if (dataA.getTime() === dataB.getTime()) {
+                    const statusOrder = { 'vencido': 1, 'proximo-vencer': 2, 'em-dia': 3 };
+                    return statusOrder[a.status] - statusOrder[b.status];
+                }
+                
+                // Ordena por data de vencimento (mais próximos primeiro)
+                return dataA - dataB;
             });
             
-            // Exibir exames filtrados
+            // Exibir exames filtrados e ordenados
             examesFiltradosResultado.forEach(exameInfo => {
                 const data = exameInfo.data;
                 examesBody.innerHTML += `
@@ -3067,7 +3094,7 @@
             });
         }
 
-        // Carregar próximos vencimentos
+        // Carregar próximos vencimentos - MODIFICADO: Ordena por vencimento (mais próximos primeiro)
         async function loadProximosVencimentos() {
             try {
                 const hoje = new Date();
@@ -3075,12 +3102,7 @@
                 daqui30Dias.setDate(hoje.getDate() + 30);
                 
                 // Buscar exames com vencimento próximo
-                const examesQuery = await db.collection('exames')
-                    .where('vencimento', '>=', hoje.toISOString().split('T')[0])
-                    .where('vencimento', '<=', daqui30Dias.toISOString().split('T')[0])
-                    .orderBy('vencimento')
-                    .limit(10)
-                    .get();
+                const examesQuery = await db.collection('exames').get();
                 
                 const vencimentosBody = document.getElementById('vencimentosBody');
                 vencimentosBody.innerHTML = '';
@@ -3099,22 +3121,64 @@
                     return;
                 }
                 
-                // Adicionar exames
+                // Filtrar e ordenar exames
+                const examesProximos = [];
+                
                 examesQuery.docs.forEach(doc => {
                     const data = doc.data();
+                    if (!data.vencimento) return;
+                    
                     const vencimentoDate = new Date(data.vencimento);
+                    const diffTime = vencimentoDate - hoje;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    
+                    // Incluir apenas exames que vencem nos próximos 30 dias ou estão vencidos
+                    if (diffDays <= 30) {
+                        examesProximos.push({
+                            id: doc.id,
+                            data: data,
+                            diasRestantes: diffDays,
+                            vencimentoDate: vencimentoDate
+                        });
+                    }
+                });
+                
+                // Ordenar por vencimento (mais próximos primeiro)
+                examesProximos.sort((a, b) => {
+                    return a.vencimentoDate - b.vencimentoDate;
+                });
+                
+                // Limitar a 10 resultados
+                const examesExibir = examesProximos.slice(0, 10);
+                
+                if (examesExibir.length === 0) {
+                    vencimentosBody.innerHTML = `
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 30px;">
+                                <div class="empty-state">
+                                    <i class="fas fa-calendar-check"></i>
+                                    <p>Nenhum vencimento próximo</p>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+                
+                // Adicionar exames ordenados
+                examesExibir.forEach(exame => {
+                    const data = exame.data;
                     const status = calcularStatusVencimento(data.vencimento);
-                    const diasRestantes = calcularDiasRestantes(data.vencimento);
                     
                     vencimentosBody.innerHTML += `
                         <tr>
                             <td><strong>${data.funcionario || 'N/A'}</strong></td>
                             <td>Exame ${formatTipoExame(data.tipo)}</td>
                             <td>${data.dataExame ? formatDate(new Date(data.dataExame)) : 'N/A'}</td>
-                            <td>${formatDate(vencimentoDate)}</td>
-                            <td><span class="status ${status}">${formatStatusExame(status)} (${diasRestantes} dias)</span></td>
+                            <td>${formatDate(exame.vencimentoDate)}</td>
+                            <td><span class="status ${status}">${formatStatusExame(status)} (${exame.diasRestantes} dias)</span></td>
                             <td>
-                                <button class="btn btn-primary btn-small" onclick="editarExame('${doc.id}')">
+                                <button class="btn btn-primary btn-small" onclick="editarExame('${exame.id}')">
                                     <i class="fas fa-edit"></i>
                                 </button>
                             </td>
