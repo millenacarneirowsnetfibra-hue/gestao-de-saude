@@ -744,6 +744,50 @@
         .filters select {
             min-width: 200px;
         }
+        
+        /* Página de cadastro de colaborador */
+        .colaborador-page {
+            display: none;
+        }
+        
+        .colaborador-page.active {
+            display: block;
+        }
+        
+        .back-button {
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 0;
+            margin-bottom: 20px;
+        }
+        
+        .back-button:hover {
+            color: var(--secondary);
+        }
+        
+        .search-input {
+            width: 100%;
+            max-width: 300px;
+        }
+        
+        /* Lista vazia */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #ccc;
+        }
     </style>
 </head>
 <body>
@@ -883,8 +927,8 @@
                 </div>
             </section>
 
-            <!-- Colaboradores -->
-            <section id="colaboradores" class="page-content hidden">
+            <!-- Colaboradores - Página Principal -->
+            <section id="colaboradores" class="page-content colaborador-page active">
                 <div class="page-title">
                     <h2><i class="fas fa-users"></i> Gerenciamento de Colaboradores</h2>
                     <button class="btn btn-primary" id="btn-novo-colaborador">
@@ -892,8 +936,31 @@
                     </button>
                 </div>
 
+                <div class="filters">
+                    <div class="form-group">
+                        <label for="filtro-nome-colaborador">Nome:</label>
+                        <input type="text" id="filtro-nome-colaborador" placeholder="Digite para buscar..." class="search-input">
+                    </div>
+                    <div class="form-group">
+                        <label for="filtro-departamento-colaborador">Departamento:</label>
+                        <select id="filtro-departamento-colaborador">
+                            <option value="todos">Todos</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="filtro-status-colaborador">Status:</label>
+                        <select id="filtro-status-colaborador">
+                            <option value="ativo">Ativos</option>
+                            <option value="todos">Todos</option>
+                            <option value="inativo">Inativos</option>
+                            <option value="ferias">Férias</option>
+                            <option value="afastado">Afastados</option>
+                        </select>
+                    </div>
+                </div>
+
                 <div class="table-container">
-                    <table>
+                    <table id="tabela-colaboradores">
                         <thead>
                             <tr>
                                 <th>Nome Completo</th>
@@ -911,10 +978,19 @@
                         </tbody>
                     </table>
                 </div>
+            </section>
 
-                <!-- Formulário de Colaborador -->
-                <div id="form-colaborador-container" class="form-section hidden">
-                    <h3 id="form-colaborador-title">Novo Colaborador</h3>
+            <!-- Colaboradores - Página de Cadastro/Edição -->
+            <section id="colaborador-cadastro" class="page-content colaborador-page">
+                <button class="back-button" id="btn-voltar-colaboradores">
+                    <i class="fas fa-arrow-left"></i> Voltar para Lista
+                </button>
+                
+                <div class="page-title">
+                    <h2><i class="fas fa-user-plus"></i> <span id="form-colaborador-title">Novo Colaborador</span></h2>
+                </div>
+
+                <div class="form-section">
                     <div class="simple-form">
                         <div class="form-group">
                             <label for="colaborador-nome">Nome Completo *</label>
@@ -1402,7 +1478,7 @@
                         </div>
                         <div class="form-group">
                             <label for="filtro-departamento-relatorio">Filtrar por Departamento:</label>
-                            <select id="filtro-departamento-relatorio">
+                                <select id="filtro-departamento-relatorio">
                                 <option value="todos">Todos</option>
                             </select>
                         </div>
@@ -1471,6 +1547,7 @@
         let examesFiltrados = [];
         let atestadosFiltrados = [];
         let catsFiltrados = [];
+        let colaboradoresFiltrados = [];
         
         // Cache de dados sincronizados
         let cache = {
@@ -1510,12 +1587,33 @@
             // Configurar abas
             setupTabs();
             
+            // Configurar filtros automáticos
+            setupAutoFilters();
+            
             // Carregar dados iniciais
             loadDashboardData();
             
             // Carregar cache de dados sincronizados
             loadCacheData();
         });
+
+        // Configurar filtros automáticos
+        function setupAutoFilters() {
+            // Filtro de nome (busca digitável)
+            document.getElementById('filtro-nome-colaborador').addEventListener('input', function() {
+                filtrarColaboradores();
+            });
+            
+            // Filtro de departamento
+            document.getElementById('filtro-departamento-colaborador').addEventListener('change', function() {
+                filtrarColaboradores();
+            });
+            
+            // Filtro de status
+            document.getElementById('filtro-status-colaborador').addEventListener('change', function() {
+                filtrarColaboradores();
+            });
+        }
 
         // Carregar cache de dados sincronizados
         async function loadCacheData() {
@@ -1530,12 +1628,15 @@
                 
                 console.log('Cache de dados carregado com sucesso:', cache);
                 
+                // Após carregar cache, carregar os colaboradores
+                loadColaboradores();
+                
             } catch (error) {
                 console.error('Erro ao carregar cache de dados:', error);
             }
         }
 
-        // Carregar colaboradores em cache
+        // Carregar colaboradores em cache (ordenado alfabeticamente)
         async function loadColaboradoresCache() {
             try {
                 const colaboradoresQuery = await db.collection('colaboradores')
@@ -1546,6 +1647,9 @@
                     id: doc.id,
                     ...doc.data()
                 }));
+                
+                // Carregar dados nos filtros
+                loadDepartamentosFiltro();
                 
             } catch (error) {
                 console.error('Erro ao carregar colaboradores em cache:', error);
@@ -1635,15 +1739,27 @@
                         page.classList.add('hidden');
                     });
                     
+                    document.querySelectorAll('.colaborador-page').forEach(page => {
+                        page.classList.remove('active');
+                    });
+                    
                     // Mostra a página correspondente ao link clicado
                     const pageId = this.getAttribute('data-page');
                     document.getElementById(pageId).classList.remove('hidden');
                     
-                    // Carregar dados específicos da página
+                    // Para colaboradores, mostrar a página principal
                     if (pageId === 'colaboradores') {
+                        document.getElementById('colaboradores').classList.add('active');
+                        document.getElementById('colaborador-cadastro').classList.remove('active');
+                        document.getElementById('colaborador-cadastro').classList.add('hidden');
+                    }
+                    
+                    // Carregar dados específicos da página
+                    if (pageId === 'dashboard') {
+                        loadDashboardData();
+                    } else if (pageId === 'colaboradores') {
                         loadColaboradores();
-                        loadDepartamentosSelect();
-                        loadEmpresasSelect();
+                        filtrarColaboradores();
                     } else if (pageId === 'exames') {
                         loadExames();
                         loadColaboradoresSelect();
@@ -1699,23 +1815,26 @@
 
         // Configurar formulários
         function setupForms() {
-            // Controle do formulário de colaborador
+            // Botão para novo colaborador
             document.getElementById('btn-novo-colaborador').addEventListener('click', function() {
-                const formContainer = document.getElementById('form-colaborador-container');
-                if (formContainer.classList.contains('hidden')) {
-                    formContainer.classList.remove('hidden');
-                    document.getElementById('form-colaborador-title').textContent = 'Novo Colaborador';
-                    document.getElementById('btn-colaborador-text').textContent = 'Salvar Colaborador';
-                    clearForm('colaborador');
-                    editMode = false;
-                    itemToEdit = null;
-                } else {
-                    formContainer.classList.add('hidden');
-                }
+                showColaboradorForm('Novo Colaborador', 'Salvar Colaborador');
             });
 
+            // Botão para voltar da página de cadastro
+            document.getElementById('btn-voltar-colaboradores').addEventListener('click', function() {
+                document.getElementById('colaboradores').classList.add('active');
+                document.getElementById('colaborador-cadastro').classList.remove('active');
+                document.getElementById('colaborador-cadastro').classList.add('hidden');
+                clearForm('colaborador');
+                editMode = false;
+                itemToEdit = null;
+            });
+
+            // Botão cancelar no formulário de colaborador
             document.getElementById('btn-cancelar-colaborador').addEventListener('click', function() {
-                document.getElementById('form-colaborador-container').classList.add('hidden');
+                document.getElementById('colaboradores').classList.add('active');
+                document.getElementById('colaborador-cadastro').classList.remove('active');
+                document.getElementById('colaborador-cadastro').classList.add('hidden');
                 clearForm('colaborador');
                 editMode = false;
                 itemToEdit = null;
@@ -1805,6 +1924,25 @@
             });
         }
 
+        // Mostrar formulário de colaborador
+        function showColaboradorForm(title, buttonText) {
+            document.getElementById('colaboradores').classList.remove('active');
+            document.getElementById('colaborador-cadastro').classList.add('active');
+            document.getElementById('colaborador-cadastro').classList.remove('hidden');
+            
+            document.getElementById('form-colaborador-title').textContent = title;
+            document.getElementById('btn-colaborador-text').textContent = buttonText;
+            
+            // Carregar selects se necessário
+            loadDepartamentosSelect();
+            loadEmpresasSelect();
+            
+            // Definir data atual como padrão
+            if (!editMode) {
+                document.getElementById('colaborador-data-admissao').value = new Date().toISOString().split('T')[0];
+            }
+        }
+
         // Configurar formulário de exame
         function setupExameForm() {
             // Calcular vencimento quando a data do exame mudar
@@ -1826,44 +1964,6 @@
             
             document.getElementById('atestado-data-emissao').value = hojeStr;
             document.getElementById('atestado-validade').value = validadeStr;
-        }
-
-        // Calcular vencimento do exame (1 ano após a data do exame)
-        function calcularVencimentoExame() {
-            const dataExameInput = document.getElementById('exame-data');
-            const vencimentoInput = document.getElementById('exame-vencimento');
-            
-            if (dataExameInput.value) {
-                const dataExame = new Date(dataExameInput.value);
-                const vencimento = new Date(dataExame);
-                vencimento.setFullYear(vencimento.getFullYear() + 1);
-                
-                vencimentoInput.value = vencimento.toISOString().split('T')[0];
-                
-                // Calcular status automaticamente
-                calcularStatusExame();
-            }
-        }
-
-        // Calcular status do exame com base na data de vencimento
-        function calcularStatusExame() {
-            const vencimentoInput = document.getElementById('exame-vencimento');
-            const statusSelect = document.getElementById('exame-status');
-            
-            if (vencimentoInput.value) {
-                const hoje = new Date();
-                const vencimento = new Date(vencimentoInput.value);
-                const diffTime = vencimento - hoje;
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                
-                if (diffDays < 0) {
-                    statusSelect.value = 'vencido';
-                } else if (diffDays <= 30) {
-                    statusSelect.value = 'proximo-vencer';
-                } else {
-                    statusSelect.value = 'em-dia';
-                }
-            }
         }
 
         // Configurar botões
@@ -1915,6 +2015,44 @@
                 document.getElementById('filtro-colaborador-cat').value = 'todos';
                 loadCATs();
             });
+        }
+
+        // Calcular vencimento do exame (1 ano após a data do exame)
+        function calcularVencimentoExame() {
+            const dataExameInput = document.getElementById('exame-data');
+            const vencimentoInput = document.getElementById('exame-vencimento');
+            
+            if (dataExameInput.value) {
+                const dataExame = new Date(dataExameInput.value);
+                const vencimento = new Date(dataExame);
+                vencimento.setFullYear(vencimento.getFullYear() + 1);
+                
+                vencimentoInput.value = vencimento.toISOString().split('T')[0];
+                
+                // Calcular status automaticamente
+                calcularStatusExame();
+            }
+        }
+
+        // Calcular status do exame com base na data de vencimento
+        function calcularStatusExame() {
+            const vencimentoInput = document.getElementById('exame-vencimento');
+            const statusSelect = document.getElementById('exame-status');
+            
+            if (vencimentoInput.value) {
+                const hoje = new Date();
+                const vencimento = new Date(vencimentoInput.value);
+                const diffTime = vencimento - hoje;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                
+                if (diffDays < 0) {
+                    statusSelect.value = 'vencido';
+                } else if (diffDays <= 30) {
+                    statusSelect.value = 'proximo-vencer';
+                } else {
+                    statusSelect.value = 'em-dia';
+                }
+            }
         }
 
         // Carregar dados do dashboard
@@ -1976,51 +2114,139 @@
                 
             } catch (error) {
                 console.error('Erro ao carregar contadores:', error);
-                // Não mostrar notificação para evitar spam
             }
         }
 
-        // Carregar colaboradores
+        // Carregar colaboradores (sem filtro, para manter lista completa em cache)
         async function loadColaboradores() {
             try {
-                const colaboradoresBody = document.getElementById('colaboradoresBody');
-                colaboradoresBody.innerHTML = '';
-                
+                // Usar cache de colaboradores
                 if (cache.colaboradores.length === 0) {
+                    const colaboradoresBody = document.getElementById('colaboradoresBody');
                     colaboradoresBody.innerHTML = `
                         <tr>
-                            <td colspan="6" style="text-align: center; padding: 30px;">Nenhum colaborador cadastrado</td>
+                            <td colspan="6" style="text-align: center; padding: 30px;">
+                                <div class="empty-state">
+                                    <i class="fas fa-users"></i>
+                                    <p>Nenhum colaborador cadastrado</p>
+                                </div>
+                            </td>
                         </tr>
                     `;
                     return;
                 }
                 
-                cache.colaboradores.forEach(colaborador => {
-                    colaboradoresBody.innerHTML += `
-                        <tr>
-                            <td><strong>${colaborador.nome || 'Sem nome'}</strong></td>
-                            <td>${colaborador.dataAdmissao ? formatDate(new Date(colaborador.dataAdmissao)) : 'N/A'}</td>
-                            <td>${colaborador.departamento || 'N/A'}</td>
-                            <td>${colaborador.empresa || 'N/A'}</td>
-                            <td><span class="status ${colaborador.status || 'ativo'}">${formatStatus(colaborador.status || 'ativo')}</span></td>
-                            <td>
-                                <div class="actions-cell">
-                                    <button class="btn btn-primary btn-small" onclick="editarColaborador('${colaborador.id}')">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-danger btn-small" onclick="solicitarExclusao('colaboradores', '${colaborador.id}', '${colaborador.nome || "Sem nome"}')">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                });
+                // Armazenar todos os colaboradores para filtragem
+                colaboradoresFiltrados = [...cache.colaboradores];
+                
+                // Aplicar filtro inicial (apenas ativos)
+                filtrarColaboradores();
                 
             } catch (error) {
                 console.error('Erro ao carregar colaboradores:', error);
                 showNotification('Erro ao carregar colaboradores', 'error');
             }
+        }
+
+        // Filtrar colaboradores
+        function filtrarColaboradores() {
+            const filtroNome = document.getElementById('filtro-nome-colaborador').value.toLowerCase();
+            const filtroDepartamento = document.getElementById('filtro-departamento-colaborador').value;
+            const filtroStatus = document.getElementById('filtro-status-colaborador').value;
+            
+            const colaboradoresBody = document.getElementById('colaboradoresBody');
+            colaboradoresBody.innerHTML = '';
+            
+            if (cache.colaboradores.length === 0) {
+                colaboradoresBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 30px;">
+                            <div class="empty-state">
+                                <i class="fas fa-users"></i>
+                                <p>Nenhum colaborador cadastrado</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            // Filtrar colaboradores
+            const colaboradoresFiltradosResultado = cache.colaboradores.filter(colaborador => {
+                // Filtro por nome (busca digitável)
+                const nomeMatch = !filtroNome || 
+                    (colaborador.nome && colaborador.nome.toLowerCase().includes(filtroNome));
+                
+                // Filtro por departamento
+                const departamentoMatch = filtroDepartamento === 'todos' || 
+                    (colaborador.departamento && colaborador.departamento === filtroDepartamento);
+                
+                // Filtro por status (padrão: apenas ativos)
+                const statusMatch = filtroStatus === 'todos' || 
+                    (colaborador.status && colaborador.status === filtroStatus);
+                
+                return nomeMatch && departamentoMatch && statusMatch;
+            });
+            
+            if (colaboradoresFiltradosResultado.length === 0) {
+                colaboradoresBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 30px;">
+                            <div class="empty-state">
+                                <i class="fas fa-search"></i>
+                                <p>Nenhum colaborador encontrado com os filtros selecionados</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            // Ordenar por nome (alfabético)
+            colaboradoresFiltradosResultado.sort((a, b) => {
+                const nomeA = a.nome || '';
+                const nomeB = b.nome || '';
+                return nomeA.localeCompare(nomeB);
+            });
+            
+            // Exibir colaboradores filtrados
+            colaboradoresFiltradosResultado.forEach(colaborador => {
+                colaboradoresBody.innerHTML += `
+                    <tr>
+                        <td><strong>${colaborador.nome || 'Sem nome'}</strong></td>
+                        <td>${colaborador.dataAdmissao ? formatDate(new Date(colaborador.dataAdmissao)) : 'N/A'}</td>
+                        <td>${colaborador.departamento || 'N/A'}</td>
+                        <td>${colaborador.empresa || 'N/A'}</td>
+                        <td><span class="status ${colaborador.status || 'ativo'}">${formatStatus(colaborador.status || 'ativo')}</span></td>
+                        <td>
+                            <div class="actions-cell">
+                                <button class="btn btn-primary btn-small" onclick="editarColaborador('${colaborador.id}')">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-danger btn-small" onclick="solicitarExclusao('colaboradores', '${colaborador.id}', '${colaborador.nome || "Sem nome"}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Carregar departamentos no filtro
+        function loadDepartamentosFiltro() {
+            const filtroDepartamento = document.getElementById('filtro-departamento-colaborador');
+            filtroDepartamento.innerHTML = '<option value="todos">Todos</option>';
+            
+            // Coletar departamentos únicos dos colaboradores
+            const departamentosUnicos = [...new Set(cache.colaboradores
+                .map(colaborador => colaborador.departamento)
+                .filter(departamento => departamento && departamento.trim() !== '')
+            )];
+            
+            departamentosUnicos.sort().forEach(departamento => {
+                filtroDepartamento.innerHTML += `<option value="${departamento}">${departamento}</option>`;
+            });
         }
 
         // Carregar exames
@@ -2036,7 +2262,12 @@
                 if (examesQuery.empty) {
                     examesBody.innerHTML = `
                         <tr>
-                            <td colspan="7" style="text-align: center; padding: 30px;">Nenhum exame cadastrado</td>
+                            <td colspan="7" style="text-align: center; padding: 30px;">
+                                <div class="empty-state">
+                                    <i class="fas fa-stethoscope"></i>
+                                    <p>Nenhum exame cadastrado</p>
+                                </div>
+                            </td>
                         </tr>
                     `;
                     return;
@@ -2126,7 +2357,12 @@
             if (examesFiltrados.length === 0) {
                 examesBody.innerHTML = `
                     <tr>
-                        <td colspan="7" style="text-align: center; padding: 30px;">Nenhum exame cadastrado</td>
+                        <td colspan="7" style="text-align: center; padding: 30px;">
+                            <div class="empty-state">
+                                <i class="fas fa-stethoscope"></i>
+                                <p>Nenhum exame cadastrado</p>
+                            </div>
+                        </td>
                     </tr>
                 `;
                 return;
@@ -2155,7 +2391,12 @@
             if (examesFiltradosResultado.length === 0) {
                 examesBody.innerHTML = `
                     <tr>
-                        <td colspan="7" style="text-align: center; padding: 30px;">Nenhum exame encontrado com os filtros selecionados</td>
+                        <td colspan="7" style="text-align: center; padding: 30px;">
+                            <div class="empty-state">
+                                <i class="fas fa-search"></i>
+                                <p>Nenhum exame encontrado com os filtros selecionados</p>
+                            </div>
+                        </td>
                     </tr>
                 `;
                 return;
@@ -2210,7 +2451,12 @@
                 if (atestadosQuery.empty) {
                     atestadosBody.innerHTML = `
                         <tr>
-                            <td colspan="7" style="text-align: center; padding: 30px;">Nenhum atestado cadastrado</td>
+                            <td colspan="7" style="text-align: center; padding: 30px;">
+                                <div class="empty-state">
+                                    <i class="fas fa-file-medical"></i>
+                                    <p>Nenhum atestado cadastrado</p>
+                                </div>
+                            </td>
                         </tr>
                     `;
                     return;
@@ -2285,7 +2531,12 @@
             if (atestadosFiltrados.length === 0) {
                 atestadosBody.innerHTML = `
                     <tr>
-                        <td colspan="7" style="text-align: center; padding: 30px;">Nenhum atestado cadastrado</td>
+                        <td colspan="7" style="text-align: center; padding: 30px;">
+                            <div class="empty-state">
+                                <i class="fas fa-file-medical"></i>
+                                <p>Nenhum atestado cadastrado</p>
+                            </div>
+                        </td>
                     </tr>
                 `;
                 return;
@@ -2312,7 +2563,12 @@
             if (atestadosFiltradosResultado.length === 0) {
                 atestadosBody.innerHTML = `
                     <tr>
-                        <td colspan="7" style="text-align: center; padding: 30px;">Nenhum atestado encontrado com os filtros selecionados</td>
+                        <td colspan="7" style="text-align: center; padding: 30px;">
+                            <div class="empty-state">
+                                <i class="fas fa-search"></i>
+                                <p>Nenhum atestado encontrado com os filtros selecionados</p>
+                            </div>
+                        </td>
                     </tr>
                 `;
                 return;
@@ -2368,7 +2624,12 @@
                 if (catsQuery.empty) {
                     catsBody.innerHTML = `
                         <tr>
-                            <td colspan="7" style="text-align: center; padding: 30px;">Nenhuma CAT registrada</td>
+                            <td colspan="7" style="text-align: center; padding: 30px;">
+                                <div class="empty-state">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <p>Nenhuma CAT registrada</p>
+                                </div>
+                            </td>
                         </tr>
                     `;
                     return;
@@ -2434,7 +2695,12 @@
             if (catsFiltrados.length === 0) {
                 catsBody.innerHTML = `
                     <tr>
-                        <td colspan="7" style="text-align: center; padding: 30px;">Nenhuma CAT registrada</td>
+                        <td colspan="7" style="text-align: center; padding: 30px;">
+                            <div class="empty-state">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <p>Nenhuma CAT registrada</p>
+                            </div>
+                        </td>
                     </tr>
                 `;
                 return;
@@ -2452,7 +2718,12 @@
             if (catsFiltradosResultado.length === 0) {
                 catsBody.innerHTML = `
                     <tr>
-                        <td colspan="7" style="text-align: center; padding: 30px;">Nenhuma CAT encontrada com os filtros selecionados</td>
+                        <td colspan="7" style="text-align: center; padding: 30px;">
+                            <div class="empty-state">
+                                <i class="fas fa-search"></i>
+                                <p>Nenhuma CAT encontrada com os filtros selecionados</p>
+                            </div>
+                        </td>
                     </tr>
                 `;
                 return;
@@ -2501,7 +2772,10 @@
             
             if (cache.empresas.length === 0) {
                 listaEmpresas.innerHTML = `
-                    <li style="justify-content: center; color: #666;">Nenhuma empresa cadastrada</li>
+                    <li style="justify-content: center; color: #666;">
+                        <i class="fas fa-building" style="margin-right: 10px;"></i>
+                        Nenhuma empresa cadastrada
+                    </li>
                 `;
                 return;
             }
@@ -2530,7 +2804,10 @@
             
             if (cache.departamentos.length === 0) {
                 listaDepartamentos.innerHTML = `
-                    <li style="justify-content: center; color: #666;">Nenhum departamento cadastrado</li>
+                    <li style="justify-content: center; color: #666;">
+                        <i class="fas fa-sitemap" style="margin-right: 10px;"></i>
+                        Nenhum departamento cadastrado
+                    </li>
                 `;
                 return;
             }
@@ -2559,7 +2836,10 @@
             
             if (cache.cids.length === 0) {
                 listaCids.innerHTML = `
-                    <li style="justify-content: center; color: #666;">Nenhum CID cadastrado</li>
+                    <li style="justify-content: center; color: #666;">
+                        <i class="fas fa-file-medical-alt" style="margin-right: 10px;"></i>
+                        Nenhum CID cadastrado
+                    </li>
                 `;
                 return;
             }
@@ -2587,10 +2867,20 @@
             
             selectColaborador.innerHTML = '<option value="">Selecione um colaborador</option>';
             
-            cache.colaboradores.forEach(colaborador => {
-                if (colaborador.status === 'ativo' || colaborador.status === 'ferias' || colaborador.status === 'afastado') {
-                    selectColaborador.innerHTML += `<option value="${colaborador.nome}">${colaborador.nome} - ${colaborador.departamento || 'Sem departamento'}</option>`;
-                }
+            // Filtrar apenas colaboradores ativos, de férias ou afastados
+            const colaboradoresAtivos = cache.colaboradores.filter(colaborador => 
+                colaborador.status === 'ativo' || colaborador.status === 'ferias' || colaborador.status === 'afastado'
+            );
+            
+            // Ordenar por nome (alfabético)
+            colaboradoresAtivos.sort((a, b) => {
+                const nomeA = a.nome || '';
+                const nomeB = b.nome || '';
+                return nomeA.localeCompare(nomeB);
+            });
+            
+            colaboradoresAtivos.forEach(colaborador => {
+                selectColaborador.innerHTML += `<option value="${colaborador.nome}">${colaborador.nome} - ${colaborador.departamento || 'Sem departamento'}</option>`;
             });
             
             // Carregar também para o formulário de atestados
@@ -2598,10 +2888,8 @@
             if (selectAtestadoColaborador) {
                 selectAtestadoColaborador.innerHTML = '<option value="">Selecione um colaborador</option>';
                 
-                cache.colaboradores.forEach(colaborador => {
-                    if (colaborador.status === 'ativo' || colaborador.status === 'ferias' || colaborador.status === 'afastado') {
-                        selectAtestadoColaborador.innerHTML += `<option value="${colaborador.nome}">${colaborador.nome} - ${colaborador.departamento || 'Sem departamento'}</option>`;
-                    }
+                colaboradoresAtivos.forEach(colaborador => {
+                    selectAtestadoColaborador.innerHTML += `<option value="${colaborador.nome}">${colaborador.nome} - ${colaborador.departamento || 'Sem departamento'}</option>`;
                 });
             }
         }
@@ -2612,7 +2900,15 @@
             
             select.innerHTML = '<option value="todos">Todos</option>';
             
-            cache.colaboradores.forEach(colaborador => {
+            // Ordenar por nome (alfabético)
+            const colaboradoresOrdenados = [...cache.colaboradores];
+            colaboradoresOrdenados.sort((a, b) => {
+                const nomeA = a.nome || '';
+                const nomeB = b.nome || '';
+                return nomeA.localeCompare(nomeB);
+            });
+            
+            colaboradoresOrdenados.forEach(colaborador => {
                 select.innerHTML += `<option value="${colaborador.nome}">${colaborador.nome}</option>`;
             });
         }
@@ -2691,7 +2987,12 @@
                 if (examesQuery.empty) {
                     vencimentosBody.innerHTML = `
                         <tr>
-                            <td colspan="6" style="text-align: center; padding: 30px;">Nenhum vencimento próximo</td>
+                            <td colspan="6" style="text-align: center; padding: 30px;">
+                                <div class="empty-state">
+                                    <i class="fas fa-calendar-check"></i>
+                                    <p>Nenhum vencimento próximo</p>
+                                </div>
+                            </td>
                         </tr>
                     `;
                     return;
@@ -2722,7 +3023,6 @@
                 
             } catch (error) {
                 console.error('Erro ao carregar próximos vencimentos:', error);
-                // Não mostrar notificação para evitar spam
             }
         }
 
@@ -2741,17 +3041,25 @@
                     return;
                 }
                 
+                // Validar data de admissão (não permitir datas futuras)
+                const dataAdmissaoDate = new Date(dataAdmissao);
+                const hoje = new Date();
+                if (dataAdmissaoDate > hoje) {
+                    showNotification('A data de admissão não pode ser futura', 'warning');
+                    return;
+                }
+                
                 const btn = document.getElementById('btn-salvar-colaborador');
                 const originalText = btn.innerHTML;
                 btn.innerHTML = '<div class="loading"></div>';
                 btn.disabled = true;
                 
                 const colaboradorData = {
-                    nome,
-                    dataAdmissao,
-                    departamento,
-                    empresa,
-                    status,
+                    nome: nome.trim(),
+                    dataAdmissao: dataAdmissao, // Mantém a data exata informada
+                    departamento: departamento,
+                    empresa: empresa,
+                    status: status,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
                     userId: currentUser.uid
@@ -2769,6 +3077,13 @@
                         cache.colaboradores[index] = { id: itemToEdit, ...colaboradorData };
                     }
                     
+                    // Reordenar cache por nome
+                    cache.colaboradores.sort((a, b) => {
+                        const nomeA = a.nome || '';
+                        const nomeB = b.nome || '';
+                        return nomeA.localeCompare(nomeB);
+                    });
+                    
                     showNotification('Colaborador atualizado com sucesso!', 'success');
                 } else {
                     // Criar novo colaborador
@@ -2776,23 +3091,34 @@
                     colaboradorId = docRef.id;
                     
                     // Adicionar ao cache
-                    cache.colaboradores.push({ id: colaboradorId, ...colaboradorData });
+                    const novoColaborador = { id: colaboradorId, ...colaboradorData };
+                    cache.colaboradores.push(novoColaborador);
+                    
+                    // Reordenar cache por nome
+                    cache.colaboradores.sort((a, b) => {
+                        const nomeA = a.nome || '';
+                        const nomeB = b.nome || '';
+                        return nomeA.localeCompare(nomeB);
+                    });
                     
                     showNotification('Colaborador salvo com sucesso!', 'success');
                 }
                 
-                // Limpar formulário e recarregar dados
-                document.getElementById('form-colaborador-container').classList.add('hidden');
+                // Voltar para a lista
+                document.getElementById('colaboradores').classList.add('active');
+                document.getElementById('colaborador-cadastro').classList.remove('active');
+                document.getElementById('colaborador-cadastro').classList.add('hidden');
                 clearForm('colaborador');
                 editMode = false;
                 itemToEdit = null;
                 
                 // Recarregar dados
                 loadDashboardData();
-                loadColaboradores();
+                loadColaboradores(); // Isso já aplicará os filtros automáticos
                 loadColaboradoresSelect();
                 loadColaboradoresFiltro('filtro-colaborador-atestado');
                 loadColaboradoresFiltro('filtro-colaborador-cat');
+                loadDepartamentosFiltro();
                 
             } catch (error) {
                 console.error('Erro ao salvar colaborador:', error);
@@ -2976,6 +3302,13 @@
                         cache.empresas[index] = { id: itemToEdit, ...empresaData };
                     }
                     
+                    // Reordenar cache por nome
+                    cache.empresas.sort((a, b) => {
+                        const nomeA = a.nome || '';
+                        const nomeB = b.nome || '';
+                        return nomeA.localeCompare(nomeB);
+                    });
+                    
                     showNotification('Empresa atualizada com sucesso!', 'success');
                 } else {
                     // Criar nova empresa
@@ -2984,6 +3317,13 @@
                     
                     // Adicionar ao cache
                     cache.empresas.push({ id: empresaId, ...empresaData });
+                    
+                    // Reordenar cache por nome
+                    cache.empresas.sort((a, b) => {
+                        const nomeA = a.nome || '';
+                        const nomeB = b.nome || '';
+                        return nomeA.localeCompare(nomeB);
+                    });
                     
                     showNotification('Empresa salva com sucesso!', 'success');
                 }
@@ -3044,6 +3384,13 @@
                         cache.departamentos[index] = { id: itemToEdit, ...departamentoData };
                     }
                     
+                    // Reordenar cache por nome
+                    cache.departamentos.sort((a, b) => {
+                        const nomeA = a.nome || '';
+                        const nomeB = b.nome || '';
+                        return nomeA.localeCompare(nomeB);
+                    });
+                    
                     showNotification('Departamento atualizado com sucesso!', 'success');
                 } else {
                     // Criar novo departamento
@@ -3052,6 +3399,13 @@
                     
                     // Adicionar ao cache
                     cache.departamentos.push({ id: departamentoId, ...departamentoData });
+                    
+                    // Reordenar cache por nome
+                    cache.departamentos.sort((a, b) => {
+                        const nomeA = a.nome || '';
+                        const nomeB = b.nome || '';
+                        return nomeA.localeCompare(nomeB);
+                    });
                     
                     showNotification('Departamento salva com sucesso!', 'success');
                 }
@@ -3114,6 +3468,13 @@
                         cache.cids[index] = { id: itemToEdit, ...cidData };
                     }
                     
+                    // Reordenar cache por código
+                    cache.cids.sort((a, b) => {
+                        const codigoA = a.codigo || '';
+                        const codigoB = b.codigo || '';
+                        return codigoA.localeCompare(codigoB);
+                    });
+                    
                     showNotification('CID atualizado com sucesso!', 'success');
                 } else {
                     // Criar novo CID
@@ -3122,6 +3483,13 @@
                     
                     // Adicionar ao cache
                     cache.cids.push({ id: cidId, ...cidData });
+                    
+                    // Reordenar cache por código
+                    cache.cids.sort((a, b) => {
+                        const codigoA = a.codigo || '';
+                        const codigoB = b.codigo || '';
+                        return codigoA.localeCompare(codigoB);
+                    });
                     
                     showNotification('CID salvo com sucesso!', 'success');
                 }
@@ -3158,10 +3526,8 @@
                 itemToEdit = id;
                 editMode = true;
                 
-                // Mostrar formulário
-                document.getElementById('form-colaborador-container').classList.remove('hidden');
-                document.getElementById('form-colaborador-title').textContent = 'Editar Colaborador';
-                document.getElementById('btn-colaborador-text').textContent = 'Atualizar Colaborador';
+                // Mostrar formulário de edição
+                showColaboradorForm('Editar Colaborador', 'Atualizar Colaborador');
                 
                 // Preencher formulário
                 document.getElementById('colaborador-nome').value = colaborador.nome || '';
@@ -3353,6 +3719,7 @@
                     loadColaboradoresSelect();
                     loadColaboradoresFiltro('filtro-colaborador-atestado');
                     loadColaboradoresFiltro('filtro-colaborador-cat');
+                    loadDepartamentosFiltro();
                 } else if (deleteCollection === 'exames') {
                     loadExames();
                 } else if (deleteCollection === 'atestados') {
@@ -3369,6 +3736,7 @@
                     loadDepartamentosSelect();
                     loadFiltrosExames();
                     loadFiltrosRelatorios();
+                    loadDepartamentosFiltro();
                 } else if (deleteCollection === 'cids') {
                     loadCIDs();
                     loadCIDsSelect();
