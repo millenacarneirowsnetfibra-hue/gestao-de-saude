@@ -680,6 +680,16 @@
             from { opacity: 0; }
             to { opacity: 1; }
         }
+        
+        /* Formulários simplificados */
+        .simple-form {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .simple-form .form-group {
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
@@ -852,7 +862,7 @@
                 <!-- Formulário de Colaborador -->
                 <div id="form-colaborador-container" class="form-section hidden">
                     <h3 id="form-colaborador-title">Novo Colaborador</h3>
-                    <div class="form-row">
+                    <div class="simple-form">
                         <div class="form-group">
                             <label for="colaborador-nome">Nome Completo *</label>
                             <input type="text" id="colaborador-nome" placeholder="Nome do colaborador" required>
@@ -861,28 +871,14 @@
                             <label for="colaborador-matricula">Matrícula *</label>
                             <input type="text" id="colaborador-matricula" placeholder="Número de matrícula" required>
                         </div>
-                    </div>
-                    <div class="form-row">
                         <div class="form-group">
                             <label for="colaborador-cpf">CPF *</label>
                             <input type="text" id="colaborador-cpf" placeholder="000.000.000-00" required>
                         </div>
                         <div class="form-group">
-                            <label for="colaborador-rg">RG</label>
-                            <input type="text" id="colaborador-rg" placeholder="Número do RG">
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="colaborador-data-nascimento">Data de Nascimento</label>
-                            <input type="date" id="colaborador-data-nascimento">
-                        </div>
-                        <div class="form-group">
                             <label for="colaborador-data-admissao">Data de Admissão *</label>
                             <input type="date" id="colaborador-data-admissao" required>
                         </div>
-                    </div>
-                    <div class="form-row">
                         <div class="form-group">
                             <label for="colaborador-cargo">Cargo *</label>
                             <input type="text" id="colaborador-cargo" placeholder="Cargo do colaborador" required>
@@ -893,8 +889,6 @@
                                 <option value="">Selecione um departamento</option>
                             </select>
                         </div>
-                    </div>
-                    <div class="form-row">
                         <div class="form-group">
                             <label for="colaborador-empresa">Empresa *</label>
                             <select id="colaborador-empresa" required>
@@ -910,28 +904,12 @@
                                 <option value="afastado">Afastado</option>
                             </select>
                         </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="colaborador-telefone">Telefone</label>
-                            <input type="text" id="colaborador-telefone" placeholder="(00) 00000-0000">
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-primary" id="btn-salvar-colaborador">
+                                <span id="btn-colaborador-text">Salvar Colaborador</span>
+                            </button>
+                            <button type="button" class="btn" id="btn-cancelar-colaborador">Cancelar</button>
                         </div>
-                        <div class="form-group">
-                            <label for="colaborador-email">E-mail</label>
-                            <input type="email" id="colaborador-email" placeholder="email@exemplo.com">
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group" style="grid-column: 1 / -1;">
-                            <label for="colaborador-observacoes">Observações</label>
-                            <textarea id="colaborador-observacoes" placeholder="Observações adicionais"></textarea>
-                        </div>
-                    </div>
-                    <div class="form-actions">
-                        <button type="button" class="btn btn-primary" id="btn-salvar-colaborador">
-                            <span id="btn-colaborador-text">Salvar Colaborador</span>
-                        </button>
-                        <button type="button" class="btn" id="btn-cancelar-colaborador">Cancelar</button>
                     </div>
                 </div>
             </section>
@@ -1045,46 +1023,16 @@
                 <div id="tab-empresas" class="tab-content active">
                     <div class="form-section">
                         <h3>Cadastro de Empresas</h3>
-                        <div class="form-row">
+                        <div class="simple-form">
                             <div class="form-group">
                                 <label for="empresa-nome">Nome da Empresa *</label>
                                 <input type="text" id="empresa-nome" placeholder="Nome completo da empresa" required>
                             </div>
-                            <div class="form-group">
-                                <label for="empresa-cnpj">CNPJ *</label>
-                                <input type="text" id="empresa-cnpj" placeholder="00.000.000/0000-00" required>
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-primary" id="btn-salvar-empresa">
+                                    <span id="btn-empresa-text">Salvar Empresa</span>
+                                </button>
                             </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="empresa-razao-social">Razão Social</label>
-                                <input type="text" id="empresa-razao-social" placeholder="Razão social da empresa">
-                            </div>
-                            <div class="form-group">
-                                <label for="empresa-inscricao-estadual">Inscrição Estadual</label>
-                                <input type="text" id="empresa-inscricao-estadual" placeholder="Inscrição estadual">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="empresa-telefone">Telefone</label>
-                                <input type="text" id="empresa-telefone" placeholder="(00) 0000-0000">
-                            </div>
-                            <div class="form-group">
-                                <label for="empresa-email">E-mail</label>
-                                <input type="email" id="empresa-email" placeholder="empresa@exemplo.com">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group" style="grid-column: 1 / -1;">
-                                <label for="empresa-endereco">Endereço</label>
-                                <textarea id="empresa-endereco" placeholder="Endereço completo da empresa"></textarea>
-                            </div>
-                        </div>
-                        <div class="form-actions">
-                            <button type="button" class="btn btn-primary" id="btn-salvar-empresa">
-                                <span id="btn-empresa-text">Salvar Empresa</span>
-                            </button>
                         </div>
                     </div>
 
@@ -1102,38 +1050,16 @@
                 <div id="tab-departamentos" class="tab-content">
                     <div class="form-section">
                         <h3>Cadastro de Departamentos</h3>
-                        <div class="form-row">
+                        <div class="simple-form">
                             <div class="form-group">
                                 <label for="departamento-nome">Nome do Departamento *</label>
                                 <input type="text" id="departamento-nome" placeholder="Nome do departamento" required>
                             </div>
-                            <div class="form-group">
-                                <label for="departamento-codigo">Código</label>
-                                <input type="text" id="departamento-codigo" placeholder="Código do departamento">
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-primary" id="btn-salvar-departamento">
+                                    <span id="btn-departamento-text">Salvar Departamento</span>
+                                </button>
                             </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="departamento-empresa">Empresa *</label>
-                                <select id="departamento-empresa" required>
-                                    <option value="">Selecione uma empresa</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="departamento-responsavel">Responsável</label>
-                                <input type="text" id="departamento-responsavel" placeholder="Nome do responsável">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group" style="grid-column: 1 / -1;">
-                                <label for="departamento-descricao">Descrição</label>
-                                <textarea id="departamento-descricao" placeholder="Descrição do departamento"></textarea>
-                            </div>
-                        </div>
-                        <div class="form-actions">
-                            <button type="button" class="btn btn-primary" id="btn-salvar-departamento">
-                                <span id="btn-departamento-text">Salvar Departamento</span>
-                            </button>
                         </div>
                     </div>
 
@@ -1151,7 +1077,7 @@
                 <div id="tab-cids" class="tab-content">
                     <div class="form-section">
                         <h3>Cadastro de CIDs (Classificação Internacional de Doenças)</h3>
-                        <div class="form-row">
+                        <div class="simple-form">
                             <div class="form-group">
                                 <label for="cid-codigo">Código CID *</label>
                                 <input type="text" id="cid-codigo" placeholder="Ex: A00" required>
@@ -1160,27 +1086,11 @@
                                 <label for="cid-descricao">Descrição *</label>
                                 <input type="text" id="cid-descricao" placeholder="Descrição da doença" required>
                             </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="cid-capitulo">Capítulo</label>
-                                <input type="text" id="cid-capitulo" placeholder="Capítulo do CID">
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-primary" id="btn-salvar-cid">
+                                    <span id="btn-cid-text">Salvar CID</span>
+                                </button>
                             </div>
-                            <div class="form-group">
-                                <label for="cid-categoria">Categoria</label>
-                                <input type="text" id="cid-categoria" placeholder="Categoria do CID">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group" style="grid-column: 1 / -1;">
-                                <label for="cid-observacoes">Observações</label>
-                                <textarea id="cid-observacoes" placeholder="Observações sobre o CID"></textarea>
-                            </div>
-                        </div>
-                        <div class="form-actions">
-                            <button type="button" class="btn btn-primary" id="btn-salvar-cid">
-                                <span id="btn-cid-text">Salvar CID</span>
-                            </button>
                         </div>
                     </div>
 
@@ -1399,7 +1309,6 @@
                         loadEmpresas();
                     } else if (tabId === 'departamentos') {
                         loadDepartamentos();
-                        loadEmpresasSelect();
                     } else if (tabId === 'cids') {
                         loadCIDs();
                     }
@@ -1755,7 +1664,7 @@
                     const data = doc.data();
                     listaEmpresas.innerHTML += `
                         <li>
-                            <span><strong>${data.nome}</strong> - ${formatCNPJ(data.cnpj)}</span>
+                            <span><strong>${data.nome}</strong></span>
                             <div>
                                 <button class="btn btn-primary" onclick="editarEmpresa('${doc.id}')" style="padding: 3px 8px; font-size: 0.7rem;">
                                     <i class="fas fa-edit"></i>
@@ -1795,7 +1704,7 @@
                     const data = doc.data();
                     listaDepartamentos.innerHTML += `
                         <li>
-                            <span><strong>${data.nome}</strong>${data.empresa ? ` - ${data.empresa}` : ''}</span>
+                            <span><strong>${data.nome}</strong></span>
                             <div>
                                 <button class="btn btn-primary" onclick="editarDepartamento('${doc.id}')" style="padding: 3px 8px; font-size: 0.7rem;">
                                     <i class="fas fa-edit"></i>
@@ -1858,18 +1767,14 @@
         async function loadEmpresasSelect() {
             try {
                 const empresasQuery = await db.collection('empresas').get();
-                const selectEmpresaColaborador = document.getElementById('colaborador-empresa');
-                const selectEmpresaDepartamento = document.getElementById('departamento-empresa');
+                const selectEmpresa = document.getElementById('colaborador-empresa');
                 
-                selectEmpresaColaborador.innerHTML = '<option value="">Selecione uma empresa</option>';
-                selectEmpresaDepartamento.innerHTML = '<option value="">Selecione uma empresa</option>';
+                selectEmpresa.innerHTML = '<option value="">Selecione uma empresa</option>';
                 
                 if (!empresasQuery.empty) {
                     empresasQuery.docs.forEach(doc => {
                         const data = doc.data();
-                        const option = `<option value="${data.nome}">${data.nome}</option>`;
-                        selectEmpresaColaborador.innerHTML += option;
-                        selectEmpresaDepartamento.innerHTML += option;
+                        selectEmpresa.innerHTML += `<option value="${data.nome}">${data.nome}</option>`;
                     });
                 }
                 
@@ -1985,16 +1890,11 @@
                 const nome = document.getElementById('colaborador-nome').value;
                 const matricula = document.getElementById('colaborador-matricula').value;
                 const cpf = document.getElementById('colaborador-cpf').value;
-                const rg = document.getElementById('colaborador-rg').value;
-                const dataNascimento = document.getElementById('colaborador-data-nascimento').value;
                 const dataAdmissao = document.getElementById('colaborador-data-admissao').value;
                 const cargo = document.getElementById('colaborador-cargo').value;
                 const departamento = document.getElementById('colaborador-departamento').value;
                 const empresa = document.getElementById('colaborador-empresa').value;
                 const status = document.getElementById('colaborador-status').value;
-                const telefone = document.getElementById('colaborador-telefone').value;
-                const email = document.getElementById('colaborador-email').value;
-                const observacoes = document.getElementById('colaborador-observacoes').value;
                 
                 // Validação básica
                 if (!nome || !matricula || !cpf || !dataAdmissao || !cargo || !departamento || !empresa) {
@@ -2011,16 +1911,11 @@
                     nome,
                     matricula,
                     cpf,
-                    rg: rg || '',
-                    dataNascimento: dataNascimento || null,
                     dataAdmissao,
                     cargo,
                     departamento,
                     empresa,
                     status,
-                    telefone: telefone || '',
-                    email: email || '',
-                    observacoes: observacoes || '',
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
                     userId: currentUser.uid
@@ -2063,16 +1958,10 @@
         async function salvarEmpresa() {
             try {
                 const nome = document.getElementById('empresa-nome').value;
-                const cnpj = document.getElementById('empresa-cnpj').value;
-                const razaoSocial = document.getElementById('empresa-razao-social').value;
-                const inscricaoEstadual = document.getElementById('empresa-inscricao-estadual').value;
-                const telefone = document.getElementById('empresa-telefone').value;
-                const email = document.getElementById('empresa-email').value;
-                const endereco = document.getElementById('empresa-endereco').value;
                 
                 // Validação básica
-                if (!nome || !cnpj) {
-                    showNotification('Preencha todos os campos obrigatórios', 'warning');
+                if (!nome) {
+                    showNotification('Preencha o nome da empresa', 'warning');
                     return;
                 }
                 
@@ -2083,12 +1972,6 @@
                 
                 const empresaData = {
                     nome,
-                    cnpj,
-                    razaoSocial: razaoSocial || '',
-                    inscricaoEstadual: inscricaoEstadual || '',
-                    telefone: telefone || '',
-                    email: email || '',
-                    endereco: endereco || '',
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
                     userId: currentUser.uid
@@ -2130,14 +2013,10 @@
         async function salvarDepartamento() {
             try {
                 const nome = document.getElementById('departamento-nome').value;
-                const codigo = document.getElementById('departamento-codigo').value;
-                const empresa = document.getElementById('departamento-empresa').value;
-                const responsavel = document.getElementById('departamento-responsavel').value;
-                const descricao = document.getElementById('departamento-descricao').value;
                 
                 // Validação básica
-                if (!nome || !empresa) {
-                    showNotification('Preencha todos os campos obrigatórios', 'warning');
+                if (!nome) {
+                    showNotification('Preencha o nome do departamento', 'warning');
                     return;
                 }
                 
@@ -2148,10 +2027,6 @@
                 
                 const departamentoData = {
                     nome,
-                    codigo: codigo || '',
-                    empresa,
-                    responsavel: responsavel || '',
-                    descricao: descricao || '',
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
                     userId: currentUser.uid
@@ -2194,9 +2069,6 @@
             try {
                 const codigo = document.getElementById('cid-codigo').value;
                 const descricao = document.getElementById('cid-descricao').value;
-                const capitulo = document.getElementById('cid-capitulo').value;
-                const categoria = document.getElementById('cid-categoria').value;
-                const observacoes = document.getElementById('cid-observacoes').value;
                 
                 // Validação básica
                 if (!codigo || !descricao) {
@@ -2212,9 +2084,6 @@
                 const cidData = {
                     codigo,
                     descricao,
-                    capitulo: capitulo || '',
-                    categoria: categoria || '',
-                    observacoes: observacoes || '',
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
                     userId: currentUser.uid
@@ -2274,16 +2143,11 @@
                 document.getElementById('colaborador-nome').value = data.nome || '';
                 document.getElementById('colaborador-matricula').value = data.matricula || '';
                 document.getElementById('colaborador-cpf').value = data.cpf || '';
-                document.getElementById('colaborador-rg').value = data.rg || '';
-                document.getElementById('colaborador-data-nascimento').value = data.dataNascimento || '';
                 document.getElementById('colaborador-data-admissao').value = data.dataAdmissao || '';
                 document.getElementById('colaborador-cargo').value = data.cargo || '';
                 document.getElementById('colaborador-departamento').value = data.departamento || '';
                 document.getElementById('colaborador-empresa').value = data.empresa || '';
                 document.getElementById('colaborador-status').value = data.status || 'ativo';
-                document.getElementById('colaborador-telefone').value = data.telefone || '';
-                document.getElementById('colaborador-email').value = data.email || '';
-                document.getElementById('colaborador-observacoes').value = data.observacoes || '';
                 
             } catch (error) {
                 console.error('Erro ao carregar colaborador para edição:', error);
@@ -2307,12 +2171,6 @@
                 
                 // Preencher formulário
                 document.getElementById('empresa-nome').value = data.nome || '';
-                document.getElementById('empresa-cnpj').value = data.cnpj || '';
-                document.getElementById('empresa-razao-social').value = data.razaoSocial || '';
-                document.getElementById('empresa-inscricao-estadual').value = data.inscricaoEstadual || '';
-                document.getElementById('empresa-telefone').value = data.telefone || '';
-                document.getElementById('empresa-email').value = data.email || '';
-                document.getElementById('empresa-endereco').value = data.endereco || '';
                 
                 document.getElementById('btn-empresa-text').textContent = 'Atualizar Empresa';
                 
@@ -2338,10 +2196,6 @@
                 
                 // Preencher formulário
                 document.getElementById('departamento-nome').value = data.nome || '';
-                document.getElementById('departamento-codigo').value = data.codigo || '';
-                document.getElementById('departamento-empresa').value = data.empresa || '';
-                document.getElementById('departamento-responsavel').value = data.responsavel || '';
-                document.getElementById('departamento-descricao').value = data.descricao || '';
                 
                 document.getElementById('btn-departamento-text').textContent = 'Atualizar Departamento';
                 
@@ -2368,9 +2222,6 @@
                 // Preencher formulário
                 document.getElementById('cid-codigo').value = data.codigo || '';
                 document.getElementById('cid-descricao').value = data.descricao || '';
-                document.getElementById('cid-capitulo').value = data.capitulo || '';
-                document.getElementById('cid-categoria').value = data.categoria || '';
-                document.getElementById('cid-observacoes').value = data.observacoes || '';
                 
                 document.getElementById('btn-cid-text').textContent = 'Atualizar CID';
                 
@@ -2561,36 +2412,18 @@
                 document.getElementById('colaborador-nome').value = '';
                 document.getElementById('colaborador-matricula').value = '';
                 document.getElementById('colaborador-cpf').value = '';
-                document.getElementById('colaborador-rg').value = '';
-                document.getElementById('colaborador-data-nascimento').value = '';
                 document.getElementById('colaborador-data-admissao').value = new Date().toISOString().split('T')[0];
                 document.getElementById('colaborador-cargo').value = '';
                 document.getElementById('colaborador-departamento').value = '';
                 document.getElementById('colaborador-empresa').value = '';
                 document.getElementById('colaborador-status').value = 'ativo';
-                document.getElementById('colaborador-telefone').value = '';
-                document.getElementById('colaborador-email').value = '';
-                document.getElementById('colaborador-observacoes').value = '';
             } else if (tipo === 'empresa') {
                 document.getElementById('empresa-nome').value = '';
-                document.getElementById('empresa-cnpj').value = '';
-                document.getElementById('empresa-razao-social').value = '';
-                document.getElementById('empresa-inscricao-estadual').value = '';
-                document.getElementById('empresa-telefone').value = '';
-                document.getElementById('empresa-email').value = '';
-                document.getElementById('empresa-endereco').value = '';
             } else if (tipo === 'departamento') {
                 document.getElementById('departamento-nome').value = '';
-                document.getElementById('departamento-codigo').value = '';
-                document.getElementById('departamento-empresa').value = '';
-                document.getElementById('departamento-responsavel').value = '';
-                document.getElementById('departamento-descricao').value = '';
             } else if (tipo === 'cid') {
                 document.getElementById('cid-codigo').value = '';
                 document.getElementById('cid-descricao').value = '';
-                document.getElementById('cid-capitulo').value = '';
-                document.getElementById('cid-categoria').value = '';
-                document.getElementById('cid-observacoes').value = '';
             }
         }
 
@@ -2616,11 +2449,6 @@
         function formatCPF(cpf) {
             if (!cpf) return 'N/A';
             return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
-        }
-
-        function formatCNPJ(cnpj) {
-            if (!cnpj) return 'N/A';
-            return cnpj.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
         }
 
         function formatTipoExame(tipo) {
