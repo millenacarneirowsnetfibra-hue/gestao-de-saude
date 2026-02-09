@@ -813,6 +813,59 @@
         .clear-filters {
             align-self: flex-end;
         }
+        
+        /* Campos de hora */
+        .hora-fields {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        /* Campo de resultado calculado */
+        .calc-result {
+            background-color: #e8f5e8;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-left: 4px solid var(--success);
+        }
+        
+        .calc-result h4 {
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+        
+        .calc-result p {
+            margin: 5px 0;
+            font-weight: 500;
+        }
+        
+        /* Página de atestados */
+        .atestado-page {
+            display: none;
+        }
+        
+        .atestado-page.active {
+            display: block;
+        }
+        
+        /* Modal de confirmação de limite */
+        .limit-warning {
+            background-color: #fff3cd;
+            border-left: 4px solid var(--warning);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .limit-warning h4 {
+            color: #856404;
+            margin-bottom: 8px;
+        }
+        
+        .limit-warning p {
+            margin: 5px 0;
+        }
     </style>
 </head>
 <body>
@@ -829,6 +882,27 @@
             <div class="form-actions">
                 <button class="btn btn-danger" onclick="confirmDelete()">Excluir</button>
                 <button class="btn" onclick="closeModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de Confirmação de Limite -->
+    <div id="limitModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-exclamation-triangle"></i> Limite de Atestados Atingido</h3>
+                <button class="close-modal" onclick="closeLimitModal()">&times;</button>
+            </div>
+            <div id="limitMessage" style="margin-bottom: 25px;">
+                <div class="limit-warning">
+                    <h4><i class="fas fa-exclamation-circle"></i> Atenção!</h4>
+                    <p id="limitWarningText"></p>
+                </div>
+                <p style="margin-top: 15px;">Deseja continuar mesmo assim?</p>
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-warning" onclick="proceedWithAtestado()">Continuar</button>
+                <button class="btn" onclick="closeLimitModal()">Cancelar</button>
             </div>
         </div>
     </div>
@@ -1189,8 +1263,8 @@
                 </div>
             </section>
 
-            <!-- Atestados -->
-            <section id="atestados" class="page-content hidden">
+            <!-- Atestados - Página Principal -->
+            <section id="atestados" class="page-content atestado-page active">
                 <div class="page-title">
                     <h2><i class="fas fa-file-medical"></i> Atestados</h2>
                     <button class="btn btn-primary" id="btn-novo-atestado">
@@ -1200,27 +1274,48 @@
 
                 <div class="filters">
                     <div class="form-group">
-                        <label for="filtro-status-atestado">Filtrar por Status:</label>
-                        <select id="filtro-status-atestado">
-                            <option value="todos">Todos</option>
-                            <option value="pendente">Pendente</option>
-                            <option value="concluido">Concluído</option>
-                            <option value="vencido">Vencido</option>
-                        </select>
+                        <label for="filtro-nome-atestado">Nome do Colaborador:</label>
+                        <input type="text" id="filtro-nome-atestado" placeholder="Digite para buscar..." class="search-input">
                     </div>
                     <div class="form-group">
-                        <label for="filtro-tipo-atestado">Filtrar por Tipo:</label>
+                        <label for="filtro-tipo-atestado">Tipo de Atestado:</label>
                         <select id="filtro-tipo-atestado">
                             <option value="todos">Todos</option>
                             <option value="medico">Médico</option>
                             <option value="odontologico">Odontológico</option>
-                            <option value="outro">Outro</option>
+                            <option value="acompanhamento-filho">Acompanhamento Filho</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="filtro-colaborador-atestado">Filtrar por Colaborador:</label>
-                        <select id="filtro-colaborador-atestado">
-                            <option value="todos">Todos</option>
+                        <label for="filtro-unidade-atestado">Unidade:</label>
+                        <select id="filtro-unidade-atestado">
+                            <option value="todos">Todas</option>
+                            <option value="dias">Dias</option>
+                            <option value="horas">Horas</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="filtro-mes-atestado">Mês:</label>
+                        <select id="filtro-mes-atestado">
+                            <option value="todos">Todos os meses</option>
+                            <option value="1">Janeiro</option>
+                            <option value="2">Fevereiro</option>
+                            <option value="3">Março</option>
+                            <option value="4">Abril</option>
+                            <option value="5">Maio</option>
+                            <option value="6">Junho</option>
+                            <option value="7">Julho</option>
+                            <option value="8">Agosto</option>
+                            <option value="9">Setembro</option>
+                            <option value="10">Outubro</option>
+                            <option value="11">Novembro</option>
+                            <option value="12">Dezembro</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="filtro-ano-atestado">Ano:</label>
+                        <select id="filtro-ano-atestado">
+                            <option value="todos">Todos os anos</option>
                         </select>
                     </div>
                 </div>
@@ -1231,10 +1326,10 @@
                             <tr>
                                 <th>Colaborador</th>
                                 <th>Tipo</th>
-                                <th>Data de Emissão</th>
-                                <th>Data de Validade</th>
+                                <th>Data Início</th>
+                                <th>Data Final</th>
+                                <th>Período</th>
                                 <th>CID</th>
-                                <th>Status</th>
                                 <th>Ações</th>
                             </tr>
                         </thead>
@@ -1248,7 +1343,7 @@
             </section>
 
             <!-- Atestados - Página de Cadastro/Edição -->
-            <section id="atestado-cadastro" class="page-content hidden">
+            <section id="atestado-cadastro" class="page-content atestado-page">
                 <button class="back-button" id="btn-voltar-atestados">
                     <i class="fas fa-arrow-left"></i> Voltar para Lista
                 </button>
@@ -1272,7 +1367,7 @@
                                     <option value="">Selecione o tipo</option>
                                     <option value="medico">Médico</option>
                                     <option value="odontologico">Odontológico</option>
-                                    <option value="outro">Outro</option>
+                                    <option value="acompanhamento-filho">Acompanhamento Filho</option>
                                 </select>
                             </div>
                             <div class="form-group">
@@ -1284,25 +1379,47 @@
                         </div>
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="atestado-data-emissao">Data de Emissão *</label>
-                                <input type="date" id="atestado-data-emissao" required>
+                                <label for="atestado-data-inicio">Data Início *</label>
+                                <input type="date" id="atestado-data-inicio" required>
                             </div>
                             <div class="form-group">
-                                <label for="atestado-validade">Data de Validade *</label>
-                                <input type="date" id="atestado-validade" required>
+                                <label for="atestado-data-final">Data Final *</label>
+                                <input type="date" id="atestado-data-final" required>
                             </div>
                         </div>
+                        
+                        <!-- Seletor de unidade (dias/horas) -->
                         <div class="form-group">
-                            <label for="atestado-status">Status</label>
-                            <select id="atestado-status">
-                                <option value="pendente">Pendente</option>
-                                <option value="concluido">Concluído</option>
+                            <label for="atestado-unidade">Unidade do Atestado *</label>
+                            <select id="atestado-unidade" required>
+                                <option value="">Selecione a unidade</option>
+                                <option value="dias">Dias</option>
+                                <option value="horas">Horas</option>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label for="atestado-observacoes">Observações (Opcional)</label>
-                            <textarea id="atestado-observacoes" placeholder="Observações sobre o atestado..."></textarea>
+                        
+                        <!-- Campos de hora (apenas se unidade = horas) -->
+                        <div id="campos-hora" class="hidden">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="atestado-hora-inicio">Hora Inicial *</label>
+                                    <input type="time" id="atestado-hora-inicio" step="300">
+                                </div>
+                                <div class="form-group">
+                                    <label for="atestado-hora-final">Hora Final *</label>
+                                    <input type="time" id="atestado-hora-final" step="300">
+                                </div>
+                            </div>
                         </div>
+                        
+                        <!-- Resultado do cálculo -->
+                        <div id="calc-resultado" class="calc-result hidden">
+                            <h4><i class="fas fa-calculator"></i> Resultado do Cálculo</h4>
+                            <p id="calc-dias">Dias ausentes: <strong>0</strong></p>
+                            <p id="calc-horas">Horas ausentes: <strong>0</strong></p>
+                            <p id="calc-total">Total: <strong>0 dias ou horas</strong></p>
+                        </div>
+                        
                         <div class="form-actions">
                             <button type="button" class="btn btn-primary" id="btn-salvar-atestado">
                                 <span id="btn-atestado-text">Salvar Atestado</span>
@@ -1583,6 +1700,7 @@
         let atestadosFiltrados = [];
         let catsFiltrados = [];
         let colaboradoresFiltrados = [];
+        let atestadoPendente = null; // Para controle do modal de limite
         
         // Cache de dados sincronizados
         let cache = {
@@ -1590,6 +1708,18 @@
             empresas: [],
             departamentos: [],
             cids: []
+        };
+
+        // Limites de atestados
+        const LIMITES_ATESTADOS = {
+            odontologico: {
+                dias: 3,
+                horas: 0
+            },
+            acompanhamento_filho: {
+                dias: 3,
+                horas: 48
+            }
         };
 
         // Inicializar aplicação
@@ -1622,7 +1752,20 @@
             
             // Carregar cache de dados sincronizados
             loadCacheData();
+            
+            // Carregar anos para filtro
+            carregarAnosFiltro();
         });
+
+        // Carregar anos para filtro de atestados
+        function carregarAnosFiltro() {
+            const selectAno = document.getElementById('filtro-ano-atestado');
+            const currentYear = new Date().getFullYear();
+            
+            for (let year = currentYear; year >= currentYear - 5; year--) {
+                selectAno.innerHTML += `<option value="${year}">${year}</option>`;
+            }
+        }
 
         // Configurar filtros automáticos
         function setupAutoFilters() {
@@ -1677,7 +1820,7 @@
             });
             
             // Filtros automáticos para atestados
-            document.getElementById('filtro-status-atestado').addEventListener('change', function() {
+            document.getElementById('filtro-nome-atestado').addEventListener('input', function() {
                 filtrarAtestados();
             });
             
@@ -1685,7 +1828,15 @@
                 filtrarAtestados();
             });
             
-            document.getElementById('filtro-colaborador-atestado').addEventListener('change', function() {
+            document.getElementById('filtro-unidade-atestado').addEventListener('change', function() {
+                filtrarAtestados();
+            });
+            
+            document.getElementById('filtro-mes-atestado').addEventListener('change', function() {
+                filtrarAtestados();
+            });
+            
+            document.getElementById('filtro-ano-atestado').addEventListener('change', function() {
                 filtrarAtestados();
             });
             
@@ -1849,6 +2000,10 @@
                         page.classList.remove('active');
                     });
                     
+                    document.querySelectorAll('.atestado-page').forEach(page => {
+                        page.classList.remove('active');
+                    });
+                    
                     // Mostra a página correspondente ao link clicado
                     const pageId = this.getAttribute('data-page');
                     document.getElementById(pageId).classList.remove('hidden');
@@ -1878,7 +2033,6 @@
                         loadFiltrosExames();
                     } else if (pageId === 'atestados') {
                         loadAtestados();
-                        loadColaboradoresFiltro('filtro-colaborador-atestado');
                     } else if (pageId === 'cats') {
                         loadCATs();
                         loadColaboradoresFiltro('filtro-colaborador-cat');
@@ -2005,7 +2159,7 @@
             document.getElementById('btn-salvar-departamento').addEventListener('click', salvarDepartamento);
             document.getElementById('btn-salvar-cid').addEventListener('click', salvarCID);
             document.getElementById('btn-salvar-exame').addEventListener('click', salvarExame);
-            document.getElementById('btn-salvar-atestado').addEventListener('click', salvarAtestado);
+            document.getElementById('btn-salvar-atestado').addEventListener('click', verificarLimitesAtestado);
             
             // Botões de cancelar para configurações
             document.getElementById('btn-cancelar-empresa').addEventListener('click', function() {
@@ -2024,6 +2178,27 @@
                 clearForm('cid');
                 editMode = false;
                 itemToEdit = null;
+            });
+            
+            // Eventos para cálculo automático no formulário de atestado
+            document.getElementById('atestado-data-inicio').addEventListener('change', calcularAtestado);
+            document.getElementById('atestado-data-final').addEventListener('change', calcularAtestado);
+            document.getElementById('atestado-hora-inicio').addEventListener('change', calcularAtestado);
+            document.getElementById('atestado-hora-final').addEventListener('change', calcularAtestado);
+            document.getElementById('atestado-unidade').addEventListener('change', function() {
+                const unidade = this.value;
+                const camposHora = document.getElementById('campos-hora');
+                
+                if (unidade === 'horas') {
+                    camposHora.classList.remove('hidden');
+                    // Definir horas padrão (08:00 às 17:00)
+                    document.getElementById('atestado-hora-inicio').value = '08:00';
+                    document.getElementById('atestado-hora-final').value = '17:00';
+                } else {
+                    camposHora.classList.add('hidden');
+                }
+                
+                calcularAtestado();
             });
         }
 
@@ -2087,12 +2262,15 @@
             // Definir datas padrão
             if (!editMode) {
                 const hoje = new Date();
-                const validade = new Date();
-                validade.setDate(hoje.getDate() + 15);
+                document.getElementById('atestado-data-inicio').value = hoje.toISOString().split('T')[0];
+                document.getElementById('atestado-data-final').value = hoje.toISOString().split('T')[0];
+                document.getElementById('atestado-unidade').value = 'dias';
                 
-                document.getElementById('atestado-data-emissao').value = hoje.toISOString().split('T')[0];
-                document.getElementById('atestado-validade').value = validade.toISOString().split('T')[0];
-                document.getElementById('atestado-status').value = 'pendente';
+                // Esconder campos de hora inicialmente
+                document.getElementById('campos-hora').classList.add('hidden');
+                
+                // Calcular automaticamente
+                calcularAtestado();
             }
         }
 
@@ -2146,16 +2324,9 @@
                 // Contar atestados
                 const atestadosSnapshot = await db.collection('atestados').get();
                 const totalAtestados = atestadosSnapshot.size;
-                const atestadosVencidos = atestadosSnapshot.docs.filter(doc => {
-                    const data = doc.data();
-                    if (data.validade) {
-                        return new Date(data.validade) < new Date() && data.status !== 'concluido';
-                    }
-                    return false;
-                }).length;
                 
                 document.getElementById('totalAtestados').textContent = totalAtestados;
-                document.getElementById('atestadosVencidos').textContent = `${atestadosVencidos} vencidos`;
+                document.getElementById('atestadosVencidos').textContent = '0 vencidos';
                 
                 // Contar CATs
                 const catsSnapshot = await db.collection('cats').get();
@@ -2312,7 +2483,7 @@
             });
         }
 
-        // Carregar exames - MODIFICADO: Agora ordena por vencimento (mais próximos primeiro)
+        // Carregar exames
         async function loadExames() {
             try {
                 const examesQuery = await db.collection('exames').get();
@@ -2357,7 +2528,6 @@
                 });
                 
                 // Ordenar exames por vencimento (mais próximos primeiro)
-                // Primeiro vencidos, depois próximos a vencer, depois em dia
                 examesFiltrados.sort((a, b) => {
                     const dataA = a.data.vencimento ? new Date(a.data.vencimento) : new Date(9999, 11, 31);
                     const dataB = b.data.vencimento ? new Date(b.data.vencimento) : new Date(9999, 11, 31);
@@ -2420,7 +2590,7 @@
             });
         }
 
-        // Filtrar exames - MODIFICADO: Mantém ordenação por vencimento após filtragem
+        // Filtrar exames
         function filtrarExames() {
             const filtroNome = document.getElementById('filtro-nome-exame').value.toLowerCase();
             const filtroDepartamento = document.getElementById('filtro-departamento-exame').value;
@@ -2503,7 +2673,6 @@
             }
             
             // Ordenar por vencimento (mais próximos primeiro)
-            // Primeiro vencidos, depois próximos a vencer, depois em dia
             examesFiltradosResultado.sort((a, b) => {
                 const dataA = a.data.vencimento ? new Date(a.data.vencimento) : new Date(9999, 11, 31);
                 const dataB = b.data.vencimento ? new Date(b.data.vencimento) : new Date(9999, 11, 31);
@@ -2547,11 +2716,11 @@
             });
         }
 
-        // Carregar atestados
+        // Carregar atestados - MODIFICADO para nova estrutura
         async function loadAtestados() {
             try {
                 const atestadosQuery = await db.collection('atestados')
-                    .orderBy('dataEmissao', 'desc')
+                    .orderBy('dataInicio', 'desc')
                     .get();
                 
                 const atestadosBody = document.getElementById('atestadosBody');
@@ -2588,13 +2757,13 @@
                     
                     atestadosFiltrados.push(atestadoInfo);
                     
-                    // Calcular status de vencimento
-                    const hoje = new Date();
-                    const validade = data.validade ? new Date(data.validade) : null;
-                    let status = data.status || 'pendente';
+                    // Calcular período
+                    const dias = calcularDiasAtestado(data.dataInicio, data.dataFinal);
+                    let periodoTexto = `${dias} ${dias === 1 ? 'dia' : 'dias'}`;
                     
-                    if (validade && validade < hoje && status !== 'concluido') {
-                        status = 'vencido';
+                    if (data.unidade === 'horas') {
+                        const horas = calcularHorasAtestado(data.horaInicio, data.horaFinal);
+                        periodoTexto = `${horas} ${horas === 1 ? 'hora' : 'horas'}`;
                     }
                     
                     atestadosBody.innerHTML += `
@@ -2604,10 +2773,10 @@
                                 ${colaboradorInfo ? `<br><small>${colaboradorInfo.departamento || ''} - ${colaboradorInfo.empresa || ''}</small>` : ''}
                             </td>
                             <td>${formatTipoAtestado(data.tipo)}</td>
-                            <td>${data.dataEmissao ? formatDate(new Date(data.dataEmissao)) : 'N/A'}</td>
-                            <td>${data.validade ? formatDate(new Date(data.validade)) : 'N/A'}</td>
+                            <td>${data.dataInicio ? formatDate(new Date(data.dataInicio)) : 'N/A'}</td>
+                            <td>${data.dataFinal ? formatDate(new Date(data.dataFinal)) : 'N/A'}</td>
+                            <td>${periodoTexto}</td>
                             <td>${data.cid || 'N/A'}</td>
-                            <td><span class="status ${status}">${formatStatus(status)}</span></td>
                             <td>
                                 <div class="actions-cell">
                                     <button class="btn btn-primary btn-small" onclick="editarAtestado('${doc.id}')">
@@ -2631,11 +2800,13 @@
             }
         }
 
-        // Filtrar atestados
+        // Filtrar atestados - MODIFICADO para nova estrutura
         function filtrarAtestados() {
-            const filtroStatus = document.getElementById('filtro-status-atestado').value;
+            const filtroNome = document.getElementById('filtro-nome-atestado').value.toLowerCase();
             const filtroTipo = document.getElementById('filtro-tipo-atestado').value;
-            const filtroColaborador = document.getElementById('filtro-colaborador-atestado').value;
+            const filtroUnidade = document.getElementById('filtro-unidade-atestado').value;
+            const filtroMes = document.getElementById('filtro-mes-atestado').value;
+            const filtroAno = document.getElementById('filtro-ano-atestado').value;
             
             const atestadosBody = document.getElementById('atestadosBody');
             atestadosBody.innerHTML = '';
@@ -2656,20 +2827,33 @@
             
             // Filtrar atestados
             const atestadosFiltradosResultado = atestadosFiltrados.filter(atestado => {
-                // Calcular status atual (incluindo vencimento)
-                const hoje = new Date();
-                const validade = atestado.data.validade ? new Date(atestado.data.validade) : null;
-                let statusAtual = atestado.data.status || 'pendente';
+                // Filtro por nome (busca digitável)
+                const nomeMatch = !filtroNome || 
+                    (atestado.data.funcionario && atestado.data.funcionario.toLowerCase().includes(filtroNome));
                 
-                if (validade && validade < hoje && statusAtual !== 'concluido') {
-                    statusAtual = 'vencido';
+                // Filtro por tipo
+                const tipoMatch = filtroTipo === 'todos' || atestado.data.tipo === filtroTipo;
+                
+                // Filtro por unidade
+                const unidadeMatch = filtroUnidade === 'todos' || atestado.data.unidade === filtroUnidade;
+                
+                // Filtro por mês
+                let mesMatch = true;
+                if (filtroMes !== 'todos' && atestado.data.dataInicio) {
+                    const dataInicio = new Date(atestado.data.dataInicio);
+                    const mes = dataInicio.getMonth() + 1; // getMonth() retorna 0-11
+                    mesMatch = mes == filtroMes;
                 }
                 
-                const statusMatch = filtroStatus === 'todos' || statusAtual === filtroStatus;
-                const tipoMatch = filtroTipo === 'todos' || atestado.data.tipo === filtroTipo;
-                const colaboradorMatch = filtroColaborador === 'todos' || atestado.data.funcionario === filtroColaborador;
+                // Filtro por ano
+                let anoMatch = true;
+                if (filtroAno !== 'todos' && atestado.data.dataInicio) {
+                    const dataInicio = new Date(atestado.data.dataInicio);
+                    const ano = dataInicio.getFullYear();
+                    anoMatch = ano == filtroAno;
+                }
                 
-                return statusMatch && tipoMatch && colaboradorMatch;
+                return nomeMatch && tipoMatch && unidadeMatch && mesMatch && anoMatch;
             });
             
             if (atestadosFiltradosResultado.length === 0) {
@@ -2689,12 +2873,14 @@
             // Exibir atestados filtrados
             atestadosFiltradosResultado.forEach(atestadoInfo => {
                 const data = atestadoInfo.data;
-                const hoje = new Date();
-                const validade = data.validade ? new Date(data.validade) : null;
-                let status = data.status || 'pendente';
                 
-                if (validade && validade < hoje && status !== 'concluido') {
-                    status = 'vencido';
+                // Calcular período
+                const dias = calcularDiasAtestado(data.dataInicio, data.dataFinal);
+                let periodoTexto = `${dias} ${dias === 1 ? 'dia' : 'dias'}`;
+                
+                if (data.unidade === 'horas') {
+                    const horas = calcularHorasAtestado(data.horaInicio, data.horaFinal);
+                    periodoTexto = `${horas} ${horas === 1 ? 'hora' : 'horas'}`;
                 }
                 
                 atestadosBody.innerHTML += `
@@ -2704,10 +2890,10 @@
                             ${atestadoInfo.colaborador ? `<br><small>${atestadoInfo.colaborador.departamento || ''} - ${atestadoInfo.colaborador.empresa || ''}</small>` : ''}
                         </td>
                         <td>${formatTipoAtestado(data.tipo)}</td>
-                        <td>${data.dataEmissao ? formatDate(new Date(data.dataEmissao)) : 'N/A'}</td>
-                        <td>${data.validade ? formatDate(new Date(data.validade)) : 'N/A'}</td>
+                        <td>${data.dataInicio ? formatDate(new Date(data.dataInicio)) : 'N/A'}</td>
+                        <td>${data.dataFinal ? formatDate(new Date(data.dataFinal)) : 'N/A'}</td>
+                        <td>${periodoTexto}</td>
                         <td>${data.cid || 'N/A'}</td>
-                        <td><span class="status ${status}">${formatStatus(status)}</span></td>
                         <td>
                             <div class="actions-cell">
                                 <button class="btn btn-primary btn-small" onclick="editarAtestado('${atestadoInfo.id}')">
@@ -3094,7 +3280,7 @@
             });
         }
 
-        // Carregar próximos vencimentos - MODIFICADO: Ordena por vencimento (mais próximos primeiro)
+        // Carregar próximos vencimentos
         async function loadProximosVencimentos() {
             try {
                 const hoje = new Date();
@@ -3191,7 +3377,7 @@
             }
         }
 
-        // Salvar colaborador - CORRIGIDO
+        // Salvar colaborador
         async function salvarColaborador() {
             try {
                 const nome = document.getElementById('colaborador-nome').value;
@@ -3282,8 +3468,6 @@
                 loadColaboradores();
                 loadColaboradoresSelect();
                 loadColaboradoresAtestadoSelect();
-                loadColaboradoresFiltro('filtro-colaborador-atestado');
-                loadColaboradoresFiltro('filtro-colaborador-cat');
                 loadDepartamentosFiltro();
                 
                 // Restaurar botão
@@ -3301,7 +3485,7 @@
             }
         }
 
-        // Salvar exame ocupacional - CORRIGIDO: Data do vencimento é independente da data do exame
+        // Salvar exame ocupacional
         async function salvarExame() {
             try {
                 const funcionario = document.getElementById('exame-colaborador').value;
@@ -3387,49 +3571,241 @@
             }
         }
 
-        // Salvar atestado - CORRIGIDO
-        async function salvarAtestado() {
+        // Calcular atestado (dias ou horas)
+        function calcularAtestado() {
+            const dataInicio = document.getElementById('atestado-data-inicio').value;
+            const dataFinal = document.getElementById('atestado-data-final').value;
+            const unidade = document.getElementById('atestado-unidade').value;
+            
+            if (!dataInicio || !dataFinal) {
+                document.getElementById('calc-resultado').classList.add('hidden');
+                return;
+            }
+            
+            const dias = calcularDiasAtestado(dataInicio, dataFinal);
+            let horas = 0;
+            
+            if (unidade === 'horas') {
+                const horaInicio = document.getElementById('atestado-hora-inicio').value;
+                const horaFinal = document.getElementById('atestado-hora-final').value;
+                
+                if (horaInicio && horaFinal) {
+                    horas = calcularHorasAtestado(horaInicio, horaFinal);
+                }
+            }
+            
+            // Mostrar resultado
+            const calcResultado = document.getElementById('calc-resultado');
+            calcResultado.classList.remove('hidden');
+            
+            document.getElementById('calc-dias').innerHTML = `Dias ausentes: <strong>${dias}</strong>`;
+            document.getElementById('calc-horas').innerHTML = `Horas ausentes: <strong>${horas}</strong>`;
+            
+            if (unidade === 'dias') {
+                document.getElementById('calc-total').innerHTML = `Total: <strong>${dias} ${dias === 1 ? 'dia' : 'dias'}</strong>`;
+            } else {
+                document.getElementById('calc-total').innerHTML = `Total: <strong>${horas} ${horas === 1 ? 'hora' : 'horas'}</strong>`;
+            }
+        }
+
+        // Calcular dias entre duas datas
+        function calcularDiasAtestado(dataInicio, dataFinal) {
+            const inicio = new Date(dataInicio);
+            const fim = new Date(dataFinal);
+            
+            // Diferença em milissegundos
+            const diffTime = Math.abs(fim - inicio);
+            
+            // Converter para dias (arredondar para cima para incluir o dia inicial)
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            // Adicionar 1 para incluir o dia inicial
+            return diffDays + 1;
+        }
+
+        // Calcular horas entre dois horários
+        function calcularHorasAtestado(horaInicio, horaFinal) {
+            const [horaInicioH, horaInicioM] = horaInicio.split(':').map(Number);
+            const [horaFinalH, horaFinalM] = horaFinal.split(':').map(Number);
+            
+            const inicioMinutos = horaInicioH * 60 + horaInicioM;
+            const fimMinutos = horaFinalH * 60 + horaFinalM;
+            
+            let diffMinutos = fimMinutos - inicioMinutos;
+            
+            // Se for negativo, significa que passou da meia-noite
+            if (diffMinutos < 0) {
+                diffMinutos += 24 * 60;
+            }
+            
+            // Converter para horas (com uma casa decimal)
+            const diffHoras = diffMinutos / 60;
+            return Math.round(diffHoras * 10) / 10;
+        }
+
+        // Verificar limites de atestado antes de salvar
+        async function verificarLimitesAtestado() {
             try {
                 const funcionario = document.getElementById('atestado-colaborador').value;
                 const tipo = document.getElementById('atestado-tipo').value;
+                const dataInicio = document.getElementById('atestado-data-inicio').value;
+                const dataFinal = document.getElementById('atestado-data-final').value;
+                const unidade = document.getElementById('atestado-unidade').value;
                 const cid = document.getElementById('atestado-cid').value;
-                const dataEmissao = document.getElementById('atestado-data-emissao').value;
-                const validade = document.getElementById('atestado-validade').value;
-                const status = document.getElementById('atestado-status').value;
-                const observacoes = document.getElementById('atestado-observacoes').value;
                 
                 // Validação básica
-                if (!funcionario || !tipo || !dataEmissao || !validade) {
+                if (!funcionario || !tipo || !dataInicio || !dataFinal || !unidade) {
                     showNotification('Preencha todos os campos obrigatórios', 'warning');
                     return;
                 }
                 
                 // Validação de datas
-                const dataEmissaoDate = new Date(dataEmissao);
-                const validadeDate = new Date(validade);
+                const dataInicioDate = new Date(dataInicio);
+                const dataFinalDate = new Date(dataFinal);
                 
-                if (validadeDate < dataEmissaoDate) {
-                    showNotification('A data de validade não pode ser anterior à data de emissão', 'warning');
+                if (dataFinalDate < dataInicioDate) {
+                    showNotification('A data final não pode ser anterior à data inicial', 'warning');
                     return;
+                }
+                
+                // Verificar se é um tipo com limite
+                if (tipo === 'odontologico' || tipo === 'acompanhamento-filho') {
+                    // Calcular quantidade do atestado atual
+                    let quantidadeAtual = 0;
+                    
+                    if (unidade === 'dias') {
+                        quantidadeAtual = calcularDiasAtestado(dataInicio, dataFinal);
+                    } else {
+                        const horaInicio = document.getElementById('atestado-hora-inicio').value;
+                        const horaFinal = document.getElementById('atestado-hora-final').value;
+                        
+                        if (!horaInicio || !horaFinal) {
+                            showNotification('Preencha as horas para atestado por horas', 'warning');
+                            return;
+                        }
+                        
+                        quantidadeAtual = calcularHorasAtestado(horaInicio, horaFinal);
+                    }
+                    
+                    // Buscar atestados anteriores do colaborador
+                    const atestadosAnterioresQuery = await db.collection('atestados')
+                        .where('funcionario', '==', funcionario)
+                        .where('tipo', '==', tipo)
+                        .get();
+                    
+                    let quantidadeTotal = quantidadeAtual;
+                    
+                    if (!atestadosAnterioresQuery.empty) {
+                        atestadosAnterioresQuery.docs.forEach(doc => {
+                            const data = doc.data();
+                            
+                            if (data.unidade === 'dias') {
+                                quantidadeTotal += calcularDiasAtestado(data.dataInicio, data.dataFinal);
+                            } else if (data.unidade === 'horas') {
+                                quantidadeTotal += calcularHorasAtestado(data.horaInicio, data.horaFinal);
+                            }
+                        });
+                    }
+                    
+                    // Verificar limites
+                    const limite = tipo === 'odontologico' ? LIMITES_ATESTADOS.odontologico : LIMITES_ATESTADOS.acompanhamento_filho;
+                    const unidadeLimite = unidade === 'dias' ? 'dias' : 'horas';
+                    
+                    if (quantidadeTotal > limite[unidadeLimite]) {
+                        // Preparar dados do atestado pendente
+                        atestadoPendente = {
+                            funcionario,
+                            tipo,
+                            dataInicio,
+                            dataFinal,
+                            unidade,
+                            cid: cid || '',
+                            horaInicio: unidade === 'horas' ? document.getElementById('atestado-hora-inicio').value : '',
+                            horaFinal: unidade === 'horas' ? document.getElementById('atestado-hora-final').value : '',
+                            quantidade: quantidadeAtual,
+                            quantidadeTotal: quantidadeTotal,
+                            limite: limite[unidadeLimite]
+                        };
+                        
+                        // Mostrar modal de confirmação
+                        let mensagem = '';
+                        if (tipo === 'odontologico') {
+                            mensagem = `O colaborador <strong>${funcionario}</strong> já atingiu o limite de ${limite.dias} dias para atestados odontológicos.<br><br>`;
+                        } else {
+                            mensagem = `O colaborador <strong>${funcionario}</strong> já atingiu o limite de ${limite.dias} dias ou ${limite.horas} horas para atestados de acompanhamento de filho.<br><br>`;
+                        }
+                        
+                        mensagem += `Total acumulado: ${quantidadeTotal.toFixed(1)} ${unidade === 'dias' ? 'dias' : 'horas'}<br>`;
+                        mensagem += `Limite permitido: ${limite[unidadeLimite]} ${unidade === 'dias' ? 'dias' : 'horas'}<br>`;
+                        mensagem += `Este atestado adicionará: ${quantidadeAtual.toFixed(1)} ${unidade === 'dias' ? 'dias' : 'horas'}`;
+                        
+                        document.getElementById('limitWarningText').innerHTML = mensagem;
+                        document.getElementById('limitModal').style.display = 'flex';
+                        return;
+                    }
+                }
+                
+                // Se não ultrapassou o limite, salvar diretamente
+                salvarAtestado();
+                
+            } catch (error) {
+                console.error('Erro ao verificar limites:', error);
+                showNotification('Erro ao verificar limites do atestado', 'error');
+            }
+        }
+
+        // Salvar atestado (após verificação de limites)
+        async function salvarAtestado() {
+            try {
+                let atestadoData;
+                
+                if (atestadoPendente) {
+                    // Usar dados do atestado pendente (do modal)
+                    atestadoData = {
+                        funcionario: atestadoPendente.funcionario,
+                        tipo: atestadoPendente.tipo,
+                        dataInicio: atestadoPendente.dataInicio,
+                        dataFinal: atestadoPendente.dataFinal,
+                        unidade: atestadoPendente.unidade,
+                        cid: atestadoPendente.cid,
+                        horaInicio: atestadoPendente.horaInicio,
+                        horaFinal: atestadoPendente.horaFinal,
+                        createdAt: new Date(),
+                        updatedAt: new Date(),
+                        userId: currentUser.uid
+                    };
+                } else {
+                    // Pegar dados do formulário
+                    const funcionario = document.getElementById('atestado-colaborador').value;
+                    const tipo = document.getElementById('atestado-tipo').value;
+                    const dataInicio = document.getElementById('atestado-data-inicio').value;
+                    const dataFinal = document.getElementById('atestado-data-final').value;
+                    const unidade = document.getElementById('atestado-unidade').value;
+                    const cid = document.getElementById('atestado-cid').value;
+                    
+                    atestadoData = {
+                        funcionario,
+                        tipo,
+                        dataInicio,
+                        dataFinal,
+                        unidade,
+                        cid: cid || '',
+                        createdAt: new Date(),
+                        updatedAt: new Date(),
+                        userId: currentUser.uid
+                    };
+                    
+                    // Adicionar horas se for atestado por horas
+                    if (unidade === 'horas') {
+                        atestadoData.horaInicio = document.getElementById('atestado-hora-inicio').value;
+                        atestadoData.horaFinal = document.getElementById('atestado-hora-final').value;
+                    }
                 }
                 
                 const btn = document.getElementById('btn-salvar-atestado');
                 const originalText = btn.innerHTML;
                 btn.innerHTML = 'Salvando...';
                 btn.disabled = true;
-                
-                const atestadoData = {
-                    funcionario,
-                    tipo,
-                    cid: cid || '',
-                    dataEmissao,
-                    validade,
-                    status,
-                    observacoes: observacoes || '',
-                    createdAt: new Date(),
-                    updatedAt: new Date(),
-                    userId: currentUser.uid
-                };
                 
                 if (editMode && itemToEdit) {
                     // Atualizar atestado existente
@@ -3438,7 +3814,14 @@
                 } else {
                     // Criar novo atestado
                     await db.collection('atestados').add(atestadoData);
-                    showNotification('Atestado salvo com sucesso!', 'success');
+                    
+                    if (atestadoPendente && atestadoPendente.tipo === 'odontologico') {
+                        showNotification(`Atestado odontológico salvo! ATENÇÃO: Colaborador ultrapassou o limite de ${atestadoPendente.limite} dias. Total: ${atestadoPendente.quantidadeTotal.toFixed(1)} dias`, 'warning');
+                    } else if (atestadoPendente && atestadoPendente.tipo === 'acompanhamento-filho') {
+                        showNotification(`Atestado de acompanhamento de filho salvo! ATENÇÃO: Colaborador ultrapassou o limite de ${atestadoPendente.limite} ${atestadoPendente.unidade === 'dias' ? 'dias' : 'horas'}. Total: ${atestadoPendente.quantidadeTotal.toFixed(1)} ${atestadoPendente.unidade === 'dias' ? 'dias' : 'horas'}`, 'warning');
+                    } else {
+                        showNotification('Atestado salvo com sucesso!', 'success');
+                    }
                 }
                 
                 // Limpar formulário e recarregar dados
@@ -3448,6 +3831,7 @@
                 clearForm('atestado');
                 editMode = false;
                 itemToEdit = null;
+                atestadoPendente = null;
                 
                 // Recarregar dados
                 loadDashboardData();
@@ -3468,7 +3852,18 @@
             }
         }
 
-        // Salvar empresa - CORRIGIDO
+        // Continuar com o salvamento do atestado após confirmação no modal
+        function proceedWithAtestado() {
+            closeLimitModal();
+            salvarAtestado();
+        }
+
+        // Fechar modal de limite
+        function closeLimitModal() {
+            document.getElementById('limitModal').style.display = 'none';
+        }
+
+        // Salvar empresa
         async function salvarEmpresa() {
             try {
                 const nome = document.getElementById('empresa-nome').value;
@@ -3555,7 +3950,7 @@
             }
         }
 
-        // Salvar departamento - CORRIGIDO
+        // Salvar departamento
         async function salvarDepartamento() {
             try {
                 const nome = document.getElementById('departamento-nome').value;
@@ -3613,7 +4008,7 @@
                         return nomeA.localeCompare(nomeB);
                     });
                     
-                    showNotification('Departamento salva com sucesso!', 'success');
+                    showNotification('Departamento salvo com sucesso!', 'success');
                 }
                 
                 // Limpar formulário e recarregar dados
@@ -3643,7 +4038,7 @@
             }
         }
 
-        // Salvar CID - CORRIGIDO
+        // Salvar CID
         async function salvarCID() {
             try {
                 const codigo = document.getElementById('cid-codigo').value;
@@ -3809,10 +4204,21 @@
                 document.getElementById('atestado-colaborador').value = data.funcionario || '';
                 document.getElementById('atestado-tipo').value = data.tipo || '';
                 document.getElementById('atestado-cid').value = data.cid || '';
-                document.getElementById('atestado-data-emissao').value = data.dataEmissao || '';
-                document.getElementById('atestado-validade').value = data.validade || '';
-                document.getElementById('atestado-status').value = data.status || 'pendente';
-                document.getElementById('atestado-observacoes').value = data.observacoes || '';
+                document.getElementById('atestado-data-inicio').value = data.dataInicio || '';
+                document.getElementById('atestado-data-final').value = data.dataFinal || '';
+                document.getElementById('atestado-unidade').value = data.unidade || 'dias';
+                
+                // Mostrar/ocultar campos de hora
+                if (data.unidade === 'horas') {
+                    document.getElementById('campos-hora').classList.remove('hidden');
+                    document.getElementById('atestado-hora-inicio').value = data.horaInicio || '08:00';
+                    document.getElementById('atestado-hora-final').value = data.horaFinal || '17:00';
+                } else {
+                    document.getElementById('campos-hora').classList.add('hidden');
+                }
+                
+                // Calcular automaticamente
+                calcularAtestado();
                 
             } catch (error) {
                 console.error('Erro ao carregar atestado para edição:', error);
@@ -3931,8 +4337,6 @@
                     loadColaboradores();
                     loadColaboradoresSelect();
                     loadColaboradoresAtestadoSelect();
-                    loadColaboradoresFiltro('filtro-colaborador-atestado');
-                    loadColaboradoresFiltro('filtro-colaborador-cat');
                     loadDepartamentosFiltro();
                 } else if (deleteCollection === 'exames') {
                     loadExames();
@@ -4071,8 +4475,6 @@
                 
                 showNotification(`Relatório de ${tipo} gerado para o período de ${formatDate(new Date(dataInicio))} a ${formatDate(new Date(dataFim))}${filtroInfo}`, 'success');
                 
-                // Aqui você implementaria a geração do relatório específico
-                
             } catch (error) {
                 console.error('Erro ao gerar relatório:', error);
                 showNotification('Erro ao gerar relatório', 'error');
@@ -4115,13 +4517,17 @@
                 document.getElementById('atestado-tipo').value = '';
                 document.getElementById('atestado-cid').value = '';
                 const hoje = new Date();
-                const validade = new Date();
-                validade.setDate(hoje.getDate() + 15);
+                document.getElementById('atestado-data-inicio').value = hoje.toISOString().split('T')[0];
+                document.getElementById('atestado-data-final').value = hoje.toISOString().split('T')[0];
+                document.getElementById('atestado-unidade').value = 'dias';
                 
-                document.getElementById('atestado-data-emissao').value = hoje.toISOString().split('T')[0];
-                document.getElementById('atestado-validade').value = validade.toISOString().split('T')[0];
-                document.getElementById('atestado-status').value = 'pendente';
-                document.getElementById('atestado-observacoes').value = '';
+                // Esconder campos de hora
+                document.getElementById('campos-hora').classList.add('hidden');
+                document.getElementById('atestado-hora-inicio').value = '08:00';
+                document.getElementById('atestado-hora-final').value = '17:00';
+                
+                // Esconder resultado
+                document.getElementById('calc-resultado').classList.add('hidden');
             }
         }
 
@@ -4194,7 +4600,7 @@
             const tipos = {
                 'medico': 'Médico',
                 'odontologico': 'Odontológico',
-                'outro': 'Outro'
+                'acompanhamento-filho': 'Acompanhamento Filho'
             };
             return tipos[tipo] || tipo;
         }
