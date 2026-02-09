@@ -359,6 +359,16 @@
             color: #721c24;
         }
 
+        .status.ferias {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status.afastado {
+            background-color: #cce5ff;
+            color: #004085;
+        }
+
         /* Formulários */
         .form-section {
             background-color: #f8f9fa;
@@ -462,6 +472,10 @@
 
         .notification.warning {
             background-color: var(--warning);
+        }
+
+        .notification.info {
+            background-color: var(--info);
         }
 
         @keyframes slideIn {
@@ -690,6 +704,17 @@
         .simple-form .form-group {
             margin-bottom: 20px;
         }
+        
+        /* Ações na tabela */
+        .actions-cell {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .btn-small {
+            padding: 5px 10px;
+            font-size: 0.8rem;
+        }
     </style>
 </head>
 <body>
@@ -841,19 +866,17 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>Nome</th>
-                                <th>Matrícula</th>
-                                <th>CPF</th>
-                                <th>Cargo</th>
-                                <th>Departamento</th>
+                                <th>Nome Completo</th>
                                 <th>Data de Admissão</th>
+                                <th>Departamento</th>
+                                <th>Empresa</th>
                                 <th>Status</th>
                                 <th>Ações</th>
                             </tr>
                         </thead>
                         <tbody id="colaboradoresBody">
                             <tr>
-                                <td colspan="8" style="text-align: center; padding: 30px;">Carregando colaboradores...</td>
+                                <td colspan="6" style="text-align: center; padding: 30px;">Carregando colaboradores...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -868,20 +891,8 @@
                             <input type="text" id="colaborador-nome" placeholder="Nome do colaborador" required>
                         </div>
                         <div class="form-group">
-                            <label for="colaborador-matricula">Matrícula *</label>
-                            <input type="text" id="colaborador-matricula" placeholder="Número de matrícula" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="colaborador-cpf">CPF *</label>
-                            <input type="text" id="colaborador-cpf" placeholder="000.000.000-00" required>
-                        </div>
-                        <div class="form-group">
                             <label for="colaborador-data-admissao">Data de Admissão *</label>
                             <input type="date" id="colaborador-data-admissao" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="colaborador-cargo">Cargo *</label>
-                            <input type="text" id="colaborador-cargo" placeholder="Cargo do colaborador" required>
                         </div>
                         <div class="form-group">
                             <label for="colaborador-departamento">Departamento *</label>
@@ -1487,7 +1498,7 @@
                 if (colaboradoresQuery.empty) {
                     colaboradoresBody.innerHTML = `
                         <tr>
-                            <td colspan="8" style="text-align: center; padding: 30px;">Nenhum colaborador cadastrado</td>
+                            <td colspan="6" style="text-align: center; padding: 30px;">Nenhum colaborador cadastrado</td>
                         </tr>
                     `;
                     return;
@@ -1498,19 +1509,19 @@
                     colaboradoresBody.innerHTML += `
                         <tr>
                             <td><strong>${data.nome || 'Sem nome'}</strong></td>
-                            <td>${data.matricula || 'N/A'}</td>
-                            <td>${data.cpf ? formatCPF(data.cpf) : 'N/A'}</td>
-                            <td>${data.cargo || 'N/A'}</td>
-                            <td>${data.departamento || 'N/A'}</td>
                             <td>${data.dataAdmissao ? formatDate(new Date(data.dataAdmissao)) : 'N/A'}</td>
+                            <td>${data.departamento || 'N/A'}</td>
+                            <td>${data.empresa || 'N/A'}</td>
                             <td><span class="status ${data.status || 'ativo'}">${formatStatus(data.status || 'ativo')}</span></td>
                             <td>
-                                <button class="btn btn-primary" onclick="editarColaborador('${doc.id}')" style="padding: 5px 10px; font-size: 0.8rem;">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-danger" onclick="solicitarExclusao('colaboradores', '${doc.id}', '${data.nome || "Sem nome"} - ${data.matricula || "Sem matrícula"}')" style="padding: 5px 10px; font-size: 0.8rem;">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                                <div class="actions-cell">
+                                    <button class="btn btn-primary btn-small" onclick="editarColaborador('${doc.id}')">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-danger btn-small" onclick="solicitarExclusao('colaboradores', '${doc.id}', '${data.nome || "Sem nome"}')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     `;
@@ -1552,12 +1563,14 @@
                             <td>${data.medico || 'Não informado'}</td>
                             <td><span class="status ${data.status || 'pendente'}">${formatStatus(data.status || 'pendente')}</span></td>
                             <td>
-                                <button class="btn btn-primary" onclick="editarItem('exames', '${doc.id}')" style="padding: 5px 10px; font-size: 0.8rem;">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-danger" onclick="solicitarExclusao('exames', '${doc.id}', '${data.funcionario || "Sem nome"} - ${formatTipoExame(data.tipo)}')" style="padding: 5px 10px; font-size: 0.8rem;">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                                <div class="actions-cell">
+                                    <button class="btn btn-primary btn-small" onclick="editarItem('exames', '${doc.id}')">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-danger btn-small" onclick="solicitarExclusao('exames', '${doc.id}', '${data.funcionario || "Sem nome"} - ${formatTipoExame(data.tipo)}')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     `;
@@ -1599,12 +1612,14 @@
                             <td>${data.cid || 'N/A'}</td>
                             <td><span class="status ${data.status || 'pendente'}">${formatStatus(data.status || 'pendente')}</span></td>
                             <td>
-                                <button class="btn btn-primary" onclick="editarItem('atestados', '${doc.id}')" style="padding: 5px 10px; font-size: 0.8rem;">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-danger" onclick="solicitarExclusao('atestados', '${doc.id}', '${data.funcionario || "Sem nome"} - ${formatTipoAtestado(data.tipo)}')" style="padding: 5px 10px; font-size: 0.8rem;">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                                <div class="actions-cell">
+                                    <button class="btn btn-primary btn-small" onclick="editarItem('atestados', '${doc.id}')">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-danger btn-small" onclick="solicitarExclusao('atestados', '${doc.id}', '${data.funcionario || "Sem nome"} - ${formatTipoAtestado(data.tipo)}')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     `;
@@ -1646,12 +1661,14 @@
                             <td>${formatTipoCAT(data.tipo)}</td>
                             <td><span class="status ${data.status || 'registrada'}">${formatStatus(data.status || 'registrada')}</span></td>
                             <td>
-                                <button class="btn btn-primary" onclick="editarItem('cats', '${doc.id}')" style="padding: 5px 10px; font-size: 0.8rem;">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-danger" onclick="solicitarExclusao('cats', '${doc.id}', '${data.funcionario || "Sem nome"} - ${formatTipoCAT(data.tipo)}')" style="padding: 5px 10px; font-size: 0.8rem;">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                                <div class="actions-cell">
+                                    <button class="btn btn-primary btn-small" onclick="editarItem('cats', '${doc.id}')">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-danger btn-small" onclick="solicitarExclusao('cats', '${doc.id}', '${data.funcionario || "Sem nome"} - ${formatTipoCAT(data.tipo)}')">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     `;
@@ -1692,11 +1709,11 @@
                     listaEmpresas.innerHTML += `
                         <li>
                             <span><strong>${data.nome || 'Sem nome'}</strong></span>
-                            <div>
-                                <button class="btn btn-primary" onclick="editarEmpresa('${doc.id}')" style="padding: 3px 8px; font-size: 0.7rem;">
+                            <div class="actions-cell">
+                                <button class="btn btn-primary btn-small" onclick="editarEmpresa('${doc.id}')">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button class="btn btn-danger" onclick="solicitarExclusao('empresas', '${doc.id}', '${data.nome || "Sem nome"}')" style="padding: 3px 8px; font-size: 0.7rem;">
+                                <button class="btn btn-danger btn-small" onclick="solicitarExclusao('empresas', '${doc.id}', '${data.nome || "Sem nome"}')">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </div>
@@ -1732,11 +1749,11 @@
                     listaDepartamentos.innerHTML += `
                         <li>
                             <span><strong>${data.nome || 'Sem nome'}</strong></span>
-                            <div>
-                                <button class="btn btn-primary" onclick="editarDepartamento('${doc.id}')" style="padding: 3px 8px; font-size: 0.7rem;">
+                            <div class="actions-cell">
+                                <button class="btn btn-primary btn-small" onclick="editarDepartamento('${doc.id}')">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button class="btn btn-danger" onclick="solicitarExclusao('departamentos', '${doc.id}', '${data.nome || "Sem nome"}')" style="padding: 3px 8px; font-size: 0.7rem;">
+                                <button class="btn btn-danger btn-small" onclick="solicitarExclusao('departamentos', '${doc.id}', '${data.nome || "Sem nome"}')">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </div>
@@ -1772,11 +1789,11 @@
                     listaCids.innerHTML += `
                         <li>
                             <span><strong>${data.codigo || 'Sem código'}</strong> - ${data.descricao || 'Sem descrição'}</span>
-                            <div>
-                                <button class="btn btn-primary" onclick="editarCID('${doc.id}')" style="padding: 3px 8px; font-size: 0.7rem;">
+                            <div class="actions-cell">
+                                <button class="btn btn-primary btn-small" onclick="editarCID('${doc.id}')">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button class="btn btn-danger" onclick="solicitarExclusao('cids', '${doc.id}', 'CID ${data.codigo || "Sem código"}')" style="padding: 3px 8px; font-size: 0.7rem;">
+                                <button class="btn btn-danger btn-small" onclick="solicitarExclusao('cids', '${doc.id}', 'CID ${data.codigo || "Sem código"}')">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </div>
@@ -1877,7 +1894,7 @@
                             <td>${formatDate(vencimentoDate)}</td>
                             <td><span class="status ${data.status || 'pendente'}">${formatStatus(data.status || 'pendente')}</span></td>
                             <td>
-                                <button class="btn btn-primary" onclick="editarItem('exames', '${doc.id}')" style="padding: 5px 10px; font-size: 0.8rem;">
+                                <button class="btn btn-primary btn-small" onclick="editarItem('exames', '${doc.id}')">
                                     <i class="fas fa-edit"></i>
                                 </button>
                             </td>
@@ -1897,7 +1914,7 @@
                             <td>${formatDate(validadeDate)}</td>
                             <td><span class="status ${data.status || 'pendente'}">${formatStatus(data.status || 'pendente')}</span></td>
                             <td>
-                                <button class="btn btn-primary" onclick="editarItem('atestados', '${doc.id}')" style="padding: 5px 10px; font-size: 0.8rem;">
+                                <button class="btn btn-primary btn-small" onclick="editarItem('atestados', '${doc.id}')">
                                     <i class="fas fa-edit"></i>
                                 </button>
                             </td>
@@ -1915,16 +1932,13 @@
         async function salvarColaborador() {
             try {
                 const nome = document.getElementById('colaborador-nome').value;
-                const matricula = document.getElementById('colaborador-matricula').value;
-                const cpf = document.getElementById('colaborador-cpf').value;
                 const dataAdmissao = document.getElementById('colaborador-data-admissao').value;
-                const cargo = document.getElementById('colaborador-cargo').value;
                 const departamento = document.getElementById('colaborador-departamento').value;
                 const empresa = document.getElementById('colaborador-empresa').value;
                 const status = document.getElementById('colaborador-status').value;
                 
                 // Validação básica
-                if (!nome || !matricula || !cpf || !dataAdmissao || !cargo || !departamento || !empresa) {
+                if (!nome || !dataAdmissao || !departamento || !empresa) {
                     showNotification('Preencha todos os campos obrigatórios', 'warning');
                     return;
                 }
@@ -1936,10 +1950,7 @@
                 
                 const colaboradorData = {
                     nome,
-                    matricula,
-                    cpf,
                     dataAdmissao,
-                    cargo,
                     departamento,
                     empresa,
                     status,
@@ -2064,7 +2075,7 @@
                 } else {
                     // Criar novo departamento
                     await db.collection('departamentos').add(departamentoData);
-                    showNotification('Departamento salvo com sucesso!', 'success');
+                    showNotification('Departamento salva com sucesso!', 'success');
                 }
                 
                 // Limpar formulário e recarregar dados
@@ -2162,10 +2173,7 @@
                 
                 // Preencher formulário
                 document.getElementById('colaborador-nome').value = data.nome || '';
-                document.getElementById('colaborador-matricula').value = data.matricula || '';
-                document.getElementById('colaborador-cpf').value = data.cpf || '';
                 document.getElementById('colaborador-data-admissao').value = data.dataAdmissao || '';
-                document.getElementById('colaborador-cargo').value = data.cargo || '';
                 document.getElementById('colaborador-departamento').value = data.departamento || '';
                 document.getElementById('colaborador-empresa').value = data.empresa || '';
                 document.getElementById('colaborador-status').value = data.status || 'ativo';
@@ -2192,7 +2200,6 @@
                 
                 // Preencher formulário
                 document.getElementById('empresa-nome').value = data.nome || '';
-                
                 document.getElementById('btn-empresa-text').textContent = 'Atualizar Empresa';
                 
             } catch (error) {
@@ -2217,7 +2224,6 @@
                 
                 // Preencher formulário
                 document.getElementById('departamento-nome').value = data.nome || '';
-                
                 document.getElementById('btn-departamento-text').textContent = 'Atualizar Departamento';
                 
             } catch (error) {
@@ -2243,7 +2249,6 @@
                 // Preencher formulário
                 document.getElementById('cid-codigo').value = data.codigo || '';
                 document.getElementById('cid-descricao').value = data.descricao || '';
-                
                 document.getElementById('btn-cid-text').textContent = 'Atualizar CID';
                 
             } catch (error) {
@@ -2327,10 +2332,6 @@
         // Carregar estatísticas para relatórios
         async function loadEstatisticas() {
             try {
-                // Buscar dados dos últimos 30 dias
-                const trintaDiasAtras = new Date();
-                trintaDiasAtras.setDate(trintaDiasAtras.getDate() - 30);
-                
                 const colaboradoresQuery = await db.collection('colaboradores').get();
                 const examesQuery = await db.collection('exames').get();
                 const atestadosQuery = await db.collection('atestados').get();
@@ -2434,10 +2435,7 @@
         function clearForm(tipo) {
             if (tipo === 'colaborador') {
                 document.getElementById('colaborador-nome').value = '';
-                document.getElementById('colaborador-matricula').value = '';
-                document.getElementById('colaborador-cpf').value = '';
                 document.getElementById('colaborador-data-admissao').value = new Date().toISOString().split('T')[0];
-                document.getElementById('colaborador-cargo').value = '';
                 document.getElementById('colaborador-departamento').value = '';
                 document.getElementById('colaborador-empresa').value = '';
                 document.getElementById('colaborador-status').value = 'ativo';
@@ -2472,19 +2470,6 @@
             } catch (error) {
                 return 'Data inválida';
             }
-        }
-
-        function formatCPF(cpf) {
-            if (!cpf) return 'N/A';
-            // Remove qualquer caractere não numérico
-            const numeros = cpf.replace(/\D/g, '');
-            
-            // Formata no padrão 000.000.000-00
-            if (numeros.length === 11) {
-                return numeros.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
-            }
-            
-            return cpf;
         }
 
         function formatTipoExame(tipo) {
