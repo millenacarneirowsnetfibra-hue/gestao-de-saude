@@ -788,6 +788,26 @@
             margin-bottom: 15px;
             color: #ccc;
         }
+        
+        /* Página de exames */
+        .exame-page {
+            display: none;
+        }
+        
+        .exame-page.active {
+            display: block;
+        }
+        
+        /* Calendário para filtros */
+        .date-range {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+        
+        .date-range .form-group {
+            flex: 1;
+        }
     </style>
 </head>
 <body>
@@ -1031,8 +1051,8 @@
                 </div>
             </section>
 
-            <!-- Exames Ocupacionais -->
-            <section id="exames" class="page-content hidden">
+            <!-- Exames Ocupacionais - Página Principal -->
+            <section id="exames" class="page-content exame-page active">
                 <div class="page-title">
                     <h2><i class="fas fa-stethoscope"></i> Exames Ocupacionais</h2>
                     <button class="btn btn-primary" id="btn-novo-exame">
@@ -1042,7 +1062,17 @@
 
                 <div class="filters">
                     <div class="form-group">
-                        <label for="filtro-status-exame">Filtrar por Status:</label>
+                        <label for="filtro-nome-exame">Nome do Colaborador:</label>
+                        <input type="text" id="filtro-nome-exame" placeholder="Digite para buscar..." class="search-input">
+                    </div>
+                    <div class="form-group">
+                        <label for="filtro-departamento-exame">Departamento:</label>
+                        <select id="filtro-departamento-exame">
+                            <option value="todos">Todos</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="filtro-status-exame">Status:</label>
                         <select id="filtro-status-exame">
                             <option value="todos">Todos</option>
                             <option value="em-dia">Em Dia</option>
@@ -1051,7 +1081,7 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="filtro-tipo-exame">Filtrar por Tipo:</label>
+                        <label for="filtro-tipo-exame">Tipo de Exame:</label>
                         <select id="filtro-tipo-exame">
                             <option value="todos">Todos</option>
                             <option value="admissional">Admissional</option>
@@ -1062,24 +1092,31 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="filtro-empresa-exame">Filtrar por Empresa:</label>
+                        <label for="filtro-empresa-exame">Empresa:</label>
                         <select id="filtro-empresa-exame">
                             <option value="todos">Todas</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="filtro-departamento-exame">Filtrar por Departamento:</label>
-                        <select id="filtro-departamento-exame">
+                        <label for="filtro-periodo-exame">Período:</label>
+                        <select id="filtro-periodo-exame">
                             <option value="todos">Todos</option>
+                            <option value="30">Últimos 30 dias</option>
+                            <option value="90">Últimos 90 dias</option>
+                            <option value="180">Últimos 180 dias</option>
+                            <option value="365">Último ano</option>
+                            <option value="custom">Personalizado</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <button class="btn btn-info" id="btn-filtrar-exames">
-                            <i class="fas fa-filter"></i> Filtrar
-                        </button>
-                        <button class="btn" id="btn-limpar-filtros">
-                            <i class="fas fa-times"></i> Limpar
-                        </button>
+                    <div id="custom-periodo-exame" class="date-range hidden">
+                        <div class="form-group">
+                            <label for="filtro-data-inicio">Data Início:</label>
+                            <input type="date" id="filtro-data-inicio">
+                        </div>
+                        <div class="form-group">
+                            <label for="filtro-data-fim">Data Fim:</label>
+                            <input type="date" id="filtro-data-fim">
+                        </div>
                     </div>
                 </div>
 
@@ -1103,10 +1140,19 @@
                         </tbody>
                     </table>
                 </div>
+            </section>
 
-                <!-- Formulário de Exame -->
-                <div id="form-exame-container" class="form-section hidden">
-                    <h3 id="form-exame-title">Novo Exame Ocupacional</h3>
+            <!-- Exames Ocupacionais - Página de Cadastro/Edição -->
+            <section id="exame-cadastro" class="page-content exame-page">
+                <button class="back-button" id="btn-voltar-exames">
+                    <i class="fas fa-arrow-left"></i> Voltar para Lista
+                </button>
+                
+                <div class="page-title">
+                    <h2><i class="fas fa-stethoscope"></i> <span id="form-exame-title">Novo Exame Ocupacional</span></h2>
+                </div>
+
+                <div class="form-section">
                     <div class="simple-form">
                         <div class="form-group">
                             <label for="exame-colaborador">Colaborador *</label>
@@ -1133,9 +1179,13 @@
                             </div>
                             <div class="form-group">
                                 <label for="exame-vencimento">Data de Vencimento *</label>
-                                <input type="date" id="exame-vencimento" readonly>
-                                <small style="color: #666; margin-top: 5px;">Calculado automaticamente (1 ano após a data do exame)</small>
+                                <input type="date" id="exame-vencimento" required>
+                                <small style="color: #666; margin-top: 5px;">Digite a data exata de vencimento</small>
                             </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="exame-observacoes">Observações (Opcional)</label>
+                            <textarea id="exame-observacoes" placeholder="Observações sobre o exame..."></textarea>
                         </div>
                         <div class="form-actions">
                             <button type="button" class="btn btn-primary" id="btn-salvar-exame">
@@ -1181,14 +1231,6 @@
                             <option value="todos">Todos</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <button class="btn btn-info" id="btn-filtrar-atestados">
-                            <i class="fas fa-filter"></i> Filtrar
-                        </button>
-                        <button class="btn" id="btn-limpar-filtros-atestados">
-                            <i class="fas fa-times"></i> Limpar
-                        </button>
-                    </div>
                 </div>
 
                 <div class="table-container">
@@ -1211,10 +1253,19 @@
                         </tbody>
                     </table>
                 </div>
+            </section>
 
-                <!-- Formulário de Atestado -->
-                <div id="form-atestado-container" class="form-section hidden">
-                    <h3 id="form-atestado-title">Novo Atestado</h3>
+            <!-- Atestados - Página de Cadastro/Edição -->
+            <section id="atestado-cadastro" class="page-content hidden">
+                <button class="back-button" id="btn-voltar-atestados">
+                    <i class="fas fa-arrow-left"></i> Voltar para Lista
+                </button>
+                
+                <div class="page-title">
+                    <h2><i class="fas fa-file-medical"></i> <span id="form-atestado-title">Novo Atestado</span></h2>
+                </div>
+
+                <div class="form-section">
                     <div class="simple-form">
                         <div class="form-group">
                             <label for="atestado-colaborador">Colaborador *</label>
@@ -1303,14 +1354,6 @@
                         <select id="filtro-colaborador-cat">
                             <option value="todos">Todos</option>
                         </select>
-                    </div>
-                    <div class="form-group">
-                        <button class="btn btn-info" id="btn-filtrar-cats">
-                            <i class="fas fa-filter"></i> Filtrar
-                        </button>
-                        <button class="btn" id="btn-limpar-filtros-cats">
-                            <i class="fas fa-times"></i> Limpar
-                        </button>
                     </div>
                 </div>
 
@@ -1564,14 +1607,6 @@
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             document.getElementById('currentDate').textContent = now.toLocaleDateString('pt-BR', options);
             
-            // Configurar datas padrão nos formulários
-            const today = now.toISOString().split('T')[0];
-            document.querySelectorAll('input[type="date"]').forEach(input => {
-                if (!input.value) {
-                    input.value = today;
-                }
-            });
-
             // Inicializar autenticação
             initAuth();
             
@@ -1599,19 +1634,91 @@
 
         // Configurar filtros automáticos
         function setupAutoFilters() {
-            // Filtro de nome (busca digitável)
+            // Filtro de nome (busca digitável) para colaboradores
             document.getElementById('filtro-nome-colaborador').addEventListener('input', function() {
                 filtrarColaboradores();
             });
             
-            // Filtro de departamento
+            // Filtro de departamento para colaboradores
             document.getElementById('filtro-departamento-colaborador').addEventListener('change', function() {
                 filtrarColaboradores();
             });
             
-            // Filtro de status
+            // Filtro de status para colaboradores
             document.getElementById('filtro-status-colaborador').addEventListener('change', function() {
                 filtrarColaboradores();
+            });
+            
+            // Filtros automáticos para exames
+            document.getElementById('filtro-nome-exame').addEventListener('input', function() {
+                filtrarExames();
+            });
+            
+            document.getElementById('filtro-departamento-exame').addEventListener('change', function() {
+                filtrarExames();
+            });
+            
+            document.getElementById('filtro-status-exame').addEventListener('change', function() {
+                filtrarExames();
+            });
+            
+            document.getElementById('filtro-tipo-exame').addEventListener('change', function() {
+                filtrarExames();
+            });
+            
+            document.getElementById('filtro-empresa-exame').addEventListener('change', function() {
+                filtrarExames();
+            });
+            
+            document.getElementById('filtro-periodo-exame').addEventListener('change', function() {
+                const customPeriodo = document.getElementById('custom-periodo-exame');
+                if (this.value === 'custom') {
+                    customPeriodo.classList.remove('hidden');
+                    // Set default dates for custom range
+                    const hoje = new Date();
+                    const trintaDiasAtras = new Date();
+                    trintaDiasAtras.setDate(hoje.getDate() - 30);
+                    
+                    document.getElementById('filtro-data-inicio').value = trintaDiasAtras.toISOString().split('T')[0];
+                    document.getElementById('filtro-data-fim').value = hoje.toISOString().split('T')[0];
+                } else {
+                    customPeriodo.classList.add('hidden');
+                }
+                filtrarExames();
+            });
+            
+            document.getElementById('filtro-data-inicio').addEventListener('change', function() {
+                filtrarExames();
+            });
+            
+            document.getElementById('filtro-data-fim').addEventListener('change', function() {
+                filtrarExames();
+            });
+            
+            // Filtros automáticos para atestados
+            document.getElementById('filtro-status-atestado').addEventListener('change', function() {
+                filtrarAtestados();
+            });
+            
+            document.getElementById('filtro-tipo-atestado').addEventListener('change', function() {
+                filtrarAtestados();
+            });
+            
+            document.getElementById('filtro-colaborador-atestado').addEventListener('change', function() {
+                filtrarAtestados();
+            });
+            
+            // Filtros automáticos para CATs
+            document.getElementById('filtro-status-cat').addEventListener('change', function() {
+                filtrarCATs();
+            });
+            
+            document.getElementById('filtro-tipo-cat').addEventListener('change', function() {
+                filtrarCATs();
+            });
+            
+            document.getElementById('filtro-colaborador-cat').addEventListener('change', function() {
+                filtrarCATs();
             });
         }
 
@@ -1743,6 +1850,10 @@
                         page.classList.remove('active');
                     });
                     
+                    document.querySelectorAll('.exame-page').forEach(page => {
+                        page.classList.remove('active');
+                    });
+                    
                     // Mostra a página correspondente ao link clicado
                     const pageId = this.getAttribute('data-page');
                     document.getElementById(pageId).classList.remove('hidden');
@@ -1752,6 +1863,14 @@
                         document.getElementById('colaboradores').classList.add('active');
                         document.getElementById('colaborador-cadastro').classList.remove('active');
                         document.getElementById('colaborador-cadastro').classList.add('hidden');
+                    } else if (pageId === 'exames') {
+                        document.getElementById('exames').classList.add('active');
+                        document.getElementById('exame-cadastro').classList.remove('active');
+                        document.getElementById('exame-cadastro').classList.add('hidden');
+                    } else if (pageId === 'atestados') {
+                        document.getElementById('atestados').classList.add('active');
+                        document.getElementById('atestado-cadastro').classList.remove('active');
+                        document.getElementById('atestado-cadastro').classList.add('hidden');
                     }
                     
                     // Carregar dados específicos da página
@@ -1759,17 +1878,12 @@
                         loadDashboardData();
                     } else if (pageId === 'colaboradores') {
                         loadColaboradores();
-                        filtrarColaboradores();
                     } else if (pageId === 'exames') {
                         loadExames();
-                        loadColaboradoresSelect();
                         loadFiltrosExames();
-                        setupExameForm();
                     } else if (pageId === 'atestados') {
                         loadAtestados();
                         loadColaboradoresFiltro('filtro-colaborador-atestado');
-                        loadCIDsSelect();
-                        setupAtestadoForm();
                     } else if (pageId === 'cats') {
                         loadCATs();
                         loadColaboradoresFiltro('filtro-colaborador-cat');
@@ -1820,7 +1934,7 @@
                 showColaboradorForm('Novo Colaborador', 'Salvar Colaborador');
             });
 
-            // Botão para voltar da página de cadastro
+            // Botão para voltar da página de cadastro de colaborador
             document.getElementById('btn-voltar-colaboradores').addEventListener('click', function() {
                 document.getElementById('colaboradores').classList.add('active');
                 document.getElementById('colaborador-cadastro').classList.remove('active');
@@ -1840,47 +1954,51 @@
                 itemToEdit = null;
             });
 
-            // Controle do formulário de exame
+            // Botão para novo exame
             document.getElementById('btn-novo-exame').addEventListener('click', function() {
-                const formContainer = document.getElementById('form-exame-container');
-                if (formContainer.classList.contains('hidden')) {
-                    formContainer.classList.remove('hidden');
-                    document.getElementById('form-exame-title').textContent = 'Novo Exame Ocupacional';
-                    document.getElementById('btn-exame-text').textContent = 'Salvar Exame';
-                    clearForm('exame');
-                    editMode = false;
-                    itemToEdit = null;
-                    calcularVencimentoExame();
-                } else {
-                    formContainer.classList.add('hidden');
-                }
+                showExameForm('Novo Exame Ocupacional', 'Salvar Exame');
             });
 
-            document.getElementById('btn-cancelar-exame').addEventListener('click', function() {
-                document.getElementById('form-exame-container').classList.add('hidden');
+            // Botão para voltar da página de cadastro de exame
+            document.getElementById('btn-voltar-exames').addEventListener('click', function() {
+                document.getElementById('exames').classList.add('active');
+                document.getElementById('exame-cadastro').classList.remove('active');
+                document.getElementById('exame-cadastro').classList.add('hidden');
                 clearForm('exame');
                 editMode = false;
                 itemToEdit = null;
             });
 
-            // Controle do formulário de atestado
-            document.getElementById('btn-novo-atestado').addEventListener('click', function() {
-                const formContainer = document.getElementById('form-atestado-container');
-                if (formContainer.classList.contains('hidden')) {
-                    formContainer.classList.remove('hidden');
-                    document.getElementById('form-atestado-title').textContent = 'Novo Atestado';
-                    document.getElementById('btn-atestado-text').textContent = 'Salvar Atestado';
-                    clearForm('atestado');
-                    editMode = false;
-                    itemToEdit = null;
-                    setupAtestadoForm();
-                } else {
-                    formContainer.classList.add('hidden');
-                }
+            // Botão cancelar no formulário de exame
+            document.getElementById('btn-cancelar-exame').addEventListener('click', function() {
+                document.getElementById('exames').classList.add('active');
+                document.getElementById('exame-cadastro').classList.remove('active');
+                document.getElementById('exame-cadastro').classList.add('hidden');
+                clearForm('exame');
+                editMode = false;
+                itemToEdit = null;
             });
 
+            // Botão para novo atestado
+            document.getElementById('btn-novo-atestado').addEventListener('click', function() {
+                showAtestadoForm('Novo Atestado', 'Salvar Atestado');
+            });
+
+            // Botão para voltar da página de cadastro de atestado
+            document.getElementById('btn-voltar-atestados').addEventListener('click', function() {
+                document.getElementById('atestados').classList.add('active');
+                document.getElementById('atestado-cadastro').classList.remove('active');
+                document.getElementById('atestado-cadastro').classList.add('hidden');
+                clearForm('atestado');
+                editMode = false;
+                itemToEdit = null;
+            });
+
+            // Botão cancelar no formulário de atestado
             document.getElementById('btn-cancelar-atestado').addEventListener('click', function() {
-                document.getElementById('form-atestado-container').classList.add('hidden');
+                document.getElementById('atestados').classList.add('active');
+                document.getElementById('atestado-cadastro').classList.remove('active');
+                document.getElementById('atestado-cadastro').classList.add('hidden');
                 clearForm('atestado');
                 editMode = false;
                 itemToEdit = null;
@@ -1939,31 +2057,57 @@
             
             // Definir data atual como padrão
             if (!editMode) {
-                document.getElementById('colaborador-data-admissao').value = new Date().toISOString().split('T')[0];
+                const hoje = new Date();
+                document.getElementById('colaborador-data-admissao').value = hoje.toISOString().split('T')[0];
             }
         }
 
-        // Configurar formulário de exame
-        function setupExameForm() {
-            // Calcular vencimento quando a data do exame mudar
-            document.getElementById('exame-data').addEventListener('change', calcularVencimentoExame);
+        // Mostrar formulário de exame
+        function showExameForm(title, buttonText) {
+            document.getElementById('exames').classList.remove('active');
+            document.getElementById('exame-cadastro').classList.add('active');
+            document.getElementById('exame-cadastro').classList.remove('hidden');
             
-            // Calcular status quando a data de vencimento mudar
-            document.getElementById('exame-vencimento').addEventListener('change', calcularStatusExame);
+            document.getElementById('form-exame-title').textContent = title;
+            document.getElementById('btn-exame-text').textContent = buttonText;
+            
+            // Carregar selects se necessário
+            loadColaboradoresSelect();
+            
+            // Definir data atual como padrão para data do exame
+            if (!editMode) {
+                const hoje = new Date();
+                document.getElementById('exame-data').value = hoje.toISOString().split('T')[0];
+                // Definir vencimento padrão para 1 ano após
+                const vencimento = new Date();
+                vencimento.setFullYear(vencimento.getFullYear() + 1);
+                document.getElementById('exame-vencimento').value = vencimento.toISOString().split('T')[0];
+            }
         }
 
-        // Configurar formulário de atestado
-        function setupAtestadoForm() {
-            // Configurar data de validade padrão (data atual + 15 dias)
-            const hoje = new Date();
-            const validade = new Date();
-            validade.setDate(hoje.getDate() + 15);
+        // Mostrar formulário de atestado
+        function showAtestadoForm(title, buttonText) {
+            document.getElementById('atestados').classList.remove('active');
+            document.getElementById('atestado-cadastro').classList.add('active');
+            document.getElementById('atestado-cadastro').classList.remove('hidden');
             
-            const hojeStr = hoje.toISOString().split('T')[0];
-            const validadeStr = validade.toISOString().split('T')[0];
+            document.getElementById('form-atestado-title').textContent = title;
+            document.getElementById('btn-atestado-text').textContent = buttonText;
             
-            document.getElementById('atestado-data-emissao').value = hojeStr;
-            document.getElementById('atestado-validade').value = validadeStr;
+            // Carregar selects se necessário
+            loadColaboradoresAtestadoSelect();
+            loadCIDsSelect();
+            
+            // Definir datas padrão
+            if (!editMode) {
+                const hoje = new Date();
+                const validade = new Date();
+                validade.setDate(hoje.getDate() + 15);
+                
+                document.getElementById('atestado-data-emissao').value = hoje.toISOString().split('T')[0];
+                document.getElementById('atestado-validade').value = validade.toISOString().split('T')[0];
+                document.getElementById('atestado-status').value = 'pendente';
+            }
         }
 
         // Configurar botões
@@ -1978,81 +2122,6 @@
             
             // Botão para exportar relatório
             document.getElementById('btn-exportar-relatorio').addEventListener('click', exportarRelatorio);
-            
-            // Botões de filtro para exames
-            document.getElementById('btn-filtrar-exames').addEventListener('click', function() {
-                filtrarExames();
-            });
-            
-            document.getElementById('btn-limpar-filtros').addEventListener('click', function() {
-                document.getElementById('filtro-status-exame').value = 'todos';
-                document.getElementById('filtro-tipo-exame').value = 'todos';
-                document.getElementById('filtro-empresa-exame').value = 'todos';
-                document.getElementById('filtro-departamento-exame').value = 'todos';
-                loadExames();
-            });
-            
-            // Botões de filtro para atestados
-            document.getElementById('btn-filtrar-atestados').addEventListener('click', function() {
-                filtrarAtestados();
-            });
-            
-            document.getElementById('btn-limpar-filtros-atestados').addEventListener('click', function() {
-                document.getElementById('filtro-status-atestado').value = 'todos';
-                document.getElementById('filtro-tipo-atestado').value = 'todos';
-                document.getElementById('filtro-colaborador-atestado').value = 'todos';
-                loadAtestados();
-            });
-            
-            // Botões de filtro para CATs
-            document.getElementById('btn-filtrar-cats').addEventListener('click', function() {
-                filtrarCATs();
-            });
-            
-            document.getElementById('btn-limpar-filtros-cats').addEventListener('click', function() {
-                document.getElementById('filtro-status-cat').value = 'todos';
-                document.getElementById('filtro-tipo-cat').value = 'todos';
-                document.getElementById('filtro-colaborador-cat').value = 'todos';
-                loadCATs();
-            });
-        }
-
-        // Calcular vencimento do exame (1 ano após a data do exame)
-        function calcularVencimentoExame() {
-            const dataExameInput = document.getElementById('exame-data');
-            const vencimentoInput = document.getElementById('exame-vencimento');
-            
-            if (dataExameInput.value) {
-                const dataExame = new Date(dataExameInput.value);
-                const vencimento = new Date(dataExame);
-                vencimento.setFullYear(vencimento.getFullYear() + 1);
-                
-                vencimentoInput.value = vencimento.toISOString().split('T')[0];
-                
-                // Calcular status automaticamente
-                calcularStatusExame();
-            }
-        }
-
-        // Calcular status do exame com base na data de vencimento
-        function calcularStatusExame() {
-            const vencimentoInput = document.getElementById('exame-vencimento');
-            const statusSelect = document.getElementById('exame-status');
-            
-            if (vencimentoInput.value) {
-                const hoje = new Date();
-                const vencimento = new Date(vencimentoInput.value);
-                const diffTime = vencimento - hoje;
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                
-                if (diffDays < 0) {
-                    statusSelect.value = 'vencido';
-                } else if (diffDays <= 30) {
-                    statusSelect.value = 'proximo-vencer';
-                } else {
-                    statusSelect.value = 'em-dia';
-                }
-            }
         }
 
         // Carregar dados do dashboard
@@ -2247,13 +2316,21 @@
             departamentosUnicos.sort().forEach(departamento => {
                 filtroDepartamento.innerHTML += `<option value="${departamento}">${departamento}</option>`;
             });
+            
+            // Carregar também para o filtro de exames
+            const filtroDepartamentoExame = document.getElementById('filtro-departamento-exame');
+            filtroDepartamentoExame.innerHTML = '<option value="todos">Todos</option>';
+            
+            departamentosUnicos.sort().forEach(departamento => {
+                filtroDepartamentoExame.innerHTML += `<option value="${departamento}">${departamento}</option>`;
+            });
         }
 
         // Carregar exames
         async function loadExames() {
             try {
                 const examesQuery = await db.collection('exames')
-                    .orderBy('vencimento')
+                    .orderBy('vencimento', 'asc')
                     .get();
                 
                 const examesBody = document.getElementById('examesBody');
@@ -2319,6 +2396,9 @@
                     `;
                 });
                 
+                // Aplicar filtros iniciais
+                filtrarExames();
+                
             } catch (error) {
                 console.error('Erro ao carregar exames:', error);
                 showNotification('Erro ao carregar exames', 'error');
@@ -2334,22 +2414,16 @@
             cache.empresas.forEach(empresa => {
                 filtroEmpresa.innerHTML += `<option value="${empresa.nome}">${empresa.nome}</option>`;
             });
-            
-            // Carregar departamentos no filtro
-            const filtroDepartamento = document.getElementById('filtro-departamento-exame');
-            filtroDepartamento.innerHTML = '<option value="todos">Todos</option>';
-            
-            cache.departamentos.forEach(departamento => {
-                filtroDepartamento.innerHTML += `<option value="${departamento.nome}">${departamento.nome}</option>`;
-            });
         }
 
         // Filtrar exames
         function filtrarExames() {
+            const filtroNome = document.getElementById('filtro-nome-exame').value.toLowerCase();
+            const filtroDepartamento = document.getElementById('filtro-departamento-exame').value;
             const filtroStatus = document.getElementById('filtro-status-exame').value;
             const filtroTipo = document.getElementById('filtro-tipo-exame').value;
             const filtroEmpresa = document.getElementById('filtro-empresa-exame').value;
-            const filtroDepartamento = document.getElementById('filtro-departamento-exame').value;
+            const filtroPeriodo = document.getElementById('filtro-periodo-exame').value;
             
             const examesBody = document.getElementById('examesBody');
             examesBody.innerHTML = '';
@@ -2370,7 +2444,14 @@
             
             // Filtrar exames
             const examesFiltradosResultado = examesFiltrados.filter(exame => {
+                // Filtro por nome (busca digitável)
+                const nomeMatch = !filtroNome || 
+                    (exame.data.funcionario && exame.data.funcionario.toLowerCase().includes(filtroNome));
+                
+                // Filtro por status
                 const statusMatch = filtroStatus === 'todos' || exame.status === filtroStatus;
+                
+                // Filtro por tipo
                 const tipoMatch = filtroTipo === 'todos' || exame.data.tipo === filtroTipo;
                 
                 // Filtros por empresa e departamento
@@ -2385,7 +2466,30 @@
                     departamentoMatch = exame.colaborador.departamento === filtroDepartamento;
                 }
                 
-                return statusMatch && tipoMatch && empresaMatch && departamentoMatch;
+                // Filtro por período
+                let periodoMatch = true;
+                if (filtroPeriodo !== 'todos' && exame.data.dataExame) {
+                    const dataExame = new Date(exame.data.dataExame);
+                    const hoje = new Date();
+                    
+                    if (filtroPeriodo === 'custom') {
+                        const dataInicio = document.getElementById('filtro-data-inicio').value;
+                        const dataFim = document.getElementById('filtro-data-fim').value;
+                        
+                        if (dataInicio && dataFim) {
+                            const inicio = new Date(dataInicio);
+                            const fim = new Date(dataFim);
+                            periodoMatch = dataExame >= inicio && dataExame <= fim;
+                        }
+                    } else {
+                        const dias = parseInt(filtroPeriodo);
+                        const dataLimite = new Date();
+                        dataLimite.setDate(hoje.getDate() - dias);
+                        periodoMatch = dataExame >= dataLimite;
+                    }
+                }
+                
+                return nomeMatch && statusMatch && tipoMatch && empresaMatch && departamentoMatch && periodoMatch;
             });
             
             if (examesFiltradosResultado.length === 0) {
@@ -2512,6 +2616,9 @@
                         </tr>
                     `;
                 });
+                
+                // Aplicar filtros iniciais
+                filtrarAtestados();
                 
             } catch (error) {
                 console.error('Erro ao carregar atestados:', error);
@@ -2676,6 +2783,9 @@
                         </tr>
                     `;
                 });
+                
+                // Aplicar filtros iniciais
+                filtrarCATs();
                 
             } catch (error) {
                 console.error('Erro ao carregar CATs:', error);
@@ -2861,7 +2971,7 @@
             });
         }
 
-        // Carregar colaboradores para select
+        // Carregar colaboradores para select de exames
         function loadColaboradoresSelect() {
             const selectColaborador = document.getElementById('exame-colaborador');
             
@@ -2882,16 +2992,29 @@
             colaboradoresAtivos.forEach(colaborador => {
                 selectColaborador.innerHTML += `<option value="${colaborador.nome}">${colaborador.nome} - ${colaborador.departamento || 'Sem departamento'}</option>`;
             });
+        }
+
+        // Carregar colaboradores para select de atestados
+        function loadColaboradoresAtestadoSelect() {
+            const selectColaborador = document.getElementById('atestado-colaborador');
             
-            // Carregar também para o formulário de atestados
-            const selectAtestadoColaborador = document.getElementById('atestado-colaborador');
-            if (selectAtestadoColaborador) {
-                selectAtestadoColaborador.innerHTML = '<option value="">Selecione um colaborador</option>';
-                
-                colaboradoresAtivos.forEach(colaborador => {
-                    selectAtestadoColaborador.innerHTML += `<option value="${colaborador.nome}">${colaborador.nome} - ${colaborador.departamento || 'Sem departamento'}</option>`;
-                });
-            }
+            selectColaborador.innerHTML = '<option value="">Selecione um colaborador</option>';
+            
+            // Filtrar apenas colaboradores ativos, de férias ou afastados
+            const colaboradoresAtivos = cache.colaboradores.filter(colaborador => 
+                colaborador.status === 'ativo' || colaborador.status === 'ferias' || colaborador.status === 'afastado'
+            );
+            
+            // Ordenar por nome (alfabético)
+            colaboradoresAtivos.sort((a, b) => {
+                const nomeA = a.nome || '';
+                const nomeB = b.nome || '';
+                return nomeA.localeCompare(nomeB);
+            });
+            
+            colaboradoresAtivos.forEach(colaborador => {
+                selectColaborador.innerHTML += `<option value="${colaborador.nome}">${colaborador.nome} - ${colaborador.departamento || 'Sem departamento'}</option>`;
+            });
         }
 
         // Carregar colaboradores para filtro
@@ -3026,7 +3149,7 @@
             }
         }
 
-        // Salvar colaborador
+        // Salvar colaborador - CORRIGIDO
         async function salvarColaborador() {
             try {
                 const nome = document.getElementById('colaborador-nome').value;
@@ -3051,17 +3174,17 @@
                 
                 const btn = document.getElementById('btn-salvar-colaborador');
                 const originalText = btn.innerHTML;
-                btn.innerHTML = '<div class="loading"></div>';
+                btn.innerHTML = 'Salvando...';
                 btn.disabled = true;
                 
                 const colaboradorData = {
                     nome: nome.trim(),
-                    dataAdmissao: dataAdmissao, // Mantém a data exata informada
+                    dataAdmissao: dataAdmissao,
                     departamento: departamento,
                     empresa: empresa,
                     status: status,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
                     userId: currentUser.uid
                 };
                 
@@ -3114,29 +3237,36 @@
                 
                 // Recarregar dados
                 loadDashboardData();
-                loadColaboradores(); // Isso já aplicará os filtros automáticos
+                loadColaboradores();
                 loadColaboradoresSelect();
+                loadColaboradoresAtestadoSelect();
                 loadColaboradoresFiltro('filtro-colaborador-atestado');
                 loadColaboradoresFiltro('filtro-colaborador-cat');
                 loadDepartamentosFiltro();
                 
+                // Restaurar botão
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                
             } catch (error) {
                 console.error('Erro ao salvar colaborador:', error);
                 showNotification('Erro ao salvar colaborador: ' + error.message, 'error');
-            } finally {
+                
+                // Restaurar botão em caso de erro
                 const btn = document.getElementById('btn-salvar-colaborador');
-                btn.innerHTML = originalText;
+                btn.innerHTML = 'Salvar Colaborador';
                 btn.disabled = false;
             }
         }
 
-        // Salvar exame ocupacional
+        // Salvar exame ocupacional - CORRIGIDO
         async function salvarExame() {
             try {
                 const funcionario = document.getElementById('exame-colaborador').value;
                 const tipo = document.getElementById('exame-tipo').value;
                 const dataExame = document.getElementById('exame-data').value;
                 const vencimento = document.getElementById('exame-vencimento').value;
+                const observacoes = document.getElementById('exame-observacoes').value;
                 
                 // Validação básica
                 if (!funcionario || !tipo || !dataExame || !vencimento) {
@@ -3144,9 +3274,19 @@
                     return;
                 }
                 
+                // Validar datas
+                const dataExameDate = new Date(dataExame);
+                const vencimentoDate = new Date(vencimento);
+                const hoje = new Date();
+                
+                if (vencimentoDate < dataExameDate) {
+                    showNotification('A data de vencimento não pode ser anterior à data do exame', 'warning');
+                    return;
+                }
+                
                 const btn = document.getElementById('btn-salvar-exame');
                 const originalText = btn.innerHTML;
-                btn.innerHTML = '<div class="loading"></div>';
+                btn.innerHTML = 'Salvando...';
                 btn.disabled = true;
                 
                 // Calcular status automático com base na data de vencimento
@@ -3158,8 +3298,9 @@
                     dataExame,
                     vencimento,
                     status,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    observacoes: observacoes || '',
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
                     userId: currentUser.uid
                 };
                 
@@ -3174,7 +3315,9 @@
                 }
                 
                 // Limpar formulário e recarregar dados
-                document.getElementById('form-exame-container').classList.add('hidden');
+                document.getElementById('exames').classList.add('active');
+                document.getElementById('exame-cadastro').classList.remove('active');
+                document.getElementById('exame-cadastro').classList.add('hidden');
                 clearForm('exame');
                 editMode = false;
                 itemToEdit = null;
@@ -3183,17 +3326,22 @@
                 loadDashboardData();
                 loadExames();
                 
+                // Restaurar botão
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                
             } catch (error) {
                 console.error('Erro ao salvar exame:', error);
                 showNotification('Erro ao salvar exame: ' + error.message, 'error');
-            } finally {
+                
+                // Restaurar botão em caso de erro
                 const btn = document.getElementById('btn-salvar-exame');
-                btn.innerHTML = originalText;
+                btn.innerHTML = 'Salvar Exame';
                 btn.disabled = false;
             }
         }
 
-        // Salvar atestado
+        // Salvar atestado - CORRIGIDO
         async function salvarAtestado() {
             try {
                 const funcionario = document.getElementById('atestado-colaborador').value;
@@ -3221,7 +3369,7 @@
                 
                 const btn = document.getElementById('btn-salvar-atestado');
                 const originalText = btn.innerHTML;
-                btn.innerHTML = '<div class="loading"></div>';
+                btn.innerHTML = 'Salvando...';
                 btn.disabled = true;
                 
                 const atestadoData = {
@@ -3232,8 +3380,8 @@
                     validade,
                     status,
                     observacoes: observacoes || '',
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
                     userId: currentUser.uid
                 };
                 
@@ -3248,7 +3396,9 @@
                 }
                 
                 // Limpar formulário e recarregar dados
-                document.getElementById('form-atestado-container').classList.add('hidden');
+                document.getElementById('atestados').classList.add('active');
+                document.getElementById('atestado-cadastro').classList.remove('active');
+                document.getElementById('atestado-cadastro').classList.add('hidden');
                 clearForm('atestado');
                 editMode = false;
                 itemToEdit = null;
@@ -3257,17 +3407,22 @@
                 loadDashboardData();
                 loadAtestados();
                 
+                // Restaurar botão
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                
             } catch (error) {
                 console.error('Erro ao salvar atestado:', error);
                 showNotification('Erro ao salvar atestado: ' + error.message, 'error');
-            } finally {
+                
+                // Restaurar botão em caso de erro
                 const btn = document.getElementById('btn-salvar-atestado');
-                btn.innerHTML = originalText;
+                btn.innerHTML = 'Salvar Atestado';
                 btn.disabled = false;
             }
         }
 
-        // Salvar empresa
+        // Salvar empresa - CORRIGIDO
         async function salvarEmpresa() {
             try {
                 const nome = document.getElementById('empresa-nome').value;
@@ -3280,7 +3435,7 @@
                 
                 const btn = document.getElementById('btn-salvar-empresa');
                 const originalText = btn.innerHTML;
-                btn.innerHTML = '<div class="loading"></div>';
+                btn.innerHTML = 'Salvando...';
                 btn.disabled = true;
                 
                 const empresaData = {
@@ -3339,17 +3494,22 @@
                 loadFiltrosExames();
                 loadFiltrosRelatorios();
                 
+                // Restaurar botão
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                
             } catch (error) {
                 console.error('Erro ao salvar empresa:', error);
                 showNotification('Erro ao salvar empresa: ' + error.message, 'error');
-            } finally {
+                
+                // Restaurar botão em caso de erro
                 const btn = document.getElementById('btn-salvar-empresa');
-                btn.innerHTML = originalText;
+                btn.innerHTML = 'Salvar Empresa';
                 btn.disabled = false;
             }
         }
 
-        // Salvar departamento
+        // Salvar departamento - CORRIGIDO
         async function salvarDepartamento() {
             try {
                 const nome = document.getElementById('departamento-nome').value;
@@ -3362,7 +3522,7 @@
                 
                 const btn = document.getElementById('btn-salvar-departamento');
                 const originalText = btn.innerHTML;
-                btn.innerHTML = '<div class="loading"></div>';
+                btn.innerHTML = 'Salvando...';
                 btn.disabled = true;
                 
                 const departamentoData = {
@@ -3420,18 +3580,24 @@
                 loadDepartamentosSelect();
                 loadFiltrosExames();
                 loadFiltrosRelatorios();
+                loadDepartamentosFiltro();
+                
+                // Restaurar botão
+                btn.innerHTML = originalText;
+                btn.disabled = false;
                 
             } catch (error) {
                 console.error('Erro ao salvar departamento:', error);
                 showNotification('Erro ao salvar departamento: ' + error.message, 'error');
-            } finally {
+                
+                // Restaurar botão em caso de erro
                 const btn = document.getElementById('btn-salvar-departamento');
-                btn.innerHTML = originalText;
+                btn.innerHTML = 'Salvar Departamento';
                 btn.disabled = false;
             }
         }
 
-        // Salvar CID
+        // Salvar CID - CORRIGIDO
         async function salvarCID() {
             try {
                 const codigo = document.getElementById('cid-codigo').value;
@@ -3445,7 +3611,7 @@
                 
                 const btn = document.getElementById('btn-salvar-cid');
                 const originalText = btn.innerHTML;
-                btn.innerHTML = '<div class="loading"></div>';
+                btn.innerHTML = 'Salvando...';
                 btn.disabled = true;
                 
                 const cidData = {
@@ -3503,12 +3669,17 @@
                 loadCIDs();
                 loadCIDsSelect();
                 
+                // Restaurar botão
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                
             } catch (error) {
                 console.error('Erro ao salvar CID:', error);
                 showNotification('Erro ao salvar CID: ' + error.message, 'error');
-            } finally {
+                
+                // Restaurar botão em caso de erro
                 const btn = document.getElementById('btn-salvar-cid');
-                btn.innerHTML = originalText;
+                btn.innerHTML = 'Salvar CID';
                 btn.disabled = false;
             }
         }
@@ -3557,15 +3728,14 @@
                 editMode = true;
                 
                 // Mostrar formulário
-                document.getElementById('form-exame-container').classList.remove('hidden');
-                document.getElementById('form-exame-title').textContent = 'Editar Exame Ocupacional';
-                document.getElementById('btn-exame-text').textContent = 'Atualizar Exame';
+                showExameForm('Editar Exame Ocupacional', 'Atualizar Exame');
                 
                 // Preencher formulário
                 document.getElementById('exame-colaborador').value = data.funcionario || '';
                 document.getElementById('exame-tipo').value = data.tipo || '';
                 document.getElementById('exame-data').value = data.dataExame || '';
                 document.getElementById('exame-vencimento').value = data.vencimento || '';
+                document.getElementById('exame-observacoes').value = data.observacoes || '';
                 
             } catch (error) {
                 console.error('Erro ao carregar exame para edição:', error);
@@ -3588,9 +3758,7 @@
                 editMode = true;
                 
                 // Mostrar formulário
-                document.getElementById('form-atestado-container').classList.remove('hidden');
-                document.getElementById('form-atestado-title').textContent = 'Editar Atestado';
-                document.getElementById('btn-atestado-text').textContent = 'Atualizar Atestado';
+                showAtestadoForm('Editar Atestado', 'Atualizar Atestado');
                 
                 // Preencher formulário
                 document.getElementById('atestado-colaborador').value = data.funcionario || '';
@@ -3717,6 +3885,7 @@
                 if (deleteCollection === 'colaboradores') {
                     loadColaboradores();
                     loadColaboradoresSelect();
+                    loadColaboradoresAtestadoSelect();
                     loadColaboradoresFiltro('filtro-colaborador-atestado');
                     loadColaboradoresFiltro('filtro-colaborador-cat');
                     loadDepartamentosFiltro();
@@ -3874,7 +4043,8 @@
         function clearForm(tipo) {
             if (tipo === 'colaborador') {
                 document.getElementById('colaborador-nome').value = '';
-                document.getElementById('colaborador-data-admissao').value = new Date().toISOString().split('T')[0];
+                const hoje = new Date();
+                document.getElementById('colaborador-data-admissao').value = hoje.toISOString().split('T')[0];
                 document.getElementById('colaborador-departamento').value = '';
                 document.getElementById('colaborador-empresa').value = '';
                 document.getElementById('colaborador-status').value = 'ativo';
@@ -3888,8 +4058,13 @@
             } else if (tipo === 'exame') {
                 document.getElementById('exame-colaborador').value = '';
                 document.getElementById('exame-tipo').value = '';
-                document.getElementById('exame-data').value = new Date().toISOString().split('T')[0];
-                document.getElementById('exame-vencimento').value = '';
+                const hoje = new Date();
+                const vencimento = new Date();
+                vencimento.setFullYear(vencimento.getFullYear() + 1);
+                
+                document.getElementById('exame-data').value = hoje.toISOString().split('T')[0];
+                document.getElementById('exame-vencimento').value = vencimento.toISOString().split('T')[0];
+                document.getElementById('exame-observacoes').value = '';
             } else if (tipo === 'atestado') {
                 document.getElementById('atestado-colaborador').value = '';
                 document.getElementById('atestado-tipo').value = '';
