@@ -369,6 +369,16 @@
             color: #004085;
         }
 
+        .status.em-dia {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status.proximo-vencer {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
         /* Formulários */
         .form-section {
             background-color: #f8f9fa;
@@ -715,6 +725,25 @@
             padding: 5px 10px;
             font-size: 0.8rem;
         }
+        
+        /* Filtros */
+        .filters {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .filters .form-group {
+            margin-bottom: 0;
+        }
+        
+        .filters select {
+            min-width: 200px;
+        }
     </style>
 </head>
 <body>
@@ -838,14 +867,15 @@
                                 <tr>
                                     <th>Colaborador</th>
                                     <th>Tipo</th>
-                                    <th>Data de Vencimento</th>
+                                    <th>Data do Exame</th>
+                                    <th>Vencimento</th>
                                     <th>Status</th>
                                     <th>Ação</th>
                                 </tr>
                             </thead>
                             <tbody id="vencimentosBody">
                                 <tr>
-                                    <td colspan="5" style="text-align: center; padding: 30px;">Carregando dados...</td>
+                                    <td colspan="6" style="text-align: center; padding: 30px;">Carregando dados...</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -934,6 +964,37 @@
                     </button>
                 </div>
 
+                <div class="filters">
+                    <div class="form-group">
+                        <label for="filtro-status-exame">Filtrar por Status:</label>
+                        <select id="filtro-status-exame">
+                            <option value="todos">Todos</option>
+                            <option value="em-dia">Em Dia</option>
+                            <option value="proximo-vencer">Próximo de Vencer</option>
+                            <option value="vencido">Vencido</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="filtro-tipo-exame">Filtrar por Tipo:</label>
+                        <select id="filtro-tipo-exame">
+                            <option value="todos">Todos</option>
+                            <option value="admissional">Admissional</option>
+                            <option value="periodico">Periódico</option>
+                            <option value="demissional">Demissional</option>
+                            <option value="retorno">Retorno</option>
+                            <option value="mudanca">Mudança</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-info" id="btn-filtrar-exames">
+                            <i class="fas fa-filter"></i> Filtrar
+                        </button>
+                        <button class="btn" id="btn-limpar-filtros">
+                            <i class="fas fa-times"></i> Limpar
+                        </button>
+                    </div>
+                </div>
+
                 <div class="table-container">
                     <table>
                         <thead>
@@ -942,7 +1003,7 @@
                                 <th>Tipo de Exame</th>
                                 <th>Data do Exame</th>
                                 <th>Vencimento</th>
-                                <th>Médico</th>
+                                <th>Dias Restantes</th>
                                 <th>Status</th>
                                 <th>Ações</th>
                             </tr>
@@ -953,6 +1014,65 @@
                             </tr>
                         </tbody>
                     </table>
+                </div>
+
+                <!-- Formulário de Exame -->
+                <div id="form-exame-container" class="form-section hidden">
+                    <h3 id="form-exame-title">Novo Exame Ocupacional</h3>
+                    <div class="simple-form">
+                        <div class="form-group">
+                            <label for="exame-colaborador">Colaborador *</label>
+                            <select id="exame-colaborador" required>
+                                <option value="">Selecione um colaborador</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="exame-tipo">Tipo de Exame *</label>
+                            <select id="exame-tipo" required>
+                                <option value="">Selecione o tipo</option>
+                                <option value="admissional">Admissional</option>
+                                <option value="periodico">Periódico</option>
+                                <option value="demissional">Demissional</option>
+                                <option value="retorno">Retorno ao Trabalho</option>
+                                <option value="mudanca">Mudança de Função</option>
+                                <option value="outro">Outro</option>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="exame-data">Data do Exame *</label>
+                                <input type="date" id="exame-data" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="exame-vencimento">Data de Vencimento *</label>
+                                <input type="date" id="exame-vencimento" readonly>
+                                <small style="color: #666; margin-top: 5px;">Calculado automaticamente (1 ano após a data do exame)</small>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="exame-medico">Médico Responsável</label>
+                            <input type="text" id="exame-medico" placeholder="Nome do médico">
+                        </div>
+                        <div class="form-group">
+                            <label for="exame-observacoes">Observações</label>
+                            <textarea id="exame-observacoes" placeholder="Observações sobre o exame"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="exame-status">Status</label>
+                            <select id="exame-status">
+                                <option value="em-dia">Em Dia</option>
+                                <option value="proximo-vencer">Próximo de Vencer</option>
+                                <option value="vencido">Vencido</option>
+                            </select>
+                            <small style="color: #666; margin-top: 5px;">O status será calculado automaticamente com base na data de vencimento</small>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-primary" id="btn-salvar-exame">
+                                <span id="btn-exame-text">Salvar Exame</span>
+                            </button>
+                            <button type="button" class="btn" id="btn-cancelar-exame">Cancelar</button>
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -1214,6 +1334,7 @@
         let itemToEdit = null;
         let itemToDelete = null;
         let deleteCollection = '';
+        let examesFiltrados = [];
 
         // Inicializar aplicação
         document.addEventListener('DOMContentLoaded', function() {
@@ -1292,6 +1413,8 @@
                         loadEmpresasSelect();
                     } else if (pageId === 'exames') {
                         loadExames();
+                        loadColaboradoresSelect();
+                        setupExameForm();
                     } else if (pageId === 'atestados') {
                         loadAtestados();
                     } else if (pageId === 'cats') {
@@ -1359,11 +1482,35 @@
                 itemToEdit = null;
             });
 
+            // Controle do formulário de exame
+            document.getElementById('btn-novo-exame').addEventListener('click', function() {
+                const formContainer = document.getElementById('form-exame-container');
+                if (formContainer.classList.contains('hidden')) {
+                    formContainer.classList.remove('hidden');
+                    document.getElementById('form-exame-title').textContent = 'Novo Exame Ocupacional';
+                    document.getElementById('btn-exame-text').textContent = 'Salvar Exame';
+                    clearForm('exame');
+                    editMode = false;
+                    itemToEdit = null;
+                    calcularVencimentoExame();
+                } else {
+                    formContainer.classList.add('hidden');
+                }
+            });
+
+            document.getElementById('btn-cancelar-exame').addEventListener('click', function() {
+                document.getElementById('form-exame-container').classList.add('hidden');
+                clearForm('exame');
+                editMode = false;
+                itemToEdit = null;
+            });
+
             // Botões de salvar
             document.getElementById('btn-salvar-colaborador').addEventListener('click', salvarColaborador);
             document.getElementById('btn-salvar-empresa').addEventListener('click', salvarEmpresa);
             document.getElementById('btn-salvar-departamento').addEventListener('click', salvarDepartamento);
             document.getElementById('btn-salvar-cid').addEventListener('click', salvarCID);
+            document.getElementById('btn-salvar-exame').addEventListener('click', salvarExame);
             
             // Botões de cancelar para configurações
             document.getElementById('btn-cancelar-empresa').addEventListener('click', function() {
@@ -1395,13 +1542,56 @@
             });
         }
 
+        // Configurar formulário de exame
+        function setupExameForm() {
+            // Calcular vencimento quando a data do exame mudar
+            document.getElementById('exame-data').addEventListener('change', calcularVencimentoExame);
+            
+            // Calcular status quando a data de vencimento mudar
+            document.getElementById('exame-vencimento').addEventListener('change', calcularStatusExame);
+        }
+
+        // Calcular vencimento do exame (1 ano após a data do exame)
+        function calcularVencimentoExame() {
+            const dataExameInput = document.getElementById('exame-data');
+            const vencimentoInput = document.getElementById('exame-vencimento');
+            
+            if (dataExameInput.value) {
+                const dataExame = new Date(dataExameInput.value);
+                const vencimento = new Date(dataExame);
+                vencimento.setFullYear(vencimento.getFullYear() + 1);
+                
+                vencimentoInput.value = vencimento.toISOString().split('T')[0];
+                
+                // Calcular status automaticamente
+                calcularStatusExame();
+            }
+        }
+
+        // Calcular status do exame com base na data de vencimento
+        function calcularStatusExame() {
+            const vencimentoInput = document.getElementById('exame-vencimento');
+            const statusSelect = document.getElementById('exame-status');
+            
+            if (vencimentoInput.value) {
+                const hoje = new Date();
+                const vencimento = new Date(vencimentoInput.value);
+                const diffTime = vencimento - hoje;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                
+                if (diffDays < 0) {
+                    statusSelect.value = 'vencido';
+                } else if (diffDays <= 30) {
+                    statusSelect.value = 'proximo-vencer';
+                } else {
+                    statusSelect.value = 'em-dia';
+                }
+            }
+        }
+
         // Configurar botões
         function setupButtons() {
             // Botões para criar novos registros
-            document.getElementById('btn-novo-exame').addEventListener('click', function() {
-                navigateToNovoRegistro('exame');
-            });
-
             document.getElementById('btn-novo-atestado').addEventListener('click', function() {
                 navigateToNovoRegistro('atestado');
             });
@@ -1415,6 +1605,17 @@
             
             // Botão para exportar relatório
             document.getElementById('btn-exportar-relatorio').addEventListener('click', exportarRelatorio);
+            
+            // Botões de filtro para exames
+            document.getElementById('btn-filtrar-exames').addEventListener('click', function() {
+                filtrarExames();
+            });
+            
+            document.getElementById('btn-limpar-filtros').addEventListener('click', function() {
+                document.getElementById('filtro-status-exame').value = 'todos';
+                document.getElementById('filtro-tipo-exame').value = 'todos';
+                loadExames();
+            });
         }
 
         // Navegar para a página de novo registro
@@ -1448,12 +1649,14 @@
                 // Contar exames
                 const examesSnapshot = await db.collection('exames').get();
                 const totalExames = examesSnapshot.size;
-                const examesPendentes = examesSnapshot.docs.filter(doc => 
-                    doc.data().status === 'pendente'
-                ).length;
+                const examesVencidos = examesSnapshot.docs.filter(doc => {
+                    const data = doc.data();
+                    const status = calcularStatusVencimento(data.vencimento);
+                    return status === 'vencido';
+                }).length;
                 
                 document.getElementById('totalExames').textContent = totalExames;
-                document.getElementById('examesPendentes').textContent = `${examesPendentes} pendentes`;
+                document.getElementById('examesPendentes').textContent = `${examesVencidos} vencidos`;
                 
                 // Contar atestados
                 const atestadosSnapshot = await db.collection('atestados').get();
@@ -1537,7 +1740,7 @@
         async function loadExames() {
             try {
                 const examesQuery = await db.collection('exames')
-                    .orderBy('dataExame', 'desc')
+                    .orderBy('vencimento')
                     .get();
                 
                 const examesBody = document.getElementById('examesBody');
@@ -1552,19 +1755,34 @@
                     return;
                 }
                 
+                // Armazenar exames para filtragem
+                examesFiltrados = [];
+                
                 examesQuery.docs.forEach(doc => {
                     const data = doc.data();
+                    const status = calcularStatusVencimento(data.vencimento);
+                    const diasRestantes = calcularDiasRestantes(data.vencimento);
+                    
+                    const exameInfo = {
+                        id: doc.id,
+                        data: data,
+                        status: status,
+                        diasRestantes: diasRestantes
+                    };
+                    
+                    examesFiltrados.push(exameInfo);
+                    
                     examesBody.innerHTML += `
                         <tr>
-                            <td>${data.funcionario || 'N/A'}</td>
+                            <td><strong>${data.funcionario || 'N/A'}</strong></td>
                             <td>${formatTipoExame(data.tipo)}</td>
                             <td>${data.dataExame ? formatDate(new Date(data.dataExame)) : 'N/A'}</td>
                             <td>${data.vencimento ? formatDate(new Date(data.vencimento)) : 'N/A'}</td>
-                            <td>${data.medico || 'Não informado'}</td>
-                            <td><span class="status ${data.status || 'pendente'}">${formatStatus(data.status || 'pendente')}</span></td>
+                            <td>${diasRestantes > 0 ? `${diasRestantes} dias` : '<span style="color: var(--danger);">Vencido</span>'}</td>
+                            <td><span class="status ${status}">${formatStatusExame(status)}</span></td>
                             <td>
                                 <div class="actions-cell">
-                                    <button class="btn btn-primary btn-small" onclick="editarItem('exames', '${doc.id}')">
+                                    <button class="btn btn-primary btn-small" onclick="editarExame('${doc.id}')">
                                         <i class="fas fa-edit"></i>
                                     </button>
                                     <button class="btn btn-danger btn-small" onclick="solicitarExclusao('exames', '${doc.id}', '${data.funcionario || "Sem nome"} - ${formatTipoExame(data.tipo)}')">
@@ -1580,6 +1798,73 @@
                 console.error('Erro ao carregar exames:', error);
                 showNotification('Erro ao carregar exames', 'error');
             }
+        }
+
+        // Filtrar exames
+        function filtrarExames() {
+            const filtroStatus = document.getElementById('filtro-status-exame').value;
+            const filtroTipo = document.getElementById('filtro-tipo-exame').value;
+            
+            const examesBody = document.getElementById('examesBody');
+            examesBody.innerHTML = '';
+            
+            if (examesFiltrados.length === 0) {
+                examesBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 30px;">Nenhum exame cadastrado</td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            // Filtrar exames
+            const examesFiltradosResultado = examesFiltrados.filter(exame => {
+                const statusMatch = filtroStatus === 'todos' || exame.status === filtroStatus;
+                const tipoMatch = filtroTipo === 'todos' || exame.data.tipo === filtroTipo;
+                
+                return statusMatch && tipoMatch;
+            });
+            
+            if (examesFiltradosResultado.length === 0) {
+                examesBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 30px;">Nenhum exame encontrado com os filtros selecionados</td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            // Ordenar por vencimento (mais próximo primeiro)
+            examesFiltradosResultado.sort((a, b) => {
+                const vencimentoA = new Date(a.data.vencimento);
+                const vencimentoB = new Date(b.data.vencimento);
+                return vencimentoA - vencimentoB;
+            });
+            
+            // Exibir exames filtrados
+            examesFiltradosResultado.forEach(exameInfo => {
+                const data = exameInfo.data;
+                examesBody.innerHTML += `
+                    <tr>
+                        <td><strong>${data.funcionario || 'N/A'}</strong></td>
+                        <td>${formatTipoExame(data.tipo)}</td>
+                        <td>${data.dataExame ? formatDate(new Date(data.dataExame)) : 'N/A'}</td>
+                        <td>${data.vencimento ? formatDate(new Date(data.vencimento)) : 'N/A'}</td>
+                        <td>${exameInfo.diasRestantes > 0 ? `${exameInfo.diasRestantes} dias` : '<span style="color: var(--danger);">Vencido</span>'}</td>
+                        <td><span class="status ${exameInfo.status}">${formatStatusExame(exameInfo.status)}</span></td>
+                        <td>
+                            <div class="actions-cell">
+                                <button class="btn btn-primary btn-small" onclick="editarExame('${exameInfo.id}')">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-danger btn-small" onclick="solicitarExclusao('exames', '${exameInfo.id}', '${data.funcionario || "Sem nome"} - ${formatTipoExame(data.tipo)}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
         }
 
         // Carregar atestados
@@ -1739,7 +2024,7 @@
                 
                 if (departamentosQuery.empty) {
                     listaDepartamentos.innerHTML = `
-                        <li style="justify-content: center; color: #666;">Nenhum departamento cadastrado</li>
+                        <li style="justify-content: center; color: #666;">Nenhum departamento cadastrada</li>
                     `;
                     return;
                 }
@@ -1807,6 +2092,30 @@
             }
         }
 
+        // Carregar colaboradores para select
+        async function loadColaboradoresSelect() {
+            try {
+                const colaboradoresQuery = await db.collection('colaboradores')
+                    .where('status', 'in', ['ativo', 'ferias', 'afastado'])
+                    .orderBy('nome')
+                    .get();
+                
+                const selectColaborador = document.getElementById('exame-colaborador');
+                
+                selectColaborador.innerHTML = '<option value="">Selecione um colaborador</option>';
+                
+                if (!colaboradoresQuery.empty) {
+                    colaboradoresQuery.docs.forEach(doc => {
+                        const data = doc.data();
+                        selectColaborador.innerHTML += `<option value="${data.nome}">${data.nome} - ${data.departamento || 'Sem departamento'}</option>`;
+                    });
+                }
+                
+            } catch (error) {
+                console.error('Erro ao carregar colaboradores para select:', error);
+            }
+        }
+
         // Carregar empresas para select
         async function loadEmpresasSelect() {
             try {
@@ -1862,21 +2171,13 @@
                     .limit(10)
                     .get();
                 
-                // Buscar atestados com validade próxima
-                const atestadosQuery = await db.collection('atestados')
-                    .where('validade', '>=', hoje.toISOString().split('T')[0])
-                    .where('validade', '<=', daqui30Dias.toISOString().split('T')[0])
-                    .orderBy('validade')
-                    .limit(10)
-                    .get();
-                
                 const vencimentosBody = document.getElementById('vencimentosBody');
                 vencimentosBody.innerHTML = '';
                 
-                if (examesQuery.empty && atestadosQuery.empty) {
+                if (examesQuery.empty) {
                     vencimentosBody.innerHTML = `
                         <tr>
-                            <td colspan="5" style="text-align: center; padding: 30px;">Nenhum vencimento próximo</td>
+                            <td colspan="6" style="text-align: center; padding: 30px;">Nenhum vencimento próximo</td>
                         </tr>
                     `;
                     return;
@@ -1886,35 +2187,18 @@
                 examesQuery.docs.forEach(doc => {
                     const data = doc.data();
                     const vencimentoDate = new Date(data.vencimento);
+                    const status = calcularStatusVencimento(data.vencimento);
+                    const diasRestantes = calcularDiasRestantes(data.vencimento);
                     
                     vencimentosBody.innerHTML += `
                         <tr>
-                            <td>${data.funcionario || 'N/A'}</td>
+                            <td><strong>${data.funcionario || 'N/A'}</strong></td>
                             <td>Exame ${formatTipoExame(data.tipo)}</td>
+                            <td>${data.dataExame ? formatDate(new Date(data.dataExame)) : 'N/A'}</td>
                             <td>${formatDate(vencimentoDate)}</td>
-                            <td><span class="status ${data.status || 'pendente'}">${formatStatus(data.status || 'pendente')}</span></td>
+                            <td><span class="status ${status}">${formatStatusExame(status)} (${diasRestantes} dias)</span></td>
                             <td>
-                                <button class="btn btn-primary btn-small" onclick="editarItem('exames', '${doc.id}')">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    `;
-                });
-                
-                // Adicionar atestados
-                atestadosQuery.docs.forEach(doc => {
-                    const data = doc.data();
-                    const validadeDate = new Date(data.validade);
-                    
-                    vencimentosBody.innerHTML += `
-                        <tr>
-                            <td>${data.funcionario || 'N/A'}</td>
-                            <td>Atestado ${formatTipoAtestado(data.tipo)}</td>
-                            <td>${formatDate(validadeDate)}</td>
-                            <td><span class="status ${data.status || 'pendente'}">${formatStatus(data.status || 'pendente')}</span></td>
-                            <td>
-                                <button class="btn btn-primary btn-small" onclick="editarItem('atestados', '${doc.id}')">
+                                <button class="btn btn-primary btn-small" onclick="editarExame('${doc.id}')">
                                     <i class="fas fa-edit"></i>
                                 </button>
                             </td>
@@ -1978,12 +2262,80 @@
                 // Recarregar dados
                 loadDashboardData();
                 loadColaboradores();
+                loadColaboradoresSelect();
                 
             } catch (error) {
                 console.error('Erro ao salvar colaborador:', error);
                 showNotification('Erro ao salvar colaborador: ' + error.message, 'error');
             } finally {
                 const btn = document.getElementById('btn-salvar-colaborador');
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // Salvar exame ocupacional
+        async function salvarExame() {
+            try {
+                const funcionario = document.getElementById('exame-colaborador').value;
+                const tipo = document.getElementById('exame-tipo').value;
+                const dataExame = document.getElementById('exame-data').value;
+                const vencimento = document.getElementById('exame-vencimento').value;
+                const medico = document.getElementById('exame-medico').value;
+                const observacoes = document.getElementById('exame-observacoes').value;
+                
+                // Validação básica
+                if (!funcionario || !tipo || !dataExame || !vencimento) {
+                    showNotification('Preencha todos os campos obrigatórios', 'warning');
+                    return;
+                }
+                
+                const btn = document.getElementById('btn-salvar-exame');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<div class="loading"></div>';
+                btn.disabled = true;
+                
+                // Calcular status automático com base na data de vencimento
+                const status = calcularStatusVencimento(vencimento);
+                
+                const exameData = {
+                    funcionario,
+                    tipo,
+                    dataExame,
+                    vencimento,
+                    medico,
+                    observacoes,
+                    status,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    userId: currentUser.uid
+                };
+                
+                if (editMode && itemToEdit) {
+                    // Atualizar exame existente
+                    await db.collection('exames').doc(itemToEdit).update(exameData);
+                    showNotification('Exame atualizado com sucesso!', 'success');
+                } else {
+                    // Criar novo exame
+                    await db.collection('exames').add(exameData);
+                    showNotification('Exame salvo com sucesso!', 'success');
+                }
+                
+                // Limpar formulário e recarregar dados
+                document.getElementById('form-exame-container').classList.add('hidden');
+                clearForm('exame');
+                editMode = false;
+                itemToEdit = null;
+                
+                // Recarregar dados
+                loadDashboardData();
+                loadExames();
+                
+            } catch (error) {
+                console.error('Erro ao salvar exame:', error);
+                showNotification('Erro ao salvar exame: ' + error.message, 'error');
+            } finally {
+                const btn = document.getElementById('btn-salvar-exame');
                 btn.innerHTML = originalText;
                 btn.disabled = false;
             }
@@ -2184,6 +2536,40 @@
             }
         }
 
+        // Editar exame
+        async function editarExame(id) {
+            try {
+                const doc = await db.collection('exames').doc(id).get();
+                
+                if (!doc.exists) {
+                    showNotification('Exame não encontrado', 'error');
+                    return;
+                }
+                
+                const data = doc.data();
+                itemToEdit = id;
+                editMode = true;
+                
+                // Mostrar formulário
+                document.getElementById('form-exame-container').classList.remove('hidden');
+                document.getElementById('form-exame-title').textContent = 'Editar Exame Ocupacional';
+                document.getElementById('btn-exame-text').textContent = 'Atualizar Exame';
+                
+                // Preencher formulário
+                document.getElementById('exame-colaborador').value = data.funcionario || '';
+                document.getElementById('exame-tipo').value = data.tipo || '';
+                document.getElementById('exame-data').value = data.dataExame || '';
+                document.getElementById('exame-vencimento').value = data.vencimento || '';
+                document.getElementById('exame-medico').value = data.medico || '';
+                document.getElementById('exame-observacoes').value = data.observacoes || '';
+                document.getElementById('exame-status').value = data.status || 'em-dia';
+                
+            } catch (error) {
+                console.error('Erro ao carregar exame para edição:', error);
+                showNotification('Erro ao carregar exame para edição', 'error');
+            }
+        }
+
         // Editar empresa
         async function editarEmpresa(id) {
             try {
@@ -2257,7 +2643,7 @@
             }
         }
 
-        // Editar item genérico (exames, atestados, cats)
+        // Editar item genérico (atestados, cats)
         async function editarItem(collection, id) {
             try {
                 const doc = await db.collection(collection).doc(id).get();
@@ -2298,6 +2684,7 @@
                 
                 if (deleteCollection === 'colaboradores') {
                     loadColaboradores();
+                    loadColaboradoresSelect();
                 } else if (deleteCollection === 'exames') {
                     loadExames();
                 } else if (deleteCollection === 'atestados') {
@@ -2345,9 +2732,11 @@
                 ).length;
                 
                 const totalExames = examesQuery.size;
-                const examesPendentes = examesQuery.docs.filter(doc => 
-                    doc.data().status === 'pendente'
-                ).length;
+                const examesVencidos = examesQuery.docs.filter(doc => {
+                    const data = doc.data();
+                    const status = calcularStatusVencimento(data.vencimento);
+                    return status === 'vencido';
+                }).length;
                 
                 const totalAtestados = atestadosQuery.size;
                 const atestadosComCID = atestadosQuery.docs.filter(doc => 
@@ -2368,7 +2757,7 @@
                     <div class="stat-card">
                         <h3>Exames Cadastrados</h3>
                         <div class="value">${totalExames}</div>
-                        <small>${examesPendentes} pendentes</small>
+                        <small>${examesVencidos} vencidos</small>
                     </div>
                     <div class="stat-card">
                         <h3>Atestados Registrados</h3>
@@ -2446,6 +2835,14 @@
             } else if (tipo === 'cid') {
                 document.getElementById('cid-codigo').value = '';
                 document.getElementById('cid-descricao').value = '';
+            } else if (tipo === 'exame') {
+                document.getElementById('exame-colaborador').value = '';
+                document.getElementById('exame-tipo').value = '';
+                document.getElementById('exame-data').value = new Date().toISOString().split('T')[0];
+                document.getElementById('exame-vencimento').value = '';
+                document.getElementById('exame-medico').value = '';
+                document.getElementById('exame-observacoes').value = '';
+                document.getElementById('exame-status').value = 'em-dia';
             }
         }
 
@@ -2459,6 +2856,34 @@
             setTimeout(() => {
                 notification.classList.add('hidden');
             }, 3000);
+        }
+
+        // Calcular status de vencimento
+        function calcularStatusVencimento(dataVencimento) {
+            if (!dataVencimento) return 'em-dia';
+            
+            const hoje = new Date();
+            const vencimento = new Date(dataVencimento);
+            const diffTime = vencimento - hoje;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffDays < 0) {
+                return 'vencido';
+            } else if (diffDays <= 30) {
+                return 'proximo-vencer';
+            } else {
+                return 'em-dia';
+            }
+        }
+
+        // Calcular dias restantes
+        function calcularDiasRestantes(dataVencimento) {
+            if (!dataVencimento) return 0;
+            
+            const hoje = new Date();
+            const vencimento = new Date(dataVencimento);
+            const diffTime = vencimento - hoje;
+            return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         }
 
         // Funções auxiliares de formatação
@@ -2479,7 +2904,8 @@
                 'periodico': 'Periódico',
                 'demissional': 'Demissional',
                 'retorno': 'Retorno ao Trabalho',
-                'mudanca': 'Mudança de Função'
+                'mudanca': 'Mudança de Função',
+                'outro': 'Outro'
             };
             return tipos[tipo] || tipo;
         }
@@ -2517,6 +2943,16 @@
                 'inativo': 'Inativo',
                 'ferias': 'Férias',
                 'afastado': 'Afastado'
+            };
+            return statusMap[status] || status;
+        }
+
+        function formatStatusExame(status) {
+            if (!status) return 'Não informado';
+            const statusMap = {
+                'em-dia': 'Em Dia',
+                'proximo-vencer': 'Próximo de Vencer',
+                'vencido': 'Vencido'
             };
             return statusMap[status] || status;
         }
