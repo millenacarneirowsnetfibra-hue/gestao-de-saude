@@ -1032,6 +1032,7 @@
                                 <button type="button" class="btn btn-primary" id="btn-salvar-empresa">
                                     <span id="btn-empresa-text">Salvar Empresa</span>
                                 </button>
+                                <button type="button" class="btn" id="btn-cancelar-empresa">Cancelar</button>
                             </div>
                         </div>
                     </div>
@@ -1059,6 +1060,7 @@
                                 <button type="button" class="btn btn-primary" id="btn-salvar-departamento">
                                     <span id="btn-departamento-text">Salvar Departamento</span>
                                 </button>
+                                <button type="button" class="btn" id="btn-cancelar-departamento">Cancelar</button>
                             </div>
                         </div>
                     </div>
@@ -1090,6 +1092,7 @@
                                 <button type="button" class="btn btn-primary" id="btn-salvar-cid">
                                     <span id="btn-cid-text">Salvar CID</span>
                                 </button>
+                                <button type="button" class="btn" id="btn-cancelar-cid">Cancelar</button>
                             </div>
                         </div>
                     </div>
@@ -1185,7 +1188,12 @@
         };
 
         // Inicializar Firebase
-        firebase.initializeApp(firebaseConfig);
+        try {
+            firebase.initializeApp(firebaseConfig);
+        } catch (error) {
+            console.log("Firebase já inicializado");
+        }
+        
         const db = firebase.firestore();
         const auth = firebase.auth();
 
@@ -1345,6 +1353,25 @@
             document.getElementById('btn-salvar-empresa').addEventListener('click', salvarEmpresa);
             document.getElementById('btn-salvar-departamento').addEventListener('click', salvarDepartamento);
             document.getElementById('btn-salvar-cid').addEventListener('click', salvarCID);
+            
+            // Botões de cancelar para configurações
+            document.getElementById('btn-cancelar-empresa').addEventListener('click', function() {
+                clearForm('empresa');
+                editMode = false;
+                itemToEdit = null;
+            });
+            
+            document.getElementById('btn-cancelar-departamento').addEventListener('click', function() {
+                clearForm('departamento');
+                editMode = false;
+                itemToEdit = null;
+            });
+            
+            document.getElementById('btn-cancelar-cid').addEventListener('click', function() {
+                clearForm('cid');
+                editMode = false;
+                itemToEdit = null;
+            });
 
             // Configurar período personalizado no relatório
             document.getElementById('periodo-relatorio').addEventListener('change', function() {
@@ -1443,7 +1470,7 @@
                 
             } catch (error) {
                 console.error('Erro ao carregar contadores:', error);
-                showNotification('Erro ao carregar dados do dashboard', 'error');
+                // Não mostrar notificação para evitar spam
             }
         }
 
@@ -1470,9 +1497,9 @@
                     const data = doc.data();
                     colaboradoresBody.innerHTML += `
                         <tr>
-                            <td><strong>${data.nome}</strong></td>
-                            <td>${data.matricula}</td>
-                            <td>${formatCPF(data.cpf)}</td>
+                            <td><strong>${data.nome || 'Sem nome'}</strong></td>
+                            <td>${data.matricula || 'N/A'}</td>
+                            <td>${data.cpf ? formatCPF(data.cpf) : 'N/A'}</td>
                             <td>${data.cargo || 'N/A'}</td>
                             <td>${data.departamento || 'N/A'}</td>
                             <td>${data.dataAdmissao ? formatDate(new Date(data.dataAdmissao)) : 'N/A'}</td>
@@ -1481,7 +1508,7 @@
                                 <button class="btn btn-primary" onclick="editarColaborador('${doc.id}')" style="padding: 5px 10px; font-size: 0.8rem;">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button class="btn btn-danger" onclick="solicitarExclusao('colaboradores', '${doc.id}', '${data.nome} - ${data.matricula}')" style="padding: 5px 10px; font-size: 0.8rem;">
+                                <button class="btn btn-danger" onclick="solicitarExclusao('colaboradores', '${doc.id}', '${data.nome || "Sem nome"} - ${data.matricula || "Sem matrícula"}')" style="padding: 5px 10px; font-size: 0.8rem;">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </td>
@@ -1518,17 +1545,17 @@
                     const data = doc.data();
                     examesBody.innerHTML += `
                         <tr>
-                            <td>${data.funcionario}</td>
+                            <td>${data.funcionario || 'N/A'}</td>
                             <td>${formatTipoExame(data.tipo)}</td>
-                            <td>${formatDate(new Date(data.dataExame))}</td>
+                            <td>${data.dataExame ? formatDate(new Date(data.dataExame)) : 'N/A'}</td>
                             <td>${data.vencimento ? formatDate(new Date(data.vencimento)) : 'N/A'}</td>
                             <td>${data.medico || 'Não informado'}</td>
-                            <td><span class="status ${data.status}">${formatStatus(data.status)}</span></td>
+                            <td><span class="status ${data.status || 'pendente'}">${formatStatus(data.status || 'pendente')}</span></td>
                             <td>
                                 <button class="btn btn-primary" onclick="editarItem('exames', '${doc.id}')" style="padding: 5px 10px; font-size: 0.8rem;">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button class="btn btn-danger" onclick="solicitarExclusao('exames', '${doc.id}', '${data.funcionario} - ${formatTipoExame(data.tipo)}')" style="padding: 5px 10px; font-size: 0.8rem;">
+                                <button class="btn btn-danger" onclick="solicitarExclusao('exames', '${doc.id}', '${data.funcionario || "Sem nome"} - ${formatTipoExame(data.tipo)}')" style="padding: 5px 10px; font-size: 0.8rem;">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </td>
@@ -1565,17 +1592,17 @@
                     const data = doc.data();
                     atestadosBody.innerHTML += `
                         <tr>
-                            <td>${data.funcionario}</td>
+                            <td>${data.funcionario || 'N/A'}</td>
                             <td>${formatTipoAtestado(data.tipo)}</td>
-                            <td>${formatDate(new Date(data.dataEmissao))}</td>
+                            <td>${data.dataEmissao ? formatDate(new Date(data.dataEmissao)) : 'N/A'}</td>
                             <td>${data.validade ? formatDate(new Date(data.validade)) : 'N/A'}</td>
                             <td>${data.cid || 'N/A'}</td>
-                            <td><span class="status ${data.status}">${formatStatus(data.status)}</span></td>
+                            <td><span class="status ${data.status || 'pendente'}">${formatStatus(data.status || 'pendente')}</span></td>
                             <td>
                                 <button class="btn btn-primary" onclick="editarItem('atestados', '${doc.id}')" style="padding: 5px 10px; font-size: 0.8rem;">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button class="btn btn-danger" onclick="solicitarExclusao('atestados', '${doc.id}', '${data.funcionario} - ${formatTipoAtestado(data.tipo)}')" style="padding: 5px 10px; font-size: 0.8rem;">
+                                <button class="btn btn-danger" onclick="solicitarExclusao('atestados', '${doc.id}', '${data.funcionario || "Sem nome"} - ${formatTipoAtestado(data.tipo)}')" style="padding: 5px 10px; font-size: 0.8rem;">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </td>
@@ -1613,16 +1640,16 @@
                     catsBody.innerHTML += `
                         <tr>
                             <td>${data.numero || `CAT-${doc.id.substring(0, 8)}`}</td>
-                            <td>${data.funcionario}</td>
-                            <td>${formatDate(new Date(data.dataAcidente))}</td>
-                            <td>${formatDate(new Date(data.dataRegistro))}</td>
+                            <td>${data.funcionario || 'N/A'}</td>
+                            <td>${data.dataAcidente ? formatDate(new Date(data.dataAcidente)) : 'N/A'}</td>
+                            <td>${data.dataRegistro ? formatDate(new Date(data.dataRegistro)) : 'N/A'}</td>
                             <td>${formatTipoCAT(data.tipo)}</td>
-                            <td><span class="status ${data.status}">${formatStatus(data.status)}</span></td>
+                            <td><span class="status ${data.status || 'registrada'}">${formatStatus(data.status || 'registrada')}</span></td>
                             <td>
                                 <button class="btn btn-primary" onclick="editarItem('cats', '${doc.id}')" style="padding: 5px 10px; font-size: 0.8rem;">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button class="btn btn-danger" onclick="solicitarExclusao('cats', '${doc.id}', '${data.funcionario} - ${formatTipoCAT(data.tipo)}')" style="padding: 5px 10px; font-size: 0.8rem;">
+                                <button class="btn btn-danger" onclick="solicitarExclusao('cats', '${doc.id}', '${data.funcionario || "Sem nome"} - ${formatTipoCAT(data.tipo)}')" style="padding: 5px 10px; font-size: 0.8rem;">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </td>
@@ -1664,12 +1691,12 @@
                     const data = doc.data();
                     listaEmpresas.innerHTML += `
                         <li>
-                            <span><strong>${data.nome}</strong></span>
+                            <span><strong>${data.nome || 'Sem nome'}</strong></span>
                             <div>
                                 <button class="btn btn-primary" onclick="editarEmpresa('${doc.id}')" style="padding: 3px 8px; font-size: 0.7rem;">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button class="btn btn-danger" onclick="solicitarExclusao('empresas', '${doc.id}', '${data.nome}')" style="padding: 3px 8px; font-size: 0.7rem;">
+                                <button class="btn btn-danger" onclick="solicitarExclusao('empresas', '${doc.id}', '${data.nome || "Sem nome"}')" style="padding: 3px 8px; font-size: 0.7rem;">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </div>
@@ -1704,12 +1731,12 @@
                     const data = doc.data();
                     listaDepartamentos.innerHTML += `
                         <li>
-                            <span><strong>${data.nome}</strong></span>
+                            <span><strong>${data.nome || 'Sem nome'}</strong></span>
                             <div>
                                 <button class="btn btn-primary" onclick="editarDepartamento('${doc.id}')" style="padding: 3px 8px; font-size: 0.7rem;">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button class="btn btn-danger" onclick="solicitarExclusao('departamentos', '${doc.id}', '${data.nome}')" style="padding: 3px 8px; font-size: 0.7rem;">
+                                <button class="btn btn-danger" onclick="solicitarExclusao('departamentos', '${doc.id}', '${data.nome || "Sem nome"}')" style="padding: 3px 8px; font-size: 0.7rem;">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </div>
@@ -1744,12 +1771,12 @@
                     const data = doc.data();
                     listaCids.innerHTML += `
                         <li>
-                            <span><strong>${data.codigo}</strong> - ${data.descricao}</span>
+                            <span><strong>${data.codigo || 'Sem código'}</strong> - ${data.descricao || 'Sem descrição'}</span>
                             <div>
                                 <button class="btn btn-primary" onclick="editarCID('${doc.id}')" style="padding: 3px 8px; font-size: 0.7rem;">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button class="btn btn-danger" onclick="solicitarExclusao('cids', '${doc.id}', 'CID ${data.codigo}')" style="padding: 3px 8px; font-size: 0.7rem;">
+                                <button class="btn btn-danger" onclick="solicitarExclusao('cids', '${doc.id}', 'CID ${data.codigo || "Sem código"}')" style="padding: 3px 8px; font-size: 0.7rem;">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </div>
@@ -1845,10 +1872,10 @@
                     
                     vencimentosBody.innerHTML += `
                         <tr>
-                            <td>${data.funcionario}</td>
+                            <td>${data.funcionario || 'N/A'}</td>
                             <td>Exame ${formatTipoExame(data.tipo)}</td>
                             <td>${formatDate(vencimentoDate)}</td>
-                            <td><span class="status ${data.status}">${formatStatus(data.status)}</span></td>
+                            <td><span class="status ${data.status || 'pendente'}">${formatStatus(data.status || 'pendente')}</span></td>
                             <td>
                                 <button class="btn btn-primary" onclick="editarItem('exames', '${doc.id}')" style="padding: 5px 10px; font-size: 0.8rem;">
                                     <i class="fas fa-edit"></i>
@@ -1865,10 +1892,10 @@
                     
                     vencimentosBody.innerHTML += `
                         <tr>
-                            <td>${data.funcionario}</td>
+                            <td>${data.funcionario || 'N/A'}</td>
                             <td>Atestado ${formatTipoAtestado(data.tipo)}</td>
                             <td>${formatDate(validadeDate)}</td>
-                            <td><span class="status ${data.status}">${formatStatus(data.status)}</span></td>
+                            <td><span class="status ${data.status || 'pendente'}">${formatStatus(data.status || 'pendente')}</span></td>
                             <td>
                                 <button class="btn btn-primary" onclick="editarItem('atestados', '${doc.id}')" style="padding: 5px 10px; font-size: 0.8rem;">
                                     <i class="fas fa-edit"></i>
@@ -1880,7 +1907,7 @@
                 
             } catch (error) {
                 console.error('Erro ao carregar próximos vencimentos:', error);
-                showNotification('Erro ao carregar próximos vencimentos', 'error');
+                // Não mostrar notificação para evitar spam
             }
         }
 
@@ -1923,10 +1950,7 @@
                 
                 if (editMode && itemToEdit) {
                     // Atualizar colaborador existente
-                    await db.collection('colaboradores').doc(itemToEdit).update({
-                        ...colaboradorData,
-                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
+                    await db.collection('colaboradores').doc(itemToEdit).update(colaboradorData);
                     showNotification('Colaborador atualizado com sucesso!', 'success');
                 } else {
                     // Criar novo colaborador
@@ -1946,7 +1970,7 @@
                 
             } catch (error) {
                 console.error('Erro ao salvar colaborador:', error);
-                showNotification('Erro ao salvar colaborador', 'error');
+                showNotification('Erro ao salvar colaborador: ' + error.message, 'error');
             } finally {
                 const btn = document.getElementById('btn-salvar-colaborador');
                 btn.innerHTML = originalText;
@@ -1971,18 +1995,17 @@
                 btn.disabled = true;
                 
                 const empresaData = {
-                    nome,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    nome: nome.trim(),
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
                     userId: currentUser.uid
                 };
                 
+                console.log('Salvando empresa:', empresaData);
+                
                 if (editMode && itemToEdit) {
                     // Atualizar empresa existente
-                    await db.collection('empresas').doc(itemToEdit).update({
-                        ...empresaData,
-                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
+                    await db.collection('empresas').doc(itemToEdit).update(empresaData);
                     showNotification('Empresa atualizada com sucesso!', 'success');
                 } else {
                     // Criar nova empresa
@@ -2001,7 +2024,7 @@
                 
             } catch (error) {
                 console.error('Erro ao salvar empresa:', error);
-                showNotification('Erro ao salvar empresa', 'error');
+                showNotification('Erro ao salvar empresa: ' + error.message, 'error');
             } finally {
                 const btn = document.getElementById('btn-salvar-empresa');
                 btn.innerHTML = originalText;
@@ -2026,18 +2049,17 @@
                 btn.disabled = true;
                 
                 const departamentoData = {
-                    nome,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    nome: nome.trim(),
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
                     userId: currentUser.uid
                 };
                 
+                console.log('Salvando departamento:', departamentoData);
+                
                 if (editMode && itemToEdit) {
                     // Atualizar departamento existente
-                    await db.collection('departamentos').doc(itemToEdit).update({
-                        ...departamentoData,
-                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
+                    await db.collection('departamentos').doc(itemToEdit).update(departamentoData);
                     showNotification('Departamento atualizado com sucesso!', 'success');
                 } else {
                     // Criar novo departamento
@@ -2056,7 +2078,7 @@
                 
             } catch (error) {
                 console.error('Erro ao salvar departamento:', error);
-                showNotification('Erro ao salvar departamento', 'error');
+                showNotification('Erro ao salvar departamento: ' + error.message, 'error');
             } finally {
                 const btn = document.getElementById('btn-salvar-departamento');
                 btn.innerHTML = originalText;
@@ -2082,19 +2104,18 @@
                 btn.disabled = true;
                 
                 const cidData = {
-                    codigo,
-                    descricao,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    codigo: codigo.trim().toUpperCase(),
+                    descricao: descricao.trim(),
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
                     userId: currentUser.uid
                 };
                 
+                console.log('Salvando CID:', cidData);
+                
                 if (editMode && itemToEdit) {
                     // Atualizar CID existente
-                    await db.collection('cids').doc(itemToEdit).update({
-                        ...cidData,
-                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
+                    await db.collection('cids').doc(itemToEdit).update(cidData);
                     showNotification('CID atualizado com sucesso!', 'success');
                 } else {
                     // Criar novo CID
@@ -2112,7 +2133,7 @@
                 
             } catch (error) {
                 console.error('Erro ao salvar CID:', error);
-                showNotification('Erro ao salvar CID', 'error');
+                showNotification('Erro ao salvar CID: ' + error.message, 'error');
             } finally {
                 const btn = document.getElementById('btn-salvar-cid');
                 btn.innerHTML = originalText;
@@ -2292,7 +2313,7 @@
                 
             } catch (error) {
                 console.error('Erro ao excluir item:', error);
-                showNotification('Erro ao excluir item', 'error');
+                showNotification('Erro ao excluir item: ' + error.message, 'error');
             }
         }
 
@@ -2311,17 +2332,9 @@
                 trintaDiasAtras.setDate(trintaDiasAtras.getDate() - 30);
                 
                 const colaboradoresQuery = await db.collection('colaboradores').get();
-                const examesQuery = await db.collection('exames')
-                    .where('dataExame', '>=', trintaDiasAtras.toISOString().split('T')[0])
-                    .get();
-                
-                const atestadosQuery = await db.collection('atestados')
-                    .where('dataEmissao', '>=', trintaDiasAtras.toISOString().split('T')[0])
-                    .get();
-                
-                const catsQuery = await db.collection('cats')
-                    .where('dataRegistro', '>=', trintaDiasAtras.toISOString().split('T')[0])
-                    .get();
+                const examesQuery = await db.collection('exames').get();
+                const atestadosQuery = await db.collection('atestados').get();
+                const catsQuery = await db.collection('cats').get();
                 
                 const estatisticasDiv = document.getElementById('estatisticas-relatorio');
                 
@@ -2330,9 +2343,20 @@
                     doc.data().status === 'ativo'
                 ).length;
                 
-                const examesUltimos30Dias = examesQuery.size;
-                const atestadosUltimos30Dias = atestadosQuery.size;
-                const catsUltimos30Dias = catsQuery.size;
+                const totalExames = examesQuery.size;
+                const examesPendentes = examesQuery.docs.filter(doc => 
+                    doc.data().status === 'pendente'
+                ).length;
+                
+                const totalAtestados = atestadosQuery.size;
+                const atestadosComCID = atestadosQuery.docs.filter(doc => 
+                    doc.data().cid && doc.data().cid.trim() !== ''
+                ).length;
+                
+                const totalCats = catsQuery.size;
+                const catsAnalise = catsQuery.docs.filter(doc => 
+                    doc.data().status === 'em_analise'
+                ).length;
                 
                 estatisticasDiv.innerHTML = `
                     <div class="stat-card">
@@ -2341,19 +2365,19 @@
                         <small>${colaboradoresAtivos} ativos</small>
                     </div>
                     <div class="stat-card">
-                        <h3>Exames Realizados (Últimos 30 dias)</h3>
-                        <div class="value">${examesUltimos30Dias}</div>
-                        <small>Média de ${(examesUltimos30Dias/30).toFixed(1)} exames/dia</small>
+                        <h3>Exames Cadastrados</h3>
+                        <div class="value">${totalExames}</div>
+                        <small>${examesPendentes} pendentes</small>
                     </div>
                     <div class="stat-card">
-                        <h3>Atestados Registrados (Últimos 30 dias)</h3>
-                        <div class="value">${atestadosUltimos30Dias}</div>
-                        <small>${atestadosQuery.docs.filter(doc => doc.data().cid).length} com CID</small>
+                        <h3>Atestados Registrados</h3>
+                        <div class="value">${totalAtestados}</div>
+                        <small>${atestadosComCID} com CID</small>
                     </div>
                     <div class="stat-card">
-                        <h3>CATs Registradas (Últimos 30 dias)</h3>
-                        <div class="value">${catsUltimos30Dias}</div>
-                        <small>${catsQuery.docs.filter(doc => doc.data().status === 'em_analise').length} em análise</small>
+                        <h3>CATs Registradas</h3>
+                        <div class="value">${totalCats}</div>
+                        <small>${catsAnalise} em análise</small>
                     </div>
                 `;
                 
@@ -2442,16 +2466,29 @@
         // Funções auxiliares de formatação
         function formatDate(date) {
             if (!date) return 'N/A';
-            const d = new Date(date);
-            return d.toLocaleDateString('pt-BR');
+            try {
+                const d = new Date(date);
+                return d.toLocaleDateString('pt-BR');
+            } catch (error) {
+                return 'Data inválida';
+            }
         }
 
         function formatCPF(cpf) {
             if (!cpf) return 'N/A';
-            return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+            // Remove qualquer caractere não numérico
+            const numeros = cpf.replace(/\D/g, '');
+            
+            // Formata no padrão 000.000.000-00
+            if (numeros.length === 11) {
+                return numeros.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+            }
+            
+            return cpf;
         }
 
         function formatTipoExame(tipo) {
+            if (!tipo) return 'Não informado';
             const tipos = {
                 'admissional': 'Admissional',
                 'periodico': 'Periódico',
@@ -2463,6 +2500,7 @@
         }
 
         function formatTipoAtestado(tipo) {
+            if (!tipo) return 'Não informado';
             const tipos = {
                 'medico': 'Médico',
                 'odontologico': 'Odontológico',
@@ -2472,6 +2510,7 @@
         }
 
         function formatTipoCAT(tipo) {
+            if (!tipo) return 'Não informado';
             const tipos = {
                 'acidente': 'Acidente de Trabalho',
                 'doenca': 'Doença Ocupacional',
@@ -2481,6 +2520,7 @@
         }
 
         function formatStatus(status) {
+            if (!status) return 'Não informado';
             const statusMap = {
                 'pendente': 'Pendente',
                 'concluido': 'Concluído',
