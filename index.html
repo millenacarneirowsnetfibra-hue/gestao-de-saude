@@ -1135,6 +1135,63 @@
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Formulário de Atestado -->
+                <div id="form-atestado-container" class="form-section hidden">
+                    <h3 id="form-atestado-title">Novo Atestado</h3>
+                    <div class="simple-form">
+                        <div class="form-group">
+                            <label for="atestado-colaborador">Colaborador *</label>
+                            <select id="atestado-colaborador" required>
+                                <option value="">Selecione um colaborador</option>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="atestado-tipo">Tipo de Atestado *</label>
+                                <select id="atestado-tipo" required>
+                                    <option value="">Selecione o tipo</option>
+                                    <option value="medico">Médico</option>
+                                    <option value="odontologico">Odontológico</option>
+                                    <option value="outro">Outro</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="atestado-cid">CID (Opcional)</label>
+                                <select id="atestado-cid">
+                                    <option value="">Selecione um CID (Opcional)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="atestado-data-emissao">Data de Emissão *</label>
+                                <input type="date" id="atestado-data-emissao" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="atestado-validade">Data de Validade *</label>
+                                <input type="date" id="atestado-validade" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="atestado-status">Status</label>
+                            <select id="atestado-status">
+                                <option value="pendente">Pendente</option>
+                                <option value="concluido">Concluído</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="atestado-observacoes">Observações (Opcional)</label>
+                            <textarea id="atestado-observacoes" placeholder="Observações sobre o atestado..."></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-primary" id="btn-salvar-atestado">
+                                <span id="btn-atestado-text">Salvar Atestado</span>
+                            </button>
+                            <button type="button" class="btn" id="btn-cancelar-atestado">Cancelar</button>
+                        </div>
+                    </div>
+                </div>
             </section>
 
             <!-- CATs -->
@@ -1596,6 +1653,7 @@
                         loadAtestados();
                         loadColaboradoresFiltro('filtro-colaborador-atestado');
                         loadCIDsSelect();
+                        setupAtestadoForm();
                     } else if (pageId === 'cats') {
                         loadCATs();
                         loadColaboradoresFiltro('filtro-colaborador-cat');
@@ -1686,12 +1744,36 @@
                 itemToEdit = null;
             });
 
+            // Controle do formulário de atestado
+            document.getElementById('btn-novo-atestado').addEventListener('click', function() {
+                const formContainer = document.getElementById('form-atestado-container');
+                if (formContainer.classList.contains('hidden')) {
+                    formContainer.classList.remove('hidden');
+                    document.getElementById('form-atestado-title').textContent = 'Novo Atestado';
+                    document.getElementById('btn-atestado-text').textContent = 'Salvar Atestado';
+                    clearForm('atestado');
+                    editMode = false;
+                    itemToEdit = null;
+                    setupAtestadoForm();
+                } else {
+                    formContainer.classList.add('hidden');
+                }
+            });
+
+            document.getElementById('btn-cancelar-atestado').addEventListener('click', function() {
+                document.getElementById('form-atestado-container').classList.add('hidden');
+                clearForm('atestado');
+                editMode = false;
+                itemToEdit = null;
+            });
+
             // Botões de salvar
             document.getElementById('btn-salvar-colaborador').addEventListener('click', salvarColaborador);
             document.getElementById('btn-salvar-empresa').addEventListener('click', salvarEmpresa);
             document.getElementById('btn-salvar-departamento').addEventListener('click', salvarDepartamento);
             document.getElementById('btn-salvar-cid').addEventListener('click', salvarCID);
             document.getElementById('btn-salvar-exame').addEventListener('click', salvarExame);
+            document.getElementById('btn-salvar-atestado').addEventListener('click', salvarAtestado);
             
             // Botões de cancelar para configurações
             document.getElementById('btn-cancelar-empresa').addEventListener('click', function() {
@@ -1730,6 +1812,20 @@
             
             // Calcular status quando a data de vencimento mudar
             document.getElementById('exame-vencimento').addEventListener('change', calcularStatusExame);
+        }
+
+        // Configurar formulário de atestado
+        function setupAtestadoForm() {
+            // Configurar data de validade padrão (data atual + 15 dias)
+            const hoje = new Date();
+            const validade = new Date();
+            validade.setDate(hoje.getDate() + 15);
+            
+            const hojeStr = hoje.toISOString().split('T')[0];
+            const validadeStr = validade.toISOString().split('T')[0];
+            
+            document.getElementById('atestado-data-emissao').value = hojeStr;
+            document.getElementById('atestado-validade').value = validadeStr;
         }
 
         // Calcular vencimento do exame (1 ano após a data do exame)
@@ -1773,10 +1869,6 @@
         // Configurar botões
         function setupButtons() {
             // Botões para criar novos registros
-            document.getElementById('btn-novo-atestado').addEventListener('click', function() {
-                showNotification('Redirecionando para formulário de atestado...', 'info');
-            });
-
             document.getElementById('btn-nova-cat').addEventListener('click', function() {
                 showNotification('Redirecionando para formulário de CAT...', 'info');
             });
@@ -2141,6 +2233,15 @@
                     
                     atestadosFiltrados.push(atestadoInfo);
                     
+                    // Calcular status de vencimento
+                    const hoje = new Date();
+                    const validade = data.validade ? new Date(data.validade) : null;
+                    let status = data.status || 'pendente';
+                    
+                    if (validade && validade < hoje && status !== 'concluido') {
+                        status = 'vencido';
+                    }
+                    
                     atestadosBody.innerHTML += `
                         <tr>
                             <td>
@@ -2151,7 +2252,7 @@
                             <td>${data.dataEmissao ? formatDate(new Date(data.dataEmissao)) : 'N/A'}</td>
                             <td>${data.validade ? formatDate(new Date(data.validade)) : 'N/A'}</td>
                             <td>${data.cid || 'N/A'}</td>
-                            <td><span class="status ${data.status || 'pendente'}">${formatStatus(data.status || 'pendente')}</span></td>
+                            <td><span class="status ${status}">${formatStatus(status)}</span></td>
                             <td>
                                 <div class="actions-cell">
                                     <button class="btn btn-primary btn-small" onclick="editarAtestado('${doc.id}')">
@@ -2192,7 +2293,16 @@
             
             // Filtrar atestados
             const atestadosFiltradosResultado = atestadosFiltrados.filter(atestado => {
-                const statusMatch = filtroStatus === 'todos' || atestado.data.status === filtroStatus;
+                // Calcular status atual (incluindo vencimento)
+                const hoje = new Date();
+                const validade = atestado.data.validade ? new Date(atestado.data.validade) : null;
+                let statusAtual = atestado.data.status || 'pendente';
+                
+                if (validade && validade < hoje && statusAtual !== 'concluido') {
+                    statusAtual = 'vencido';
+                }
+                
+                const statusMatch = filtroStatus === 'todos' || statusAtual === filtroStatus;
                 const tipoMatch = filtroTipo === 'todos' || atestado.data.tipo === filtroTipo;
                 const colaboradorMatch = filtroColaborador === 'todos' || atestado.data.funcionario === filtroColaborador;
                 
@@ -2211,6 +2321,14 @@
             // Exibir atestados filtrados
             atestadosFiltradosResultado.forEach(atestadoInfo => {
                 const data = atestadoInfo.data;
+                const hoje = new Date();
+                const validade = data.validade ? new Date(data.validade) : null;
+                let status = data.status || 'pendente';
+                
+                if (validade && validade < hoje && status !== 'concluido') {
+                    status = 'vencido';
+                }
+                
                 atestadosBody.innerHTML += `
                     <tr>
                         <td>
@@ -2221,7 +2339,7 @@
                         <td>${data.dataEmissao ? formatDate(new Date(data.dataEmissao)) : 'N/A'}</td>
                         <td>${data.validade ? formatDate(new Date(data.validade)) : 'N/A'}</td>
                         <td>${data.cid || 'N/A'}</td>
-                        <td><span class="status ${data.status || 'pendente'}">${formatStatus(data.status || 'pendente')}</span></td>
+                        <td><span class="status ${status}">${formatStatus(status)}</span></td>
                         <td>
                             <div class="actions-cell">
                                 <button class="btn btn-primary btn-small" onclick="editarAtestado('${atestadoInfo.id}')">
@@ -2474,6 +2592,18 @@
                     selectColaborador.innerHTML += `<option value="${colaborador.nome}">${colaborador.nome} - ${colaborador.departamento || 'Sem departamento'}</option>`;
                 }
             });
+            
+            // Carregar também para o formulário de atestados
+            const selectAtestadoColaborador = document.getElementById('atestado-colaborador');
+            if (selectAtestadoColaborador) {
+                selectAtestadoColaborador.innerHTML = '<option value="">Selecione um colaborador</option>';
+                
+                cache.colaboradores.forEach(colaborador => {
+                    if (colaborador.status === 'ativo' || colaborador.status === 'ferias' || colaborador.status === 'afastado') {
+                        selectAtestadoColaborador.innerHTML += `<option value="${colaborador.nome}">${colaborador.nome} - ${colaborador.departamento || 'Sem departamento'}</option>`;
+                    }
+                });
+            }
         }
 
         // Carregar colaboradores para filtro
@@ -2492,7 +2622,7 @@
             const selectCID = document.getElementById('atestado-cid');
             if (!selectCID) return;
             
-            selectCID.innerHTML = '<option value="">Selecione um CID</option>';
+            selectCID.innerHTML = '<option value="">Selecione um CID (Opcional)</option>';
             
             cache.cids.forEach(cid => {
                 selectCID.innerHTML += `<option value="${cid.codigo}">${cid.codigo} - ${cid.descricao}</option>`;
@@ -2732,6 +2862,80 @@
                 showNotification('Erro ao salvar exame: ' + error.message, 'error');
             } finally {
                 const btn = document.getElementById('btn-salvar-exame');
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // Salvar atestado
+        async function salvarAtestado() {
+            try {
+                const funcionario = document.getElementById('atestado-colaborador').value;
+                const tipo = document.getElementById('atestado-tipo').value;
+                const cid = document.getElementById('atestado-cid').value;
+                const dataEmissao = document.getElementById('atestado-data-emissao').value;
+                const validade = document.getElementById('atestado-validade').value;
+                const status = document.getElementById('atestado-status').value;
+                const observacoes = document.getElementById('atestado-observacoes').value;
+                
+                // Validação básica
+                if (!funcionario || !tipo || !dataEmissao || !validade) {
+                    showNotification('Preencha todos os campos obrigatórios', 'warning');
+                    return;
+                }
+                
+                // Validação de datas
+                const dataEmissaoDate = new Date(dataEmissao);
+                const validadeDate = new Date(validade);
+                
+                if (validadeDate < dataEmissaoDate) {
+                    showNotification('A data de validade não pode ser anterior à data de emissão', 'warning');
+                    return;
+                }
+                
+                const btn = document.getElementById('btn-salvar-atestado');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<div class="loading"></div>';
+                btn.disabled = true;
+                
+                const atestadoData = {
+                    funcionario,
+                    tipo,
+                    cid: cid || '',
+                    dataEmissao,
+                    validade,
+                    status,
+                    observacoes: observacoes || '',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    userId: currentUser.uid
+                };
+                
+                if (editMode && itemToEdit) {
+                    // Atualizar atestado existente
+                    await db.collection('atestados').doc(itemToEdit).update(atestadoData);
+                    showNotification('Atestado atualizado com sucesso!', 'success');
+                } else {
+                    // Criar novo atestado
+                    await db.collection('atestados').add(atestadoData);
+                    showNotification('Atestado salvo com sucesso!', 'success');
+                }
+                
+                // Limpar formulário e recarregar dados
+                document.getElementById('form-atestado-container').classList.add('hidden');
+                clearForm('atestado');
+                editMode = false;
+                itemToEdit = null;
+                
+                // Recarregar dados
+                loadDashboardData();
+                loadAtestados();
+                
+            } catch (error) {
+                console.error('Erro ao salvar atestado:', error);
+                showNotification('Erro ao salvar atestado: ' + error.message, 'error');
+            } finally {
+                const btn = document.getElementById('btn-salvar-atestado');
                 btn.innerHTML = originalText;
                 btn.disabled = false;
             }
@@ -3005,7 +3209,36 @@
 
         // Editar atestado
         async function editarAtestado(id) {
-            showNotification('Redirecionando para edição de atestado...', 'info');
+            try {
+                const doc = await db.collection('atestados').doc(id).get();
+                
+                if (!doc.exists) {
+                    showNotification('Atestado não encontrado', 'error');
+                    return;
+                }
+                
+                const data = doc.data();
+                itemToEdit = id;
+                editMode = true;
+                
+                // Mostrar formulário
+                document.getElementById('form-atestado-container').classList.remove('hidden');
+                document.getElementById('form-atestado-title').textContent = 'Editar Atestado';
+                document.getElementById('btn-atestado-text').textContent = 'Atualizar Atestado';
+                
+                // Preencher formulário
+                document.getElementById('atestado-colaborador').value = data.funcionario || '';
+                document.getElementById('atestado-tipo').value = data.tipo || '';
+                document.getElementById('atestado-cid').value = data.cid || '';
+                document.getElementById('atestado-data-emissao').value = data.dataEmissao || '';
+                document.getElementById('atestado-validade').value = data.validade || '';
+                document.getElementById('atestado-status').value = data.status || 'pendente';
+                document.getElementById('atestado-observacoes').value = data.observacoes || '';
+                
+            } catch (error) {
+                console.error('Erro ao carregar atestado para edição:', error);
+                showNotification('Erro ao carregar atestado para edição', 'error');
+            }
         }
 
         // Editar CAT
@@ -3289,6 +3522,18 @@
                 document.getElementById('exame-tipo').value = '';
                 document.getElementById('exame-data').value = new Date().toISOString().split('T')[0];
                 document.getElementById('exame-vencimento').value = '';
+            } else if (tipo === 'atestado') {
+                document.getElementById('atestado-colaborador').value = '';
+                document.getElementById('atestado-tipo').value = '';
+                document.getElementById('atestado-cid').value = '';
+                const hoje = new Date();
+                const validade = new Date();
+                validade.setDate(hoje.getDate() + 15);
+                
+                document.getElementById('atestado-data-emissao').value = hoje.toISOString().split('T')[0];
+                document.getElementById('atestado-validade').value = validade.toISOString().split('T')[0];
+                document.getElementById('atestado-status').value = 'pendente';
+                document.getElementById('atestado-observacoes').value = '';
             }
         }
 
