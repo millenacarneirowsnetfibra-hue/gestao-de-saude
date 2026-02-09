@@ -808,6 +808,11 @@
         .date-range .form-group {
             flex: 1;
         }
+        
+        /* Botão de limpar filtros */
+        .clear-filters {
+            align-self: flex-end;
+        }
     </style>
 </head>
 <body>
@@ -1097,6 +1102,21 @@
                             <option value="todos">Todas</option>
                         </select>
                     </div>
+                    <div class="date-range">
+                        <div class="form-group">
+                            <label for="filtro-periodo-inicio-exame">Período (Início):</label>
+                            <input type="date" id="filtro-periodo-inicio-exame">
+                        </div>
+                        <div class="form-group">
+                            <label for="filtro-periodo-fim-exame">Período (Fim):</label>
+                            <input type="date" id="filtro-periodo-fim-exame">
+                        </div>
+                        <div class="form-group clear-filters">
+                            <button class="btn btn-warning" id="btn-limpar-filtros-exame">
+                                <i class="fas fa-times"></i> Limpar Filtros
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="table-container">
@@ -1154,6 +1174,10 @@
                         <div class="form-group">
                             <label for="exame-data">Data do Exame *</label>
                             <input type="date" id="exame-data" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="exame-vencimento">Data de Vencimento *</label>
+                            <input type="date" id="exame-vencimento" required>
                         </div>
                         <div class="form-actions">
                             <button type="button" class="btn btn-primary" id="btn-salvar-exame">
@@ -1638,6 +1662,20 @@
                 filtrarExames();
             });
             
+            // Filtro por período para exames
+            document.getElementById('filtro-periodo-inicio-exame').addEventListener('change', function() {
+                filtrarExames();
+            });
+            
+            document.getElementById('filtro-periodo-fim-exame').addEventListener('change', function() {
+                filtrarExames();
+            });
+            
+            // Botão para limpar filtros de exames
+            document.getElementById('btn-limpar-filtros-exame').addEventListener('click', function() {
+                limparFiltrosExames();
+            });
+            
             // Filtros automáticos para atestados
             document.getElementById('filtro-status-atestado').addEventListener('change', function() {
                 filtrarAtestados();
@@ -1663,6 +1701,20 @@
             document.getElementById('filtro-colaborador-cat').addEventListener('change', function() {
                 filtrarCATs();
             });
+        }
+
+        // Limpar filtros de exames
+        function limparFiltrosExames() {
+            document.getElementById('filtro-nome-exame').value = '';
+            document.getElementById('filtro-departamento-exame').value = 'todos';
+            document.getElementById('filtro-status-exame').value = 'todos';
+            document.getElementById('filtro-tipo-exame').value = 'todos';
+            document.getElementById('filtro-empresa-exame').value = 'todos';
+            document.getElementById('filtro-periodo-inicio-exame').value = '';
+            document.getElementById('filtro-periodo-fim-exame').value = '';
+            
+            filtrarExames();
+            showNotification('Filtros limpos com sucesso!', 'info');
         }
 
         // Carregar cache de dados sincronizados
@@ -2007,10 +2059,15 @@
             // Carregar selects se necessário
             loadColaboradoresSelect();
             
-            // Definir data atual como padrão para data do exame
+            // Definir datas padrão
             if (!editMode) {
                 const hoje = new Date();
                 document.getElementById('exame-data').value = hoje.toISOString().split('T')[0];
+                
+                // Definir vencimento padrão para 1 ano a partir de hoje
+                const vencimento = new Date();
+                vencimento.setFullYear(vencimento.getFullYear() + 1);
+                document.getElementById('exame-vencimento').value = vencimento.toISOString().split('T')[0];
             }
         }
 
@@ -2259,7 +2316,7 @@
         async function loadExames() {
             try {
                 const examesQuery = await db.collection('exames')
-                    .orderBy('vencimento', 'asc')
+                    .orderBy('dataExame', 'desc')
                     .get();
                 
                 const examesBody = document.getElementById('examesBody');
@@ -2352,6 +2409,8 @@
             const filtroStatus = document.getElementById('filtro-status-exame').value;
             const filtroTipo = document.getElementById('filtro-tipo-exame').value;
             const filtroEmpresa = document.getElementById('filtro-empresa-exame').value;
+            const filtroPeriodoInicio = document.getElementById('filtro-periodo-inicio-exame').value;
+            const filtroPeriodoFim = document.getElementById('filtro-periodo-fim-exame').value;
             
             const examesBody = document.getElementById('examesBody');
             examesBody.innerHTML = '';
@@ -2394,7 +2453,21 @@
                     departamentoMatch = exame.colaborador.departamento === filtroDepartamento;
                 }
                 
-                return nomeMatch && statusMatch && tipoMatch && empresaMatch && departamentoMatch;
+                // Filtro por período
+                let periodoMatch = true;
+                if (filtroPeriodoInicio && exame.data.dataExame) {
+                    const dataExame = new Date(exame.data.dataExame);
+                    const dataInicio = new Date(filtroPeriodoInicio);
+                    periodoMatch = dataExame >= dataInicio;
+                }
+                
+                if (filtroPeriodoFim && exame.data.dataExame) {
+                    const dataExame = new Date(exame.data.dataExame);
+                    const dataFim = new Date(filtroPeriodoFim);
+                    periodoMatch = periodoMatch && dataExame <= dataFim;
+                }
+                
+                return nomeMatch && statusMatch && tipoMatch && empresaMatch && departamentoMatch && periodoMatch;
             });
             
             if (examesFiltradosResultado.length === 0) {
@@ -2411,11 +2484,11 @@
                 return;
             }
             
-            // Ordenar por vencimento (mais próximo primeiro)
+            // Ordenar por data do exame (mais recente primeiro)
             examesFiltradosResultado.sort((a, b) => {
-                const vencimentoA = new Date(a.data.vencimento);
-                const vencimentoB = new Date(b.data.vencimento);
-                return vencimentoA - vencimentoB;
+                const dataA = new Date(a.data.dataExame);
+                const dataB = new Date(b.data.dataExame);
+                return dataB - dataA;
             });
             
             // Exibir exames filtrados
@@ -3164,21 +3237,23 @@
             }
         }
 
-        // Salvar exame ocupacional - ATUALIZADO para calcular vencimento automaticamente
+        // Salvar exame ocupacional - CORRIGIDO: Data do vencimento é independente da data do exame
         async function salvarExame() {
             try {
                 const funcionario = document.getElementById('exame-colaborador').value;
                 const tipo = document.getElementById('exame-tipo').value;
                 const dataExame = document.getElementById('exame-data').value;
+                const vencimento = document.getElementById('exame-vencimento').value;
                 
                 // Validação básica
-                if (!funcionario || !tipo || !dataExame) {
+                if (!funcionario || !tipo || !dataExame || !vencimento) {
                     showNotification('Preencha todos os campos obrigatórios', 'warning');
                     return;
                 }
                 
-                // Validar data do exame
+                // Validar datas
                 const dataExameDate = new Date(dataExame);
+                const vencimentoDate = new Date(vencimento);
                 const hoje = new Date();
                 
                 if (dataExameDate > hoje) {
@@ -3186,10 +3261,11 @@
                     return;
                 }
                 
-                // Calcular data de vencimento (1 ano após a data do exame)
-                const vencimentoDate = new Date(dataExameDate);
-                vencimentoDate.setFullYear(vencimentoDate.getFullYear() + 1);
-                const vencimento = vencimentoDate.toISOString().split('T')[0];
+                // O vencimento deve ser posterior à data do exame
+                if (vencimentoDate <= dataExameDate) {
+                    showNotification('A data de vencimento deve ser posterior à data do exame', 'warning');
+                    return;
+                }
                 
                 const btn = document.getElementById('btn-salvar-exame');
                 const originalText = btn.innerHTML;
@@ -3640,6 +3716,7 @@
                 document.getElementById('exame-colaborador').value = data.funcionario || '';
                 document.getElementById('exame-tipo').value = data.tipo || '';
                 document.getElementById('exame-data').value = data.dataExame || '';
+                document.getElementById('exame-vencimento').value = data.vencimento || '';
                 
             } catch (error) {
                 console.error('Erro ao carregar exame para edição:', error);
@@ -3964,6 +4041,11 @@
                 document.getElementById('exame-tipo').value = '';
                 const hoje = new Date();
                 document.getElementById('exame-data').value = hoje.toISOString().split('T')[0];
+                
+                // Definir vencimento padrão para 1 ano a partir de hoje
+                const vencimento = new Date();
+                vencimento.setFullYear(vencimento.getFullYear() + 1);
+                document.getElementById('exame-vencimento').value = vencimento.toISOString().split('T')[0];
             } else if (tipo === 'atestado') {
                 document.getElementById('atestado-colaborador').value = '';
                 document.getElementById('atestado-tipo').value = '';
