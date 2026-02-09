@@ -1,0 +1,1980 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HealthGest - Gestão de Saúde Ocupacional</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #1abc9c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --success: #27ae60;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        .logo i {
+            color: var(--accent);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .sidebar {
+            background-color: white;
+            border-radius: 10px;
+            padding: 25px 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            height: fit-content;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 10px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            color: var(--dark);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background-color: var(--light);
+            color: var(--secondary);
+        }
+
+        .nav-link i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .content-area {
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .page-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .page-title h2 {
+            color: var(--primary);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #229954;
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+
+        .btn-warning {
+            background-color: var(--warning);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background-color: #d68910;
+        }
+
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border-left: 5px solid var(--secondary);
+        }
+
+        .stat-card.exames {
+            border-left-color: var(--secondary);
+        }
+
+        .stat-card.atestados {
+            border-left-color: var(--success);
+        }
+
+        .stat-card.cats {
+            border-left-color: var(--warning);
+        }
+
+        .stat-card h3 {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status.pendente {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status.concluido {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status.vencido {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .status.registrada {
+            background-color: #cce5ff;
+            color: #004085;
+        }
+
+        .form-section {
+            background-color: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        input, select, textarea {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--secondary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 5px;
+            color: white;
+            font-weight: 600;
+            z-index: 1000;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .notification.success {
+            background-color: var(--success);
+        }
+
+        .notification.error {
+            background-color: var(--danger);
+        }
+
+        .notification.warning {
+            background-color: var(--warning);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #7f8c8d;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                order: 2;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .stats-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="notification" class="notification hidden"></div>
+    
+    <!-- Modal de Confirmação -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Confirmar Exclusão</h3>
+                <button class="close-modal" onclick="closeModal()">&times;</button>
+            </div>
+            <p id="confirmMessage">Tem certeza que deseja excluir este item?</p>
+            <div class="form-actions">
+                <button class="btn btn-danger" onclick="confirmDelete()">Excluir</button>
+                <button class="btn" onclick="closeModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-heartbeat"></i>
+                    <span>HealthGest</span>
+                </div>
+                <div class="user-info">
+                    <div class="user-avatar">GS</div>
+                    <div>
+                        <div id="userName">Carregando...</div>
+                        <small id="userEmail">admin@empresa.com</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="main-content">
+            <aside class="sidebar">
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link active" data-page="dashboard">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-page="exames">
+                            <i class="fas fa-stethoscope"></i>
+                            <span>Exames Ocupacionais</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-page="atestados">
+                            <i class="fas fa-file-medical"></i>
+                            <span>Atestados</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-page="cats">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <span>CATs</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-page="novo-registro">
+                            <i class="fas fa-plus-circle"></i>
+                            <span>Novo Registro</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-page="relatorios">
+                            <i class="fas fa-chart-pie"></i>
+                            <span>Relatórios</span>
+                        </a>
+                    </li>
+                </ul>
+            </aside>
+
+            <main class="content-area">
+                <!-- Dashboard -->
+                <section id="dashboard" class="page-content">
+                    <div class="page-title">
+                        <h2><i class="fas fa-chart-bar"></i> Dashboard</h2>
+                        <div id="currentDate">Carregando...</div>
+                    </div>
+
+                    <div class="stats-cards">
+                        <div class="stat-card exames">
+                            <h3>Exames Ocupacionais</h3>
+                            <div class="value" id="totalExames">0</div>
+                            <small id="examesPendentes">0 pendentes</small>
+                        </div>
+                        <div class="stat-card atestados">
+                            <h3>Atestados</h3>
+                            <div class="value" id="totalAtestados">0</div>
+                            <small id="atestadosVencidos">0 vencidos</small>
+                        </div>
+                        <div class="stat-card cats">
+                            <h3>CATs Registradas</h3>
+                            <div class="value" id="totalCats">0</div>
+                            <small id="catsAnalise">0 em análise</small>
+                        </div>
+                        <div class="stat-card">
+                            <h3>Funcionários</h3>
+                            <div class="value" id="totalFuncionarios">0</div>
+                            <small id="funcionariosAtivos">0 ativos</small>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3>Próximos Vencimentos</h3>
+                        <div class="table-container">
+                            <table id="vencimentosTable">
+                                <thead>
+                                    <tr>
+                                        <th>Funcionário</th>
+                                        <th>Tipo</th>
+                                        <th>Data de Vencimento</th>
+                                        <th>Status</th>
+                                        <th>Ação</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="vencimentosBody">
+                                    <tr>
+                                        <td colspan="5" style="text-align: center;">Carregando dados...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Exames Ocupacionais -->
+                <section id="exames" class="page-content hidden">
+                    <div class="page-title">
+                        <h2><i class="fas fa-stethoscope"></i> Exames Ocupacionais</h2>
+                        <button class="btn btn-primary" id="btn-novo-exame">
+                            <i class="fas fa-plus"></i> Novo Exame
+                        </button>
+                    </div>
+
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Funcionário</th>
+                                    <th>Tipo de Exame</th>
+                                    <th>Data do Exame</th>
+                                    <th>Vencimento</th>
+                                    <th>Médico</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="examesBody">
+                                <tr>
+                                    <td colspan="7" style="text-align: center;">Carregando dados...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Atestados -->
+                <section id="atestados" class="page-content hidden">
+                    <div class="page-title">
+                        <h2><i class="fas fa-file-medical"></i> Atestados</h2>
+                        <button class="btn btn-primary" id="btn-novo-atestado">
+                            <i class="fas fa-plus"></i> Novo Atestado
+                        </button>
+                    </div>
+
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Funcionário</th>
+                                    <th>Tipo</th>
+                                    <th>Data de Emissão</th>
+                                    <th>Data de Validade</th>
+                                    <th>CID</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="atestadosBody">
+                                <tr>
+                                    <td colspan="7" style="text-align: center;">Carregando dados...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- CATs -->
+                <section id="cats" class="page-content hidden">
+                    <div class="page-title">
+                        <h2><i class="fas fa-exclamation-triangle"></i> CATs (Comunicação de Acidente de Trabalho)</h2>
+                        <button class="btn btn-primary" id="btn-nova-cat">
+                            <i class="fas fa-plus"></i> Nova CAT
+                        </button>
+                    </div>
+
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Número</th>
+                                    <th>Funcionário</th>
+                                    <th>Data do Acidente</th>
+                                    <th>Data de Registro</th>
+                                    <th>Tipo</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="catsBody">
+                                <tr>
+                                    <td colspan="7" style="text-align: center;">Carregando dados...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Novo Registro -->
+                <section id="novo-registro" class="page-content hidden">
+                    <div class="page-title">
+                        <h2><i class="fas fa-plus-circle"></i> Novo Registro</h2>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="tipo-registro">Tipo de Registro</label>
+                                <select id="tipo-registro">
+                                    <option value="">Selecione o tipo de registro</option>
+                                    <option value="exame">Exame Ocupacional</option>
+                                    <option value="atestado">Atestado Médico</option>
+                                    <option value="cat">CAT</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Formulário para Exame Ocupacional -->
+                        <div id="form-exame" class="hidden">
+                            <h3>Novo Exame Ocupacional</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="funcionario-exame">Funcionário *</label>
+                                    <input type="text" id="funcionario-exame" placeholder="Nome do funcionário" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="tipo-exame">Tipo de Exame *</label>
+                                    <select id="tipo-exame" required>
+                                        <option value="">Selecione</option>
+                                        <option value="admissional">Admissional</option>
+                                        <option value="periodico">Periódico</option>
+                                        <option value="demissional">Demissional</option>
+                                        <option value="retorno">Retorno ao Trabalho</option>
+                                        <option value="mudanca">Mudança de Função</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="data-exame">Data do Exame *</label>
+                                    <input type="date" id="data-exame" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="vencimento-exame">Data de Vencimento</label>
+                                    <input type="date" id="vencimento-exame">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="medico-exame">Médico Responsável</label>
+                                    <input type="text" id="medico-exame" placeholder="Nome do médico">
+                                </div>
+                                <div class="form-group">
+                                    <label for="clinica-exame">Clínica</label>
+                                    <input type="text" id="clinica-exame" placeholder="Nome da clínica">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="status-exame">Status</label>
+                                    <select id="status-exame">
+                                        <option value="pendente">Pendente</option>
+                                        <option value="concluido">Concluído</option>
+                                        <option value="vencido">Vencido</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="observacoes-exame">Observações</label>
+                                    <textarea id="observacoes-exame" placeholder="Observações adicionais"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-primary" id="btn-salvar-exame">
+                                    <span id="btn-exame-text">Salvar Exame</span>
+                                </button>
+                                <button type="button" class="btn" id="btn-cancelar-exame">Cancelar</button>
+                            </div>
+                        </div>
+
+                        <!-- Formulário para Atestado -->
+                        <div id="form-atestado" class="hidden">
+                            <h3>Novo Atestado Médico</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="funcionario-atestado">Funcionário *</label>
+                                    <input type="text" id="funcionario-atestado" placeholder="Nome do funcionário" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="tipo-atestado">Tipo de Atestado *</label>
+                                    <select id="tipo-atestado" required>
+                                        <option value="">Selecione</option>
+                                        <option value="medico">Médico</option>
+                                        <option value="odontologico">Odontológico</option>
+                                        <option value="outro">Outro</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="data-emissao-atestado">Data de Emissão *</label>
+                                    <input type="date" id="data-emissao-atestado" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="validade-atestado">Data de Validade</label>
+                                    <input type="date" id="validade-atestado">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="cid-atestado">CID (se aplicável)</label>
+                                    <input type="text" id="cid-atestado" placeholder="Código CID">
+                                </div>
+                                <div class="form-group">
+                                    <label for="medico-atestado">Médico Emissor</label>
+                                    <input type="text" id="medico-atestado" placeholder="Nome do médico">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="dias-afastamento-atestado">Dias de Afastamento</label>
+                                    <input type="number" id="dias-afastamento-atestado" placeholder="Número de dias" min="0">
+                                </div>
+                                <div class="form-group">
+                                    <label for="status-atestado">Status</label>
+                                    <select id="status-atestado">
+                                        <option value="pendente">Pendente</option>
+                                        <option value="concluido">Concluído</option>
+                                        <option value="vencido">Vencido</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-primary" id="btn-salvar-atestado">
+                                    <span id="btn-atestado-text">Salvar Atestado</span>
+                                </button>
+                                <button type="button" class="btn" id="btn-cancelar-atestado">Cancelar</button>
+                            </div>
+                        </div>
+
+                        <!-- Formulário para CAT -->
+                        <div id="form-cat" class="hidden">
+                            <h3>Nova CAT (Comunicação de Acidente de Trabalho)</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="funcionario-cat">Funcionário *</label>
+                                    <input type="text" id="funcionario-cat" placeholder="Nome do funcionário" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="tipo-cat">Tipo de CAT *</label>
+                                    <select id="tipo-cat" required>
+                                        <option value="">Selecione</option>
+                                        <option value="acidente">Acidente de Trabalho</option>
+                                        <option value="doenca">Doença Ocupacional</option>
+                                        <option value="acidente-trajeto">Acidente de Trajeto</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="data-acidente-cat">Data do Acidente/Doença *</label>
+                                    <input type="date" id="data-acidente-cat" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="data-registro-cat">Data de Registro *</label>
+                                    <input type="date" id="data-registro-cat" required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="numero-cat">Número da CAT (opcional)</label>
+                                    <input type="text" id="numero-cat" placeholder="Ex: CAT-2023-001">
+                                </div>
+                                <div class="form-group">
+                                    <label for="status-cat">Status</label>
+                                    <select id="status-cat">
+                                        <option value="registrada">Registrada</option>
+                                        <option value="em_analise">Em Análise</option>
+                                        <option value="concluida">Concluída</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="descricao-cat">Descrição do Acidente/Doença *</label>
+                                    <textarea id="descricao-cat" placeholder="Descreva o ocorrido" required></textarea>
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-primary" id="btn-salvar-cat">
+                                    <span id="btn-cat-text">Registrar CAT</span>
+                                </button>
+                                <button type="button" class="btn" id="btn-cancelar-cat">Cancelar</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Relatórios -->
+                <section id="relatorios" class="page-content hidden">
+                    <div class="page-title">
+                        <h2><i class="fas fa-chart-pie"></i> Relatórios</h2>
+                        <button class="btn btn-success" id="btn-exportar-relatorio">
+                            <i class="fas fa-download"></i> Exportar Relatório
+                        </button>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>Gerar Relatório Personalizado</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="tipo-relatorio">Tipo de Relatório</label>
+                                <select id="tipo-relatorio">
+                                    <option value="">Selecione</option>
+                                    <option value="exames">Exames Ocupacionais</option>
+                                    <option value="atestados">Atestados</option>
+                                    <option value="cats">CATs</option>
+                                    <option value="vencimentos">Vencimentos</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="periodo-relatorio">Período</label>
+                                <select id="periodo-relatorio">
+                                    <option value="30">Últimos 30 dias</option>
+                                    <option value="90">Últimos 90 dias</option>
+                                    <option value="180">Últimos 6 meses</option>
+                                    <option value="365">Último ano</option>
+                                    <option value="custom">Personalizado</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="custom-periodo" class="form-row hidden">
+                            <div class="form-group">
+                                <label for="data-inicio">Data Início</label>
+                                <input type="date" id="data-inicio">
+                            </div>
+                            <div class="form-group">
+                                <label for="data-fim">Data Fim</label>
+                                <input type="date" id="data-fim">
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-primary" id="btn-gerar-relatorio">Gerar Relatório</button>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 40px;">
+                        <h3>Estatísticas</h3>
+                        <div class="stats-cards" id="estatisticas-relatorio">
+                            <!-- As estatísticas serão carregadas dinamicamente -->
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>HealthGest &copy; 2023 - Sistema de Gestão de Saúde Ocupacional</p>
+            <p>Controle de Exames Ocupacionais, Atestados e CATs</p>
+        </div>
+    </footer>
+
+    <script>
+        // Configuração do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyANms4j1tEWWeEtNrL29u3YcUWt5taEHYo",
+            authDomain: "gestao-saude-2401a.firebaseapp.com",
+            projectId: "gestao-saude-2401a",
+            storageBucket: "gestao-saude-2401a.firebasestorage.app",
+            messagingSenderId: "44272062547",
+            appId: "1:44272062547:web:ba6a16612c9537c9c536a6"
+        };
+
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        // Variáveis globais
+        let currentUser = null;
+        let editMode = false;
+        let itemToEdit = null;
+        let itemToDelete = null;
+        let deleteCollection = '';
+
+        // Inicializar aplicação
+        document.addEventListener('DOMContentLoaded', function() {
+            // Configurar data atual
+            const now = new Date();
+            document.getElementById('currentDate').textContent = `Última atualização: ${formatDate(now)}`;
+            
+            // Configurar datas padrão nos formulários
+            const today = now.toISOString().split('T')[0];
+            document.querySelectorAll('input[type="date"]').forEach(input => {
+                if (!input.value) {
+                    input.value = today;
+                }
+            });
+
+            // Inicializar autenticação
+            initAuth();
+            
+            // Configurar navegação
+            setupNavigation();
+            
+            // Configurar formulários
+            setupForms();
+            
+            // Configurar botões
+            setupButtons();
+            
+            // Carregar dados iniciais
+            loadDashboardData();
+        });
+
+        // Inicializar autenticação (simulada para este exemplo)
+        function initAuth() {
+            // Para simplificar, usaremos um usuário fixo
+            // Em produção, implementar login com Firebase Auth
+            currentUser = {
+                uid: 'demo-user',
+                displayName: 'Gestor de Saúde',
+                email: 'admin@empresa.com'
+            };
+            
+            document.getElementById('userName').textContent = currentUser.displayName;
+            document.getElementById('userEmail').textContent = currentUser.email;
+        }
+
+        // Configurar navegação
+        function setupNavigation() {
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Remove a classe active de todos os links
+                    document.querySelectorAll('.nav-link').forEach(item => {
+                        item.classList.remove('active');
+                    });
+                    
+                    // Adiciona a classe active ao link clicado
+                    this.classList.add('active');
+                    
+                    // Oculta todas as páginas
+                    document.querySelectorAll('.page-content').forEach(page => {
+                        page.classList.add('hidden');
+                    });
+                    
+                    // Mostra a página correspondente ao link clicado
+                    const pageId = this.getAttribute('data-page');
+                    document.getElementById(pageId).classList.remove('hidden');
+                    
+                    // Carregar dados específicos da página
+                    if (pageId === 'exames') {
+                        loadExames();
+                    } else if (pageId === 'atestados') {
+                        loadAtestados();
+                    } else if (pageId === 'cats') {
+                        loadCATs();
+                    } else if (pageId === 'relatorios') {
+                        loadEstatisticas();
+                    }
+                });
+            });
+        }
+
+        // Configurar formulários
+        function setupForms() {
+            const tipoRegistroSelect = document.getElementById('tipo-registro');
+            const formExame = document.getElementById('form-exame');
+            const formAtestado = document.getElementById('form-atestado');
+            const formCat = document.getElementById('form-cat');
+
+            // Controle do formulário de novo registro
+            tipoRegistroSelect.addEventListener('change', function() {
+                // Oculta todos os formulários
+                formExame.classList.add('hidden');
+                formAtestado.classList.add('hidden');
+                formCat.classList.add('hidden');
+                
+                // Limpa os formulários
+                clearForm('exame');
+                clearForm('atestado');
+                clearForm('cat');
+                
+                // Reseta o modo de edição
+                editMode = false;
+                itemToEdit = null;
+                
+                // Mostra o formulário correspondente à seleção
+                if (this.value === 'exame') {
+                    formExame.classList.remove('hidden');
+                    document.getElementById('btn-salvar-exame').onclick = salvarExame;
+                    document.getElementById('btn-exame-text').textContent = 'Salvar Exame';
+                } else if (this.value === 'atestado') {
+                    formAtestado.classList.remove('hidden');
+                    document.getElementById('btn-salvar-atestado').onclick = salvarAtestado;
+                    document.getElementById('btn-atestado-text').textContent = 'Salvar Atestado';
+                } else if (this.value === 'cat') {
+                    formCat.classList.remove('hidden');
+                    document.getElementById('btn-salvar-cat').onclick = salvarCAT;
+                    document.getElementById('btn-cat-text').textContent = 'Registrar CAT';
+                }
+            });
+
+            // Configurar período personalizado no relatório
+            document.getElementById('periodo-relatorio').addEventListener('change', function() {
+                const customPeriodo = document.getElementById('custom-periodo');
+                if (this.value === 'custom') {
+                    customPeriodo.classList.remove('hidden');
+                } else {
+                    customPeriodo.classList.add('hidden');
+                }
+            });
+
+            // Configurar botões de cancelar
+            document.getElementById('btn-cancelar-exame').addEventListener('click', function() {
+                clearForm('exame');
+                editMode = false;
+                itemToEdit = null;
+                document.getElementById('tipo-registro').value = '';
+                document.getElementById('form-exame').classList.add('hidden');
+            });
+
+            document.getElementById('btn-cancelar-atestado').addEventListener('click', function() {
+                clearForm('atestado');
+                editMode = false;
+                itemToEdit = null;
+                document.getElementById('tipo-registro').value = '';
+                document.getElementById('form-atestado').classList.add('hidden');
+            });
+
+            document.getElementById('btn-cancelar-cat').addEventListener('click', function() {
+                clearForm('cat');
+                editMode = false;
+                itemToEdit = null;
+                document.getElementById('tipo-registro').value = '';
+                document.getElementById('form-cat').classList.add('hidden');
+            });
+        }
+
+        // Configurar botões
+        function setupButtons() {
+            // Botões para criar novos registros
+            document.getElementById('btn-novo-exame').addEventListener('click', function() {
+                navigateToNovoRegistro('exame');
+            });
+
+            document.getElementById('btn-novo-atestado').addEventListener('click', function() {
+                navigateToNovoRegistro('atestado');
+            });
+
+            document.getElementById('btn-nova-cat').addEventListener('click', function() {
+                navigateToNovoRegistro('cat');
+            });
+
+            // Botão para gerar relatório
+            document.getElementById('btn-gerar-relatorio').addEventListener('click', gerarRelatorio);
+            
+            // Botão para exportar relatório
+            document.getElementById('btn-exportar-relatorio').addEventListener('click', exportarRelatorio);
+        }
+
+        // Navegar para a página de novo registro
+        function navigateToNovoRegistro(tipo) {
+            // Navega para a página de novo registro
+            document.querySelectorAll('.nav-link').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            document.querySelector('[data-page="novo-registro"]').classList.add('active');
+            
+            // Oculta todas as páginas
+            document.querySelectorAll('.page-content').forEach(page => {
+                page.classList.add('hidden');
+            });
+            
+            // Mostra a página de novo registro
+            document.getElementById('novo-registro').classList.remove('hidden');
+            
+            // Seleciona o tipo no dropdown
+            document.getElementById('tipo-registro').value = tipo;
+            
+            // Dispara o evento change para mostrar o formulário correto
+            document.getElementById('tipo-registro').dispatchEvent(new Event('change'));
+        }
+
+        // Carregar dados do dashboard
+        function loadDashboardData() {
+            // Carregar contadores
+            loadCounters();
+            
+            // Carregar próximos vencimentos
+            loadProximosVencimentos();
+        }
+
+        // Carregar contadores
+        async function loadCounters() {
+            try {
+                // Contar exames
+                const examesSnapshot = await db.collection('exames').get();
+                const totalExames = examesSnapshot.size;
+                const examesPendentes = examesSnapshot.docs.filter(doc => 
+                    doc.data().status === 'pendente'
+                ).length;
+                
+                document.getElementById('totalExames').textContent = totalExames;
+                document.getElementById('examesPendentes').textContent = `${examesPendentes} pendentes`;
+                
+                // Contar atestados
+                const atestadosSnapshot = await db.collection('atestados').get();
+                const totalAtestados = atestadosSnapshot.size;
+                const atestadosVencidos = atestadosSnapshot.docs.filter(doc => {
+                    const data = doc.data();
+                    if (data.validade) {
+                        return new Date(data.validade) < new Date() && data.status !== 'concluido';
+                    }
+                    return false;
+                }).length;
+                
+                document.getElementById('totalAtestados').textContent = totalAtestados;
+                document.getElementById('atestadosVencidos').textContent = `${atestadosVencidos} vencidos`;
+                
+                // Contar CATs
+                const catsSnapshot = await db.collection('cats').get();
+                const totalCats = catsSnapshot.size;
+                const catsAnalise = catsSnapshot.docs.filter(doc => 
+                    doc.data().status === 'em_analise'
+                ).length;
+                
+                document.getElementById('totalCats').textContent = totalCats;
+                document.getElementById('catsAnalise').textContent = `${catsAnalise} em análise`;
+                
+                // Contar funcionários únicos
+                const funcionariosSet = new Set();
+                examesSnapshot.docs.forEach(doc => funcionariosSet.add(doc.data().funcionario));
+                atestadosSnapshot.docs.forEach(doc => funcionariosSet.add(doc.data().funcionario));
+                catsSnapshot.docs.forEach(doc => funcionariosSet.add(doc.data().funcionario));
+                
+                document.getElementById('totalFuncionarios').textContent = funcionariosSet.size;
+                document.getElementById('funcionariosAtivos').textContent = `${funcionariosSet.size} ativos`;
+                
+            } catch (error) {
+                console.error('Erro ao carregar contadores:', error);
+                showNotification('Erro ao carregar dados do dashboard', 'error');
+            }
+        }
+
+        // Carregar próximos vencimentos
+        async function loadProximosVencimentos() {
+            try {
+                const hoje = new Date();
+                const daqui30Dias = new Date();
+                daqui30Dias.setDate(hoje.getDate() + 30);
+                
+                // Buscar exames com vencimento próximo
+                const examesQuery = await db.collection('exames')
+                    .where('vencimento', '>=', hoje.toISOString().split('T')[0])
+                    .where('vencimento', '<=', daqui30Dias.toISOString().split('T')[0])
+                    .orderBy('vencimento')
+                    .limit(10)
+                    .get();
+                
+                // Buscar atestados com validade próxima
+                const atestadosQuery = await db.collection('atestados')
+                    .where('validade', '>=', hoje.toISOString().split('T')[0])
+                    .where('validade', '<=', daqui30Dias.toISOString().split('T')[0])
+                    .orderBy('validade')
+                    .limit(10)
+                    .get();
+                
+                const vencimentosBody = document.getElementById('vencimentosBody');
+                vencimentosBody.innerHTML = '';
+                
+                if (examesQuery.empty && atestadosQuery.empty) {
+                    vencimentosBody.innerHTML = `
+                        <tr>
+                            <td colspan="5" style="text-align: center;">Nenhum vencimento próximo</td>
+                        </tr>
+                    `;
+                    return;
+                }
+                
+                // Adicionar exames
+                examesQuery.docs.forEach(doc => {
+                    const data = doc.data();
+                    const vencimentoDate = new Date(data.vencimento);
+                    const diasRestantes = Math.ceil((vencimentoDate - hoje) / (1000 * 60 * 60 * 24));
+                    
+                    vencimentosBody.innerHTML += `
+                        <tr>
+                            <td>${data.funcionario}</td>
+                            <td>Exame ${formatTipoExame(data.tipo)}</td>
+                            <td>${formatDate(vencimentoDate)}</td>
+                            <td><span class="status ${data.status}">${formatStatus(data.status)}</span></td>
+                            <td>
+                                <button class="btn btn-primary" onclick="editarItem('exames', '${doc.id}')">
+                                    <i class="fas fa-edit"></i> Editar
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                // Adicionar atestados
+                atestadosQuery.docs.forEach(doc => {
+                    const data = doc.data();
+                    const validadeDate = new Date(data.validade);
+                    const diasRestantes = Math.ceil((validadeDate - hoje) / (1000 * 60 * 60 * 24));
+                    
+                    vencimentosBody.innerHTML += `
+                        <tr>
+                            <td>${data.funcionario}</td>
+                            <td>Atestado ${formatTipoAtestado(data.tipo)}</td>
+                            <td>${formatDate(validadeDate)}</td>
+                            <td><span class="status ${data.status}">${formatStatus(data.status)}</span></td>
+                            <td>
+                                <button class="btn btn-primary" onclick="editarItem('atestados', '${doc.id}')">
+                                    <i class="fas fa-edit"></i> Editar
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+            } catch (error) {
+                console.error('Erro ao carregar próximos vencimentos:', error);
+                showNotification('Erro ao carregar próximos vencimentos', 'error');
+            }
+        }
+
+        // Carregar exames
+        async function loadExames() {
+            try {
+                const examesQuery = await db.collection('exames')
+                    .orderBy('dataExame', 'desc')
+                    .get();
+                
+                const examesBody = document.getElementById('examesBody');
+                examesBody.innerHTML = '';
+                
+                if (examesQuery.empty) {
+                    examesBody.innerHTML = `
+                        <tr>
+                            <td colspan="7" style="text-align: center;">Nenhum exame cadastrado</td>
+                        </tr>
+                    `;
+                    return;
+                }
+                
+                examesQuery.docs.forEach(doc => {
+                    const data = doc.data();
+                    examesBody.innerHTML += `
+                        <tr>
+                            <td>${data.funcionario}</td>
+                            <td>${formatTipoExame(data.tipo)}</td>
+                            <td>${formatDate(new Date(data.dataExame))}</td>
+                            <td>${data.vencimento ? formatDate(new Date(data.vencimento)) : 'N/A'}</td>
+                            <td>${data.medico || 'Não informado'}</td>
+                            <td><span class="status ${data.status}">${formatStatus(data.status)}</span></td>
+                            <td>
+                                <button class="btn btn-primary" onclick="editarItem('exames', '${doc.id}')" style="padding: 5px 10px; font-size: 0.8rem;">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-danger" onclick="solicitarExclusao('exames', '${doc.id}', '${data.funcionario} - ${formatTipoExame(data.tipo)}')" style="padding: 5px 10px; font-size: 0.8rem;">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+            } catch (error) {
+                console.error('Erro ao carregar exames:', error);
+                showNotification('Erro ao carregar exames', 'error');
+            }
+        }
+
+        // Carregar atestados
+        async function loadAtestados() {
+            try {
+                const atestadosQuery = await db.collection('atestados')
+                    .orderBy('dataEmissao', 'desc')
+                    .get();
+                
+                const atestadosBody = document.getElementById('atestadosBody');
+                atestadosBody.innerHTML = '';
+                
+                if (atestadosQuery.empty) {
+                    atestadosBody.innerHTML = `
+                        <tr>
+                            <td colspan="7" style="text-align: center;">Nenhum atestado cadastrado</td>
+                        </tr>
+                    `;
+                    return;
+                }
+                
+                atestadosQuery.docs.forEach(doc => {
+                    const data = doc.data();
+                    atestadosBody.innerHTML += `
+                        <tr>
+                            <td>${data.funcionario}</td>
+                            <td>${formatTipoAtestado(data.tipo)}</td>
+                            <td>${formatDate(new Date(data.dataEmissao))}</td>
+                            <td>${data.validade ? formatDate(new Date(data.validade)) : 'N/A'}</td>
+                            <td>${data.cid || 'N/A'}</td>
+                            <td><span class="status ${data.status}">${formatStatus(data.status)}</span></td>
+                            <td>
+                                <button class="btn btn-primary" onclick="editarItem('atestados', '${doc.id}')" style="padding: 5px 10px; font-size: 0.8rem;">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-danger" onclick="solicitarExclusao('atestados', '${doc.id}', '${data.funcionario} - ${formatTipoAtestado(data.tipo)}')" style="padding: 5px 10px; font-size: 0.8rem;">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+            } catch (error) {
+                console.error('Erro ao carregar atestados:', error);
+                showNotification('Erro ao carregar atestados', 'error');
+            }
+        }
+
+        // Carregar CATs
+        async function loadCATs() {
+            try {
+                const catsQuery = await db.collection('cats')
+                    .orderBy('dataRegistro', 'desc')
+                    .get();
+                
+                const catsBody = document.getElementById('catsBody');
+                catsBody.innerHTML = '';
+                
+                if (catsQuery.empty) {
+                    catsBody.innerHTML = `
+                        <tr>
+                            <td colspan="7" style="text-align: center;">Nenhuma CAT registrada</td>
+                        </tr>
+                    `;
+                    return;
+                }
+                
+                catsQuery.docs.forEach(doc => {
+                    const data = doc.data();
+                    catsBody.innerHTML += `
+                        <tr>
+                            <td>${data.numero || `CAT-${doc.id.substring(0, 8)}`}</td>
+                            <td>${data.funcionario}</td>
+                            <td>${formatDate(new Date(data.dataAcidente))}</td>
+                            <td>${formatDate(new Date(data.dataRegistro))}</td>
+                            <td>${formatTipoCAT(data.tipo)}</td>
+                            <td><span class="status ${data.status}">${formatStatus(data.status)}</span></td>
+                            <td>
+                                <button class="btn btn-primary" onclick="editarItem('cats', '${doc.id}')" style="padding: 5px 10px; font-size: 0.8rem;">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-danger" onclick="solicitarExclusao('cats', '${doc.id}', '${data.funcionario} - ${formatTipoCAT(data.tipo)}')" style="padding: 5px 10px; font-size: 0.8rem;">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+            } catch (error) {
+                console.error('Erro ao carregar CATs:', error);
+                showNotification('Erro ao carregar CATs', 'error');
+            }
+        }
+
+        // Salvar exame
+        async function salvarExame() {
+            try {
+                const funcionario = document.getElementById('funcionario-exame').value;
+                const tipo = document.getElementById('tipo-exame').value;
+                const dataExame = document.getElementById('data-exame').value;
+                const vencimento = document.getElementById('vencimento-exame').value;
+                const medico = document.getElementById('medico-exame').value;
+                const clinica = document.getElementById('clinica-exame').value;
+                const status = document.getElementById('status-exame').value;
+                const observacoes = document.getElementById('observacoes-exame').value;
+                
+                // Validação básica
+                if (!funcionario || !tipo || !dataExame) {
+                    showNotification('Preencha todos os campos obrigatórios', 'warning');
+                    return;
+                }
+                
+                const btn = document.getElementById('btn-salvar-exame');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<div class="loading"></div>';
+                btn.disabled = true;
+                
+                const exameData = {
+                    funcionario,
+                    tipo,
+                    dataExame,
+                    vencimento: vencimento || null,
+                    medico: medico || '',
+                    clinica: clinica || '',
+                    status,
+                    observacoes: observacoes || '',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    userId: currentUser.uid
+                };
+                
+                if (editMode && itemToEdit) {
+                    // Atualizar exame existente
+                    await db.collection('exames').doc(itemToEdit).update({
+                        ...exameData,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    showNotification('Exame atualizado com sucesso!', 'success');
+                } else {
+                    // Criar novo exame
+                    await db.collection('exames').add(exameData);
+                    showNotification('Exame salvo com sucesso!', 'success');
+                }
+                
+                // Limpar formulário e recarregar dados
+                clearForm('exame');
+                editMode = false;
+                itemToEdit = null;
+                
+                // Recarregar dados
+                loadDashboardData();
+                loadExames();
+                
+                // Navegar de volta para a lista de exames
+                document.querySelector('[data-page="exames"]').click();
+                
+            } catch (error) {
+                console.error('Erro ao salvar exame:', error);
+                showNotification('Erro ao salvar exame', 'error');
+            } finally {
+                const btn = document.getElementById('btn-salvar-exame');
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // Salvar atestado
+        async function salvarAtestado() {
+            try {
+                const funcionario = document.getElementById('funcionario-atestado').value;
+                const tipo = document.getElementById('tipo-atestado').value;
+                const dataEmissao = document.getElementById('data-emissao-atestado').value;
+                const validade = document.getElementById('validade-atestado').value;
+                const cid = document.getElementById('cid-atestado').value;
+                const medico = document.getElementById('medico-atestado').value;
+                const diasAfastamento = document.getElementById('dias-afastamento-atestado').value;
+                const status = document.getElementById('status-atestado').value;
+                
+                // Validação básica
+                if (!funcionario || !tipo || !dataEmissao) {
+                    showNotification('Preencha todos os campos obrigatórios', 'warning');
+                    return;
+                }
+                
+                const btn = document.getElementById('btn-salvar-atestado');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<div class="loading"></div>';
+                btn.disabled = true;
+                
+                const atestadoData = {
+                    funcionario,
+                    tipo,
+                    dataEmissao,
+                    validade: validade || null,
+                    cid: cid || '',
+                    medico: medico || '',
+                    diasAfastamento: diasAfastamento ? parseInt(diasAfastamento) : 0,
+                    status,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    userId: currentUser.uid
+                };
+                
+                if (editMode && itemToEdit) {
+                    // Atualizar atestado existente
+                    await db.collection('atestados').doc(itemToEdit).update({
+                        ...atestadoData,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    showNotification('Atestado atualizado com sucesso!', 'success');
+                } else {
+                    // Criar novo atestado
+                    await db.collection('atestados').add(atestadoData);
+                    showNotification('Atestado salvo com sucesso!', 'success');
+                }
+                
+                // Limpar formulário e recarregar dados
+                clearForm('atestado');
+                editMode = false;
+                itemToEdit = null;
+                
+                // Recarregar dados
+                loadDashboardData();
+                loadAtestados();
+                
+                // Navegar de volta para a lista de atestados
+                document.querySelector('[data-page="atestados"]').click();
+                
+            } catch (error) {
+                console.error('Erro ao salvar atestado:', error);
+                showNotification('Erro ao salvar atestado', 'error');
+            } finally {
+                const btn = document.getElementById('btn-salvar-atestado');
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // Salvar CAT
+        async function salvarCAT() {
+            try {
+                const funcionario = document.getElementById('funcionario-cat').value;
+                const tipo = document.getElementById('tipo-cat').value;
+                const dataAcidente = document.getElementById('data-acidente-cat').value;
+                const dataRegistro = document.getElementById('data-registro-cat').value;
+                const numero = document.getElementById('numero-cat').value;
+                const status = document.getElementById('status-cat').value;
+                const descricao = document.getElementById('descricao-cat').value;
+                
+                // Validação básica
+                if (!funcionario || !tipo || !dataAcidente || !dataRegistro || !descricao) {
+                    showNotification('Preencha todos os campos obrigatórios', 'warning');
+                    return;
+                }
+                
+                const btn = document.getElementById('btn-salvar-cat');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<div class="loading"></div>';
+                btn.disabled = true;
+                
+                // Gerar número automático se não fornecido
+                let numeroFinal = numero;
+                if (!numeroFinal) {
+                    const hoje = new Date();
+                    const ano = hoje.getFullYear();
+                    const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+                    const dia = String(hoje.getDate()).padStart(2, '0');
+                    const timestamp = Date.now().toString().substring(8);
+                    numeroFinal = `CAT-${ano}${mes}${dia}-${timestamp}`;
+                }
+                
+                const catData = {
+                    funcionario,
+                    tipo,
+                    dataAcidente,
+                    dataRegistro,
+                    numero: numeroFinal,
+                    status,
+                    descricao,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    userId: currentUser.uid
+                };
+                
+                if (editMode && itemToEdit) {
+                    // Atualizar CAT existente
+                    await db.collection('cats').doc(itemToEdit).update({
+                        ...catData,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    showNotification('CAT atualizada com sucesso!', 'success');
+                } else {
+                    // Criar nova CAT
+                    await db.collection('cats').add(catData);
+                    showNotification('CAT registrada com sucesso!', 'success');
+                }
+                
+                // Limpar formulário e recarregar dados
+                clearForm('cat');
+                editMode = false;
+                itemToEdit = null;
+                
+                // Recarregar dados
+                loadDashboardData();
+                loadCATs();
+                
+                // Navegar de volta para a lista de CATs
+                document.querySelector('[data-page="cats"]').click();
+                
+            } catch (error) {
+                console.error('Erro ao salvar CAT:', error);
+                showNotification('Erro ao salvar CAT', 'error');
+            } finally {
+                const btn = document.getElementById('btn-salvar-cat');
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // Editar item
+        async function editarItem(collection, id) {
+            try {
+                const doc = await db.collection(collection).doc(id).get();
+                
+                if (!doc.exists) {
+                    showNotification('Item não encontrado', 'error');
+                    return;
+                }
+                
+                const data = doc.data();
+                itemToEdit = id;
+                editMode = true;
+                
+                // Navegar para o formulário de edição
+                navigateToNovoRegistro(collection.slice(0, -1)); // Remove o 's' final
+                
+                // Preencher o formulário com os dados
+                if (collection === 'exames') {
+                    document.getElementById('funcionario-exame').value = data.funcionario;
+                    document.getElementById('tipo-exame').value = data.tipo;
+                    document.getElementById('data-exame').value = data.dataExame;
+                    document.getElementById('vencimento-exame').value = data.vencimento || '';
+                    document.getElementById('medico-exame').value = data.medico || '';
+                    document.getElementById('clinica-exame').value = data.clinica || '';
+                    document.getElementById('status-exame').value = data.status;
+                    document.getElementById('observacoes-exame').value = data.observacoes || '';
+                    
+                    document.getElementById('btn-exame-text').textContent = 'Atualizar Exame';
+                } else if (collection === 'atestados') {
+                    document.getElementById('funcionario-atestado').value = data.funcionario;
+                    document.getElementById('tipo-atestado').value = data.tipo;
+                    document.getElementById('data-emissao-atestado').value = data.dataEmissao;
+                    document.getElementById('validade-atestado').value = data.validade || '';
+                    document.getElementById('cid-atestado').value = data.cid || '';
+                    document.getElementById('medico-atestado').value = data.medico || '';
+                    document.getElementById('dias-afastamento-atestado').value = data.diasAfastamento || '';
+                    document.getElementById('status-atestado').value = data.status;
+                    
+                    document.getElementById('btn-atestado-text').textContent = 'Atualizar Atestado';
+                } else if (collection === 'cats') {
+                    document.getElementById('funcionario-cat').value = data.funcionario;
+                    document.getElementById('tipo-cat').value = data.tipo;
+                    document.getElementById('data-acidente-cat').value = data.dataAcidente;
+                    document.getElementById('data-registro-cat').value = data.dataRegistro;
+                    document.getElementById('numero-cat').value = data.numero || '';
+                    document.getElementById('status-cat').value = data.status;
+                    document.getElementById('descricao-cat').value = data.descricao;
+                    
+                    document.getElementById('btn-cat-text').textContent = 'Atualizar CAT';
+                }
+                
+            } catch (error) {
+                console.error('Erro ao carregar item para edição:', error);
+                showNotification('Erro ao carregar item para edição', 'error');
+            }
+        }
+
+        // Solicitar exclusão
+        function solicitarExclusao(collection, id, descricao) {
+            itemToDelete = id;
+            deleteCollection = collection;
+            
+            document.getElementById('confirmMessage').textContent = 
+                `Tem certeza que deseja excluir "${descricao}"?`;
+            
+            document.getElementById('confirmModal').style.display = 'flex';
+        }
+
+        // Confirmar exclusão
+        async function confirmDelete() {
+            try {
+                await db.collection(deleteCollection).doc(itemToDelete).delete();
+                showNotification('Item excluído com sucesso!', 'success');
+                
+                // Recarregar dados
+                loadDashboardData();
+                
+                if (deleteCollection === 'exames') {
+                    loadExames();
+                } else if (deleteCollection === 'atestados') {
+                    loadAtestados();
+                } else if (deleteCollection === 'cats') {
+                    loadCATs();
+                }
+                
+                closeModal();
+                
+            } catch (error) {
+                console.error('Erro ao excluir item:', error);
+                showNotification('Erro ao excluir item', 'error');
+            }
+        }
+
+        // Fechar modal
+        function closeModal() {
+            document.getElementById('confirmModal').style.display = 'none';
+            itemToDelete = null;
+            deleteCollection = '';
+        }
+
+        // Carregar estatísticas para relatórios
+        async function loadEstatisticas() {
+            try {
+                // Buscar dados dos últimos 30 dias
+                const trintaDiasAtras = new Date();
+                trintaDiasAtras.setDate(trintaDiasAtras.getDate() - 30);
+                
+                const examesQuery = await db.collection('exames')
+                    .where('dataExame', '>=', trintaDiasAtras.toISOString().split('T')[0])
+                    .get();
+                
+                const atestadosQuery = await db.collection('atestados')
+                    .where('dataEmissao', '>=', trintaDiasAtras.toISOString().split('T')[0])
+                    .get();
+                
+                const catsQuery = await db.collection('cats')
+                    .where('dataRegistro', '>=', trintaDiasAtras.toISOString().split('T')[0])
+                    .get();
+                
+                const estatisticasDiv = document.getElementById('estatisticas-relatorio');
+                
+                const examesUltimos30Dias = examesQuery.size;
+                const atestadosUltimos30Dias = atestadosQuery.size;
+                const catsUltimos30Dias = catsQuery.size;
+                
+                // Calcular variação (simplificado - em produção, comparar com período anterior)
+                const variacaoExames = '+5%';
+                const variacaoAtestados = '-2%';
+                const variacaoCats = '0%';
+                
+                estatisticasDiv.innerHTML = `
+                    <div class="stat-card">
+                        <h3>Exames Realizados (Últimos 30 dias)</h3>
+                        <div class="value">${examesUltimos30Dias}</div>
+                        <small>${variacaoExames} em relação ao período anterior</small>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Atestados Registrados (Últimos 30 dias)</h3>
+                        <div class="value">${atestadosUltimos30Dias}</div>
+                        <small>${variacaoAtestados} em relação ao período anterior</small>
+                    </div>
+                    <div class="stat-card">
+                        <h3>CATs Registradas (Últimos 30 dias)</h3>
+                        <div class="value">${catsUltimos30Dias}</div>
+                        <small>${variacaoCats} em relação ao período anterior</small>
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error('Erro ao carregar estatísticas:', error);
+                showNotification('Erro ao carregar estatísticas', 'error');
+            }
+        }
+
+        // Gerar relatório
+        async function gerarRelatorio() {
+            try {
+                const tipo = document.getElementById('tipo-relatorio').value;
+                const periodo = document.getElementById('periodo-relatorio').value;
+                
+                if (!tipo) {
+                    showNotification('Selecione o tipo de relatório', 'warning');
+                    return;
+                }
+                
+                let dataInicio, dataFim;
+                
+                if (periodo === 'custom') {
+                    dataInicio = document.getElementById('data-inicio').value;
+                    dataFim = document.getElementById('data-fim').value;
+                    
+                    if (!dataInicio || !dataFim) {
+                        showNotification('Preencha as datas do período personalizado', 'warning');
+                        return;
+                    }
+                } else {
+                    dataFim = new Date().toISOString().split('T')[0];
+                    dataInicio = new Date();
+                    dataInicio.setDate(dataInicio.getDate() - parseInt(periodo));
+                    dataInicio = dataInicio.toISOString().split('T')[0];
+                }
+                
+                showNotification(`Relatório gerado para o período de ${formatDate(new Date(dataInicio))} a ${formatDate(new Date(dataFim))}`, 'success');
+                
+                // Aqui você implementaria a geração do relatório específico
+                // Por enquanto, apenas mostramos uma notificação
+                
+            } catch (error) {
+                console.error('Erro ao gerar relatório:', error);
+                showNotification('Erro ao gerar relatório', 'error');
+            }
+        }
+
+        // Exportar relatório
+        function exportarRelatorio() {
+            // Esta função exportaria os dados para CSV ou PDF
+            // Por enquanto, apenas mostramos uma notificação
+            showNotification('Funcionalidade de exportação em desenvolvimento', 'warning');
+        }
+
+        // Limpar formulário
+        function clearForm(tipo) {
+            if (tipo === 'exame') {
+                document.getElementById('funcionario-exame').value = '';
+                document.getElementById('tipo-exame').value = '';
+                document.getElementById('data-exame').value = new Date().toISOString().split('T')[0];
+                document.getElementById('vencimento-exame').value = '';
+                document.getElementById('medico-exame').value = '';
+                document.getElementById('clinica-exame').value = '';
+                document.getElementById('status-exame').value = 'pendente';
+                document.getElementById('observacoes-exame').value = '';
+            } else if (tipo === 'atestado') {
+                document.getElementById('funcionario-atestado').value = '';
+                document.getElementById('tipo-atestado').value = '';
+                document.getElementById('data-emissao-atestado').value = new Date().toISOString().split('T')[0];
+                document.getElementById('validade-atestado').value = '';
+                document.getElementById('cid-atestado').value = '';
+                document.getElementById('medico-atestado').value = '';
+                document.getElementById('dias-afastamento-atestado').value = '';
+                document.getElementById('status-atestado').value = 'pendente';
+            } else if (tipo === 'cat') {
+                document.getElementById('funcionario-cat').value = '';
+                document.getElementById('tipo-cat').value = '';
+                document.getElementById('data-acidente-cat').value = new Date().toISOString().split('T')[0];
+                document.getElementById('data-registro-cat').value = new Date().toISOString().split('T')[0];
+                document.getElementById('numero-cat').value = '';
+                document.getElementById('status-cat').value = 'registrada';
+                document.getElementById('descricao-cat').value = '';
+            }
+        }
+
+        // Mostrar notificação
+        function showNotification(message, type) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.remove('hidden');
+            
+            setTimeout(() => {
+                notification.classList.add('hidden');
+            }, 3000);
+        }
+
+        // Funções auxiliares de formatação
+        function formatDate(date) {
+            if (!date) return 'N/A';
+            const d = new Date(date);
+            return d.toLocaleDateString('pt-BR');
+        }
+
+        function formatTipoExame(tipo) {
+            const tipos = {
+                'admissional': 'Admissional',
+                'periodico': 'Periódico',
+                'demissional': 'Demissional',
+                'retorno': 'Retorno ao Trabalho',
+                'mudanca': 'Mudança de Função'
+            };
+            return tipos[tipo] || tipo;
+        }
+
+        function formatTipoAtestado(tipo) {
+            const tipos = {
+                'medico': 'Médico',
+                'odontologico': 'Odontológico',
+                'outro': 'Outro'
+            };
+            return tipos[tipo] || tipo;
+        }
+
+        function formatTipoCAT(tipo) {
+            const tipos = {
+                'acidente': 'Acidente de Trabalho',
+                'doenca': 'Doença Ocupacional',
+                'acidente-trajeto': 'Acidente de Trajeto'
+            };
+            return tipos[tipo] || tipo;
+        }
+
+        function formatStatus(status) {
+            const statusMap = {
+                'pendente': 'Pendente',
+                'concluido': 'Concluído',
+                'vencido': 'Vencido',
+                'registrada': 'Registrada',
+                'em_analise': 'Em Análise',
+                'concluida': 'Concluída'
+            };
+            return statusMap[status] || status;
+        }
+    </script>
+</body>
+</html>
