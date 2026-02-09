@@ -845,7 +845,7 @@
                     <div class="stat-card exames">
                         <h3>Exames Ocupacionais</h3>
                         <div class="value" id="totalExames">0</div>
-                        <small id="examesPendentes">0 pendentes</small>
+                        <small id="examesPendentes">0 vencidos</small>
                     </div>
                     <div class="stat-card atestados">
                         <h3>Atestados</h3>
@@ -986,6 +986,18 @@
                         </select>
                     </div>
                     <div class="form-group">
+                        <label for="filtro-empresa-exame">Filtrar por Empresa:</label>
+                        <select id="filtro-empresa-exame">
+                            <option value="todos">Todas</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="filtro-departamento-exame">Filtrar por Departamento:</label>
+                        <select id="filtro-departamento-exame">
+                            <option value="todos">Todos</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <button class="btn btn-info" id="btn-filtrar-exames">
                             <i class="fas fa-filter"></i> Filtrar
                         </button>
@@ -1049,23 +1061,6 @@
                                 <small style="color: #666; margin-top: 5px;">Calculado automaticamente (1 ano após a data do exame)</small>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label for="exame-medico">Médico Responsável</label>
-                            <input type="text" id="exame-medico" placeholder="Nome do médico">
-                        </div>
-                        <div class="form-group">
-                            <label for="exame-observacoes">Observações</label>
-                            <textarea id="exame-observacoes" placeholder="Observações sobre o exame"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="exame-status">Status</label>
-                            <select id="exame-status">
-                                <option value="em-dia">Em Dia</option>
-                                <option value="proximo-vencer">Próximo de Vencer</option>
-                                <option value="vencido">Vencido</option>
-                            </select>
-                            <small style="color: #666; margin-top: 5px;">O status será calculado automaticamente com base na data de vencimento</small>
-                        </div>
                         <div class="form-actions">
                             <button type="button" class="btn btn-primary" id="btn-salvar-exame">
                                 <span id="btn-exame-text">Salvar Exame</span>
@@ -1083,6 +1078,41 @@
                     <button class="btn btn-primary" id="btn-novo-atestado">
                         <i class="fas fa-plus"></i> Novo Atestado
                     </button>
+                </div>
+
+                <div class="filters">
+                    <div class="form-group">
+                        <label for="filtro-status-atestado">Filtrar por Status:</label>
+                        <select id="filtro-status-atestado">
+                            <option value="todos">Todos</option>
+                            <option value="pendente">Pendente</option>
+                            <option value="concluido">Concluído</option>
+                            <option value="vencido">Vencido</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="filtro-tipo-atestado">Filtrar por Tipo:</label>
+                        <select id="filtro-tipo-atestado">
+                            <option value="todos">Todos</option>
+                            <option value="medico">Médico</option>
+                            <option value="odontologico">Odontológico</option>
+                            <option value="outro">Outro</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="filtro-colaborador-atestado">Filtrar por Colaborador:</label>
+                        <select id="filtro-colaborador-atestado">
+                            <option value="todos">Todos</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-info" id="btn-filtrar-atestados">
+                            <i class="fas fa-filter"></i> Filtrar
+                        </button>
+                        <button class="btn" id="btn-limpar-filtros-atestados">
+                            <i class="fas fa-times"></i> Limpar
+                        </button>
+                    </div>
                 </div>
 
                 <div class="table-container">
@@ -1114,6 +1144,41 @@
                     <button class="btn btn-primary" id="btn-nova-cat">
                         <i class="fas fa-plus"></i> Nova CAT
                     </button>
+                </div>
+
+                <div class="filters">
+                    <div class="form-group">
+                        <label for="filtro-status-cat">Filtrar por Status:</label>
+                        <select id="filtro-status-cat">
+                            <option value="todos">Todos</option>
+                            <option value="registrada">Registrada</option>
+                            <option value="em_analise">Em Análise</option>
+                            <option value="concluida">Concluída</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="filtro-tipo-cat">Filtrar por Tipo:</label>
+                        <select id="filtro-tipo-cat">
+                            <option value="todos">Todos</option>
+                            <option value="acidente">Acidente de Trabalho</option>
+                            <option value="doenca">Doença Ocupacional</option>
+                            <option value="acidente-trajeto">Acidente de Trajeto</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="filtro-colaborador-cat">Filtrar por Colaborador:</label>
+                        <select id="filtro-colaborador-cat">
+                            <option value="todos">Todos</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-info" id="btn-filtrar-cats">
+                            <i class="fas fa-filter"></i> Filtrar
+                        </button>
+                        <button class="btn" id="btn-limpar-filtros-cats">
+                            <i class="fas fa-times"></i> Limpar
+                        </button>
+                    </div>
                 </div>
 
                 <div class="table-container">
@@ -1272,6 +1337,18 @@
                                 <option value="custom">Personalizado</option>
                             </select>
                         </div>
+                        <div class="form-group">
+                            <label for="filtro-empresa-relatorio">Filtrar por Empresa:</label>
+                            <select id="filtro-empresa-relatorio">
+                                <option value="todos">Todas</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="filtro-departamento-relatorio">Filtrar por Departamento:</label>
+                            <select id="filtro-departamento-relatorio">
+                                <option value="todos">Todos</option>
+                            </select>
+                        </div>
                     </div>
                     <div id="custom-periodo" class="form-row hidden">
                         <div class="form-group">
@@ -1328,13 +1405,23 @@
         const db = firebase.firestore();
         const auth = firebase.auth();
 
-        // Variáveis globais
+        // Variáveis globais para cache de dados
         let currentUser = null;
         let editMode = false;
         let itemToEdit = null;
         let itemToDelete = null;
         let deleteCollection = '';
         let examesFiltrados = [];
+        let atestadosFiltrados = [];
+        let catsFiltrados = [];
+        
+        // Cache de dados sincronizados
+        let cache = {
+            colaboradores: [],
+            empresas: [],
+            departamentos: [],
+            cids: []
+        };
 
         // Inicializar aplicação
         document.addEventListener('DOMContentLoaded', function() {
@@ -1368,7 +1455,96 @@
             
             // Carregar dados iniciais
             loadDashboardData();
+            
+            // Carregar cache de dados sincronizados
+            loadCacheData();
         });
+
+        // Carregar cache de dados sincronizados
+        async function loadCacheData() {
+            try {
+                // Carregar todos os dados em cache
+                await Promise.all([
+                    loadColaboradoresCache(),
+                    loadEmpresasCache(),
+                    loadDepartamentosCache(),
+                    loadCIDsCache()
+                ]);
+                
+                console.log('Cache de dados carregado com sucesso:', cache);
+                
+            } catch (error) {
+                console.error('Erro ao carregar cache de dados:', error);
+            }
+        }
+
+        // Carregar colaboradores em cache
+        async function loadColaboradoresCache() {
+            try {
+                const colaboradoresQuery = await db.collection('colaboradores')
+                    .orderBy('nome')
+                    .get();
+                
+                cache.colaboradores = colaboradoresQuery.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                
+            } catch (error) {
+                console.error('Erro ao carregar colaboradores em cache:', error);
+            }
+        }
+
+        // Carregar empresas em cache
+        async function loadEmpresasCache() {
+            try {
+                const empresasQuery = await db.collection('empresas')
+                    .orderBy('nome')
+                    .get();
+                
+                cache.empresas = empresasQuery.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                
+            } catch (error) {
+                console.error('Erro ao carregar empresas em cache:', error);
+            }
+        }
+
+        // Carregar departamentos em cache
+        async function loadDepartamentosCache() {
+            try {
+                const departamentosQuery = await db.collection('departamentos')
+                    .orderBy('nome')
+                    .get();
+                
+                cache.departamentos = departamentosQuery.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                
+            } catch (error) {
+                console.error('Erro ao carregar departamentos em cache:', error);
+            }
+        }
+
+        // Carregar CIDs em cache
+        async function loadCIDsCache() {
+            try {
+                const cidsQuery = await db.collection('cids')
+                    .orderBy('codigo')
+                    .get();
+                
+                cache.cids = cidsQuery.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                
+            } catch (error) {
+                console.error('Erro ao carregar CIDs em cache:', error);
+            }
+        }
 
         // Inicializar autenticação
         function initAuth() {
@@ -1414,15 +1590,20 @@
                     } else if (pageId === 'exames') {
                         loadExames();
                         loadColaboradoresSelect();
+                        loadFiltrosExames();
                         setupExameForm();
                     } else if (pageId === 'atestados') {
                         loadAtestados();
+                        loadColaboradoresFiltro('filtro-colaborador-atestado');
+                        loadCIDsSelect();
                     } else if (pageId === 'cats') {
                         loadCATs();
+                        loadColaboradoresFiltro('filtro-colaborador-cat');
                     } else if (pageId === 'configuracoes') {
                         loadConfiguracoes();
                     } else if (pageId === 'relatorios') {
                         loadEstatisticas();
+                        loadFiltrosRelatorios();
                     }
                 });
             });
@@ -1593,11 +1774,11 @@
         function setupButtons() {
             // Botões para criar novos registros
             document.getElementById('btn-novo-atestado').addEventListener('click', function() {
-                navigateToNovoRegistro('atestado');
+                showNotification('Redirecionando para formulário de atestado...', 'info');
             });
 
             document.getElementById('btn-nova-cat').addEventListener('click', function() {
-                navigateToNovoRegistro('cat');
+                showNotification('Redirecionando para formulário de CAT...', 'info');
             });
 
             // Botão para gerar relatório
@@ -1614,14 +1795,34 @@
             document.getElementById('btn-limpar-filtros').addEventListener('click', function() {
                 document.getElementById('filtro-status-exame').value = 'todos';
                 document.getElementById('filtro-tipo-exame').value = 'todos';
+                document.getElementById('filtro-empresa-exame').value = 'todos';
+                document.getElementById('filtro-departamento-exame').value = 'todos';
                 loadExames();
             });
-        }
-
-        // Navegar para a página de novo registro
-        function navigateToNovoRegistro(tipo) {
-            // Em uma aplicação completa, redirecionaria para formulário específico
-            showNotification(`Redirecionando para formulário de ${tipo}...`, 'info');
+            
+            // Botões de filtro para atestados
+            document.getElementById('btn-filtrar-atestados').addEventListener('click', function() {
+                filtrarAtestados();
+            });
+            
+            document.getElementById('btn-limpar-filtros-atestados').addEventListener('click', function() {
+                document.getElementById('filtro-status-atestado').value = 'todos';
+                document.getElementById('filtro-tipo-atestado').value = 'todos';
+                document.getElementById('filtro-colaborador-atestado').value = 'todos';
+                loadAtestados();
+            });
+            
+            // Botões de filtro para CATs
+            document.getElementById('btn-filtrar-cats').addEventListener('click', function() {
+                filtrarCATs();
+            });
+            
+            document.getElementById('btn-limpar-filtros-cats').addEventListener('click', function() {
+                document.getElementById('filtro-status-cat').value = 'todos';
+                document.getElementById('filtro-tipo-cat').value = 'todos';
+                document.getElementById('filtro-colaborador-cat').value = 'todos';
+                loadCATs();
+            });
         }
 
         // Carregar dados do dashboard
@@ -1636,11 +1837,10 @@
         // Carregar contadores
         async function loadCounters() {
             try {
-                // Contar colaboradores
-                const colaboradoresSnapshot = await db.collection('colaboradores').get();
-                const totalColaboradores = colaboradoresSnapshot.size;
-                const colaboradoresAtivos = colaboradoresSnapshot.docs.filter(doc => 
-                    doc.data().status === 'ativo'
+                // Usar cache para contadores
+                const totalColaboradores = cache.colaboradores.length;
+                const colaboradoresAtivos = cache.colaboradores.filter(colaborador => 
+                    colaborador.status === 'ativo'
                 ).length;
                 
                 document.getElementById('totalColaboradores').textContent = totalColaboradores;
@@ -1691,14 +1891,10 @@
         // Carregar colaboradores
         async function loadColaboradores() {
             try {
-                const colaboradoresQuery = await db.collection('colaboradores')
-                    .orderBy('nome')
-                    .get();
-                
                 const colaboradoresBody = document.getElementById('colaboradoresBody');
                 colaboradoresBody.innerHTML = '';
                 
-                if (colaboradoresQuery.empty) {
+                if (cache.colaboradores.length === 0) {
                     colaboradoresBody.innerHTML = `
                         <tr>
                             <td colspan="6" style="text-align: center; padding: 30px;">Nenhum colaborador cadastrado</td>
@@ -1707,21 +1903,20 @@
                     return;
                 }
                 
-                colaboradoresQuery.docs.forEach(doc => {
-                    const data = doc.data();
+                cache.colaboradores.forEach(colaborador => {
                     colaboradoresBody.innerHTML += `
                         <tr>
-                            <td><strong>${data.nome || 'Sem nome'}</strong></td>
-                            <td>${data.dataAdmissao ? formatDate(new Date(data.dataAdmissao)) : 'N/A'}</td>
-                            <td>${data.departamento || 'N/A'}</td>
-                            <td>${data.empresa || 'N/A'}</td>
-                            <td><span class="status ${data.status || 'ativo'}">${formatStatus(data.status || 'ativo')}</span></td>
+                            <td><strong>${colaborador.nome || 'Sem nome'}</strong></td>
+                            <td>${colaborador.dataAdmissao ? formatDate(new Date(colaborador.dataAdmissao)) : 'N/A'}</td>
+                            <td>${colaborador.departamento || 'N/A'}</td>
+                            <td>${colaborador.empresa || 'N/A'}</td>
+                            <td><span class="status ${colaborador.status || 'ativo'}">${formatStatus(colaborador.status || 'ativo')}</span></td>
                             <td>
                                 <div class="actions-cell">
-                                    <button class="btn btn-primary btn-small" onclick="editarColaborador('${doc.id}')">
+                                    <button class="btn btn-primary btn-small" onclick="editarColaborador('${colaborador.id}')">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <button class="btn btn-danger btn-small" onclick="solicitarExclusao('colaboradores', '${doc.id}', '${data.nome || "Sem nome"}')">
+                                    <button class="btn btn-danger btn-small" onclick="solicitarExclusao('colaboradores', '${colaborador.id}', '${colaborador.nome || "Sem nome"}')">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </div>
@@ -1763,9 +1958,13 @@
                     const status = calcularStatusVencimento(data.vencimento);
                     const diasRestantes = calcularDiasRestantes(data.vencimento);
                     
+                    // Buscar informações do colaborador do cache
+                    const colaboradorInfo = cache.colaboradores.find(c => c.nome === data.funcionario);
+                    
                     const exameInfo = {
                         id: doc.id,
                         data: data,
+                        colaborador: colaboradorInfo,
                         status: status,
                         diasRestantes: diasRestantes
                     };
@@ -1774,7 +1973,10 @@
                     
                     examesBody.innerHTML += `
                         <tr>
-                            <td><strong>${data.funcionario || 'N/A'}</strong></td>
+                            <td>
+                                <strong>${data.funcionario || 'N/A'}</strong>
+                                ${colaboradorInfo ? `<br><small>${colaboradorInfo.departamento || ''} - ${colaboradorInfo.empresa || ''}</small>` : ''}
+                            </td>
                             <td>${formatTipoExame(data.tipo)}</td>
                             <td>${data.dataExame ? formatDate(new Date(data.dataExame)) : 'N/A'}</td>
                             <td>${data.vencimento ? formatDate(new Date(data.vencimento)) : 'N/A'}</td>
@@ -1800,10 +2002,31 @@
             }
         }
 
+        // Carregar filtros para exames
+        function loadFiltrosExames() {
+            // Carregar empresas no filtro
+            const filtroEmpresa = document.getElementById('filtro-empresa-exame');
+            filtroEmpresa.innerHTML = '<option value="todos">Todas</option>';
+            
+            cache.empresas.forEach(empresa => {
+                filtroEmpresa.innerHTML += `<option value="${empresa.nome}">${empresa.nome}</option>`;
+            });
+            
+            // Carregar departamentos no filtro
+            const filtroDepartamento = document.getElementById('filtro-departamento-exame');
+            filtroDepartamento.innerHTML = '<option value="todos">Todos</option>';
+            
+            cache.departamentos.forEach(departamento => {
+                filtroDepartamento.innerHTML += `<option value="${departamento.nome}">${departamento.nome}</option>`;
+            });
+        }
+
         // Filtrar exames
         function filtrarExames() {
             const filtroStatus = document.getElementById('filtro-status-exame').value;
             const filtroTipo = document.getElementById('filtro-tipo-exame').value;
+            const filtroEmpresa = document.getElementById('filtro-empresa-exame').value;
+            const filtroDepartamento = document.getElementById('filtro-departamento-exame').value;
             
             const examesBody = document.getElementById('examesBody');
             examesBody.innerHTML = '';
@@ -1822,7 +2045,19 @@
                 const statusMatch = filtroStatus === 'todos' || exame.status === filtroStatus;
                 const tipoMatch = filtroTipo === 'todos' || exame.data.tipo === filtroTipo;
                 
-                return statusMatch && tipoMatch;
+                // Filtros por empresa e departamento
+                let empresaMatch = true;
+                let departamentoMatch = true;
+                
+                if (filtroEmpresa !== 'todos' && exame.colaborador) {
+                    empresaMatch = exame.colaborador.empresa === filtroEmpresa;
+                }
+                
+                if (filtroDepartamento !== 'todos' && exame.colaborador) {
+                    departamentoMatch = exame.colaborador.departamento === filtroDepartamento;
+                }
+                
+                return statusMatch && tipoMatch && empresaMatch && departamentoMatch;
             });
             
             if (examesFiltradosResultado.length === 0) {
@@ -1846,7 +2081,10 @@
                 const data = exameInfo.data;
                 examesBody.innerHTML += `
                     <tr>
-                        <td><strong>${data.funcionario || 'N/A'}</strong></td>
+                        <td>
+                            <strong>${data.funcionario || 'N/A'}</strong>
+                            ${exameInfo.colaborador ? `<br><small>${exameInfo.colaborador.departamento || ''} - ${exameInfo.colaborador.empresa || ''}</small>` : ''}
+                        </td>
                         <td>${formatTipoExame(data.tipo)}</td>
                         <td>${data.dataExame ? formatDate(new Date(data.dataExame)) : 'N/A'}</td>
                         <td>${data.vencimento ? formatDate(new Date(data.vencimento)) : 'N/A'}</td>
@@ -1886,11 +2124,29 @@
                     return;
                 }
                 
+                // Armazenar atestados para filtragem
+                atestadosFiltrados = [];
+                
                 atestadosQuery.docs.forEach(doc => {
                     const data = doc.data();
+                    
+                    // Buscar informações do colaborador do cache
+                    const colaboradorInfo = cache.colaboradores.find(c => c.nome === data.funcionario);
+                    
+                    const atestadoInfo = {
+                        id: doc.id,
+                        data: data,
+                        colaborador: colaboradorInfo
+                    };
+                    
+                    atestadosFiltrados.push(atestadoInfo);
+                    
                     atestadosBody.innerHTML += `
                         <tr>
-                            <td>${data.funcionario || 'N/A'}</td>
+                            <td>
+                                <strong>${data.funcionario || 'N/A'}</strong>
+                                ${colaboradorInfo ? `<br><small>${colaboradorInfo.departamento || ''} - ${colaboradorInfo.empresa || ''}</small>` : ''}
+                            </td>
                             <td>${formatTipoAtestado(data.tipo)}</td>
                             <td>${data.dataEmissao ? formatDate(new Date(data.dataEmissao)) : 'N/A'}</td>
                             <td>${data.validade ? formatDate(new Date(data.validade)) : 'N/A'}</td>
@@ -1898,7 +2154,7 @@
                             <td><span class="status ${data.status || 'pendente'}">${formatStatus(data.status || 'pendente')}</span></td>
                             <td>
                                 <div class="actions-cell">
-                                    <button class="btn btn-primary btn-small" onclick="editarItem('atestados', '${doc.id}')">
+                                    <button class="btn btn-primary btn-small" onclick="editarAtestado('${doc.id}')">
                                         <i class="fas fa-edit"></i>
                                     </button>
                                     <button class="btn btn-danger btn-small" onclick="solicitarExclusao('atestados', '${doc.id}', '${data.funcionario || "Sem nome"} - ${formatTipoAtestado(data.tipo)}')">
@@ -1914,6 +2170,71 @@
                 console.error('Erro ao carregar atestados:', error);
                 showNotification('Erro ao carregar atestados', 'error');
             }
+        }
+
+        // Filtrar atestados
+        function filtrarAtestados() {
+            const filtroStatus = document.getElementById('filtro-status-atestado').value;
+            const filtroTipo = document.getElementById('filtro-tipo-atestado').value;
+            const filtroColaborador = document.getElementById('filtro-colaborador-atestado').value;
+            
+            const atestadosBody = document.getElementById('atestadosBody');
+            atestadosBody.innerHTML = '';
+            
+            if (atestadosFiltrados.length === 0) {
+                atestadosBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 30px;">Nenhum atestado cadastrado</td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            // Filtrar atestados
+            const atestadosFiltradosResultado = atestadosFiltrados.filter(atestado => {
+                const statusMatch = filtroStatus === 'todos' || atestado.data.status === filtroStatus;
+                const tipoMatch = filtroTipo === 'todos' || atestado.data.tipo === filtroTipo;
+                const colaboradorMatch = filtroColaborador === 'todos' || atestado.data.funcionario === filtroColaborador;
+                
+                return statusMatch && tipoMatch && colaboradorMatch;
+            });
+            
+            if (atestadosFiltradosResultado.length === 0) {
+                atestadosBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 30px;">Nenhum atestado encontrado com os filtros selecionados</td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            // Exibir atestados filtrados
+            atestadosFiltradosResultado.forEach(atestadoInfo => {
+                const data = atestadoInfo.data;
+                atestadosBody.innerHTML += `
+                    <tr>
+                        <td>
+                            <strong>${data.funcionario || 'N/A'}</strong>
+                            ${atestadoInfo.colaborador ? `<br><small>${atestadoInfo.colaborador.departamento || ''} - ${atestadoInfo.colaborador.empresa || ''}</small>` : ''}
+                        </td>
+                        <td>${formatTipoAtestado(data.tipo)}</td>
+                        <td>${data.dataEmissao ? formatDate(new Date(data.dataEmissao)) : 'N/A'}</td>
+                        <td>${data.validade ? formatDate(new Date(data.validade)) : 'N/A'}</td>
+                        <td>${data.cid || 'N/A'}</td>
+                        <td><span class="status ${data.status || 'pendente'}">${formatStatus(data.status || 'pendente')}</span></td>
+                        <td>
+                            <div class="actions-cell">
+                                <button class="btn btn-primary btn-small" onclick="editarAtestado('${atestadoInfo.id}')">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-danger btn-small" onclick="solicitarExclusao('atestados', '${atestadoInfo.id}', '${data.funcionario || "Sem nome"} - ${formatTipoAtestado(data.tipo)}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
         }
 
         // Carregar CATs
@@ -1935,19 +2256,37 @@
                     return;
                 }
                 
+                // Armazenar CATs para filtragem
+                catsFiltrados = [];
+                
                 catsQuery.docs.forEach(doc => {
                     const data = doc.data();
+                    
+                    // Buscar informações do colaborador do cache
+                    const colaboradorInfo = cache.colaboradores.find(c => c.nome === data.funcionario);
+                    
+                    const catInfo = {
+                        id: doc.id,
+                        data: data,
+                        colaborador: colaboradorInfo
+                    };
+                    
+                    catsFiltrados.push(catInfo);
+                    
                     catsBody.innerHTML += `
                         <tr>
                             <td>${data.numero || `CAT-${doc.id.substring(0, 8)}`}</td>
-                            <td>${data.funcionario || 'N/A'}</td>
+                            <td>
+                                <strong>${data.funcionario || 'N/A'}</strong>
+                                ${colaboradorInfo ? `<br><small>${colaboradorInfo.departamento || ''} - ${colaboradorInfo.empresa || ''}</small>` : ''}
+                            </td>
                             <td>${data.dataAcidente ? formatDate(new Date(data.dataAcidente)) : 'N/A'}</td>
                             <td>${data.dataRegistro ? formatDate(new Date(data.dataRegistro)) : 'N/A'}</td>
                             <td>${formatTipoCAT(data.tipo)}</td>
                             <td><span class="status ${data.status || 'registrada'}">${formatStatus(data.status || 'registrada')}</span></td>
                             <td>
                                 <div class="actions-cell">
-                                    <button class="btn btn-primary btn-small" onclick="editarItem('cats', '${doc.id}')">
+                                    <button class="btn btn-primary btn-small" onclick="editarCAT('${doc.id}')">
                                         <i class="fas fa-edit"></i>
                                     </button>
                                     <button class="btn btn-danger btn-small" onclick="solicitarExclusao('cats', '${doc.id}', '${data.funcionario || "Sem nome"} - ${formatTipoCAT(data.tipo)}')">
@@ -1965,195 +2304,240 @@
             }
         }
 
+        // Filtrar CATs
+        function filtrarCATs() {
+            const filtroStatus = document.getElementById('filtro-status-cat').value;
+            const filtroTipo = document.getElementById('filtro-tipo-cat').value;
+            const filtroColaborador = document.getElementById('filtro-colaborador-cat').value;
+            
+            const catsBody = document.getElementById('catsBody');
+            catsBody.innerHTML = '';
+            
+            if (catsFiltrados.length === 0) {
+                catsBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 30px;">Nenhuma CAT registrada</td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            // Filtrar CATs
+            const catsFiltradosResultado = catsFiltrados.filter(cat => {
+                const statusMatch = filtroStatus === 'todos' || cat.data.status === filtroStatus;
+                const tipoMatch = filtroTipo === 'todos' || cat.data.tipo === filtroTipo;
+                const colaboradorMatch = filtroColaborador === 'todos' || cat.data.funcionario === filtroColaborador;
+                
+                return statusMatch && tipoMatch && colaboradorMatch;
+            });
+            
+            if (catsFiltradosResultado.length === 0) {
+                catsBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 30px;">Nenhuma CAT encontrada com os filtros selecionados</td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            // Exibir CATs filtradas
+            catsFiltradosResultado.forEach(catInfo => {
+                const data = catInfo.data;
+                catsBody.innerHTML += `
+                    <tr>
+                        <td>${data.numero || `CAT-${catInfo.id.substring(0, 8)}`}</td>
+                        <td>
+                            <strong>${data.funcionario || 'N/A'}</strong>
+                            ${catInfo.colaborador ? `<br><small>${catInfo.colaborador.departamento || ''} - ${catInfo.colaborador.empresa || ''}</small>` : ''}
+                        </td>
+                        <td>${data.dataAcidente ? formatDate(new Date(data.dataAcidente)) : 'N/A'}</td>
+                        <td>${data.dataRegistro ? formatDate(new Date(data.dataRegistro)) : 'N/A'}</td>
+                        <td>${formatTipoCAT(data.tipo)}</td>
+                        <td><span class="status ${data.status || 'registrada'}">${formatStatus(data.status || 'registrada')}</span></td>
+                        <td>
+                            <div class="actions-cell">
+                                <button class="btn btn-primary btn-small" onclick="editarCAT('${catInfo.id}')">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-danger btn-small" onclick="solicitarExclusao('cats', '${catInfo.id}', '${data.funcionario || "Sem nome"} - ${formatTipoCAT(data.tipo)}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
         // Carregar configurações
-        async function loadConfiguracoes() {
-            await loadEmpresas();
-            await loadDepartamentos();
-            await loadCIDs();
+        function loadConfiguracoes() {
+            loadEmpresas();
+            loadDepartamentos();
+            loadCIDs();
         }
 
         // Carregar empresas
-        async function loadEmpresas() {
-            try {
-                const empresasQuery = await db.collection('empresas')
-                    .orderBy('nome')
-                    .get();
-                
-                const listaEmpresas = document.getElementById('lista-empresas');
-                listaEmpresas.innerHTML = '';
-                
-                if (empresasQuery.empty) {
-                    listaEmpresas.innerHTML = `
-                        <li style="justify-content: center; color: #666;">Nenhuma empresa cadastrada</li>
-                    `;
-                    return;
-                }
-                
-                empresasQuery.docs.forEach(doc => {
-                    const data = doc.data();
-                    listaEmpresas.innerHTML += `
-                        <li>
-                            <span><strong>${data.nome || 'Sem nome'}</strong></span>
-                            <div class="actions-cell">
-                                <button class="btn btn-primary btn-small" onclick="editarEmpresa('${doc.id}')">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-danger btn-small" onclick="solicitarExclusao('empresas', '${doc.id}', '${data.nome || "Sem nome"}')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </li>
-                    `;
-                });
-                
-            } catch (error) {
-                console.error('Erro ao carregar empresas:', error);
-                showNotification('Erro ao carregar empresas', 'error');
+        function loadEmpresas() {
+            const listaEmpresas = document.getElementById('lista-empresas');
+            listaEmpresas.innerHTML = '';
+            
+            if (cache.empresas.length === 0) {
+                listaEmpresas.innerHTML = `
+                    <li style="justify-content: center; color: #666;">Nenhuma empresa cadastrada</li>
+                `;
+                return;
             }
+            
+            cache.empresas.forEach(empresa => {
+                listaEmpresas.innerHTML += `
+                    <li>
+                        <span><strong>${empresa.nome || 'Sem nome'}</strong></span>
+                        <div class="actions-cell">
+                            <button class="btn btn-primary btn-small" onclick="editarEmpresa('${empresa.id}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-danger btn-small" onclick="solicitarExclusao('empresas', '${empresa.id}', '${empresa.nome || "Sem nome"}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </li>
+                `;
+            });
         }
 
         // Carregar departamentos
-        async function loadDepartamentos() {
-            try {
-                const departamentosQuery = await db.collection('departamentos')
-                    .orderBy('nome')
-                    .get();
-                
-                const listaDepartamentos = document.getElementById('lista-departamentos');
-                listaDepartamentos.innerHTML = '';
-                
-                if (departamentosQuery.empty) {
-                    listaDepartamentos.innerHTML = `
-                        <li style="justify-content: center; color: #666;">Nenhum departamento cadastrada</li>
-                    `;
-                    return;
-                }
-                
-                departamentosQuery.docs.forEach(doc => {
-                    const data = doc.data();
-                    listaDepartamentos.innerHTML += `
-                        <li>
-                            <span><strong>${data.nome || 'Sem nome'}</strong></span>
-                            <div class="actions-cell">
-                                <button class="btn btn-primary btn-small" onclick="editarDepartamento('${doc.id}')">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-danger btn-small" onclick="solicitarExclusao('departamentos', '${doc.id}', '${data.nome || "Sem nome"}')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </li>
-                    `;
-                });
-                
-            } catch (error) {
-                console.error('Erro ao carregar departamentos:', error);
-                showNotification('Erro ao carregar departamentos', 'error');
+        function loadDepartamentos() {
+            const listaDepartamentos = document.getElementById('lista-departamentos');
+            listaDepartamentos.innerHTML = '';
+            
+            if (cache.departamentos.length === 0) {
+                listaDepartamentos.innerHTML = `
+                    <li style="justify-content: center; color: #666;">Nenhum departamento cadastrado</li>
+                `;
+                return;
             }
+            
+            cache.departamentos.forEach(departamento => {
+                listaDepartamentos.innerHTML += `
+                    <li>
+                        <span><strong>${departamento.nome || 'Sem nome'}</strong></span>
+                        <div class="actions-cell">
+                            <button class="btn btn-primary btn-small" onclick="editarDepartamento('${departamento.id}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-danger btn-small" onclick="solicitarExclusao('departamentos', '${departamento.id}', '${departamento.nome || "Sem nome"}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </li>
+                `;
+            });
         }
 
         // Carregar CIDs
-        async function loadCIDs() {
-            try {
-                const cidsQuery = await db.collection('cids')
-                    .orderBy('codigo')
-                    .get();
-                
-                const listaCids = document.getElementById('lista-cids');
-                listaCids.innerHTML = '';
-                
-                if (cidsQuery.empty) {
-                    listaCids.innerHTML = `
-                        <li style="justify-content: center; color: #666;">Nenhum CID cadastrado</li>
-                    `;
-                    return;
-                }
-                
-                cidsQuery.docs.forEach(doc => {
-                    const data = doc.data();
-                    listaCids.innerHTML += `
-                        <li>
-                            <span><strong>${data.codigo || 'Sem código'}</strong> - ${data.descricao || 'Sem descrição'}</span>
-                            <div class="actions-cell">
-                                <button class="btn btn-primary btn-small" onclick="editarCID('${doc.id}')">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-danger btn-small" onclick="solicitarExclusao('cids', '${doc.id}', 'CID ${data.codigo || "Sem código"}')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </li>
-                    `;
-                });
-                
-            } catch (error) {
-                console.error('Erro ao carregar CIDs:', error);
-                showNotification('Erro ao carregar CIDs', 'error');
+        function loadCIDs() {
+            const listaCids = document.getElementById('lista-cids');
+            listaCids.innerHTML = '';
+            
+            if (cache.cids.length === 0) {
+                listaCids.innerHTML = `
+                    <li style="justify-content: center; color: #666;">Nenhum CID cadastrado</li>
+                `;
+                return;
             }
+            
+            cache.cids.forEach(cid => {
+                listaCids.innerHTML += `
+                    <li>
+                        <span><strong>${cid.codigo || 'Sem código'}</strong> - ${cid.descricao || 'Sem descrição'}</span>
+                        <div class="actions-cell">
+                            <button class="btn btn-primary btn-small" onclick="editarCID('${cid.id}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-danger btn-small" onclick="solicitarExclusao('cids', '${cid.id}', 'CID ${cid.codigo || "Sem código"}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </li>
+                `;
+            });
         }
 
         // Carregar colaboradores para select
-        async function loadColaboradoresSelect() {
-            try {
-                const colaboradoresQuery = await db.collection('colaboradores')
-                    .where('status', 'in', ['ativo', 'ferias', 'afastado'])
-                    .orderBy('nome')
-                    .get();
-                
-                const selectColaborador = document.getElementById('exame-colaborador');
-                
-                selectColaborador.innerHTML = '<option value="">Selecione um colaborador</option>';
-                
-                if (!colaboradoresQuery.empty) {
-                    colaboradoresQuery.docs.forEach(doc => {
-                        const data = doc.data();
-                        selectColaborador.innerHTML += `<option value="${data.nome}">${data.nome} - ${data.departamento || 'Sem departamento'}</option>`;
-                    });
+        function loadColaboradoresSelect() {
+            const selectColaborador = document.getElementById('exame-colaborador');
+            
+            selectColaborador.innerHTML = '<option value="">Selecione um colaborador</option>';
+            
+            cache.colaboradores.forEach(colaborador => {
+                if (colaborador.status === 'ativo' || colaborador.status === 'ferias' || colaborador.status === 'afastado') {
+                    selectColaborador.innerHTML += `<option value="${colaborador.nome}">${colaborador.nome} - ${colaborador.departamento || 'Sem departamento'}</option>`;
                 }
-                
-            } catch (error) {
-                console.error('Erro ao carregar colaboradores para select:', error);
-            }
+            });
+        }
+
+        // Carregar colaboradores para filtro
+        function loadColaboradoresFiltro(selectId) {
+            const select = document.getElementById(selectId);
+            
+            select.innerHTML = '<option value="todos">Todos</option>';
+            
+            cache.colaboradores.forEach(colaborador => {
+                select.innerHTML += `<option value="${colaborador.nome}">${colaborador.nome}</option>`;
+            });
+        }
+
+        // Carregar CIDs para select
+        function loadCIDsSelect() {
+            const selectCID = document.getElementById('atestado-cid');
+            if (!selectCID) return;
+            
+            selectCID.innerHTML = '<option value="">Selecione um CID</option>';
+            
+            cache.cids.forEach(cid => {
+                selectCID.innerHTML += `<option value="${cid.codigo}">${cid.codigo} - ${cid.descricao}</option>`;
+            });
         }
 
         // Carregar empresas para select
-        async function loadEmpresasSelect() {
-            try {
-                const empresasQuery = await db.collection('empresas').get();
-                const selectEmpresa = document.getElementById('colaborador-empresa');
-                
-                selectEmpresa.innerHTML = '<option value="">Selecione uma empresa</option>';
-                
-                if (!empresasQuery.empty) {
-                    empresasQuery.docs.forEach(doc => {
-                        const data = doc.data();
-                        selectEmpresa.innerHTML += `<option value="${data.nome}">${data.nome}</option>`;
-                    });
-                }
-                
-            } catch (error) {
-                console.error('Erro ao carregar empresas para select:', error);
-            }
+        function loadEmpresasSelect() {
+            const selectEmpresa = document.getElementById('colaborador-empresa');
+            
+            selectEmpresa.innerHTML = '<option value="">Selecione uma empresa</option>';
+            
+            cache.empresas.forEach(empresa => {
+                selectEmpresa.innerHTML += `<option value="${empresa.nome}">${empresa.nome}</option>`;
+            });
         }
 
         // Carregar departamentos para select
-        async function loadDepartamentosSelect() {
-            try {
-                const departamentosQuery = await db.collection('departamentos').get();
-                const selectDepartamento = document.getElementById('colaborador-departamento');
-                
-                selectDepartamento.innerHTML = '<option value="">Selecione um departamento</option>';
-                
-                if (!departamentosQuery.empty) {
-                    departamentosQuery.docs.forEach(doc => {
-                        const data = doc.data();
-                        selectDepartamento.innerHTML += `<option value="${data.nome}">${data.nome}</option>`;
-                    });
-                }
-                
-            } catch (error) {
-                console.error('Erro ao carregar departamentos para select:', error);
-            }
+        function loadDepartamentosSelect() {
+            const selectDepartamento = document.getElementById('colaborador-departamento');
+            
+            selectDepartamento.innerHTML = '<option value="">Selecione um departamento</option>';
+            
+            cache.departamentos.forEach(departamento => {
+                selectDepartamento.innerHTML += `<option value="${departamento.nome}">${departamento.nome}</option>`;
+            });
+        }
+
+        // Carregar filtros para relatórios
+        function loadFiltrosRelatorios() {
+            // Carregar empresas no filtro
+            const filtroEmpresa = document.getElementById('filtro-empresa-relatorio');
+            filtroEmpresa.innerHTML = '<option value="todos">Todas</option>';
+            
+            cache.empresas.forEach(empresa => {
+                filtroEmpresa.innerHTML += `<option value="${empresa.nome}">${empresa.nome}</option>`;
+            });
+            
+            // Carregar departamentos no filtro
+            const filtroDepartamento = document.getElementById('filtro-departamento-relatorio');
+            filtroDepartamento.innerHTML = '<option value="todos">Todos</option>';
+            
+            cache.departamentos.forEach(departamento => {
+                filtroDepartamento.innerHTML += `<option value="${departamento.nome}">${departamento.nome}</option>`;
+            });
         }
 
         // Carregar próximos vencimentos
@@ -2243,13 +2627,27 @@
                     userId: currentUser.uid
                 };
                 
+                let colaboradorId = itemToEdit;
+                
                 if (editMode && itemToEdit) {
                     // Atualizar colaborador existente
                     await db.collection('colaboradores').doc(itemToEdit).update(colaboradorData);
+                    
+                    // Atualizar cache
+                    const index = cache.colaboradores.findIndex(c => c.id === itemToEdit);
+                    if (index !== -1) {
+                        cache.colaboradores[index] = { id: itemToEdit, ...colaboradorData };
+                    }
+                    
                     showNotification('Colaborador atualizado com sucesso!', 'success');
                 } else {
                     // Criar novo colaborador
-                    await db.collection('colaboradores').add(colaboradorData);
+                    const docRef = await db.collection('colaboradores').add(colaboradorData);
+                    colaboradorId = docRef.id;
+                    
+                    // Adicionar ao cache
+                    cache.colaboradores.push({ id: colaboradorId, ...colaboradorData });
+                    
                     showNotification('Colaborador salvo com sucesso!', 'success');
                 }
                 
@@ -2263,6 +2661,8 @@
                 loadDashboardData();
                 loadColaboradores();
                 loadColaboradoresSelect();
+                loadColaboradoresFiltro('filtro-colaborador-atestado');
+                loadColaboradoresFiltro('filtro-colaborador-cat');
                 
             } catch (error) {
                 console.error('Erro ao salvar colaborador:', error);
@@ -2281,8 +2681,6 @@
                 const tipo = document.getElementById('exame-tipo').value;
                 const dataExame = document.getElementById('exame-data').value;
                 const vencimento = document.getElementById('exame-vencimento').value;
-                const medico = document.getElementById('exame-medico').value;
-                const observacoes = document.getElementById('exame-observacoes').value;
                 
                 // Validação básica
                 if (!funcionario || !tipo || !dataExame || !vencimento) {
@@ -2303,8 +2701,6 @@
                     tipo,
                     dataExame,
                     vencimento,
-                    medico,
-                    observacoes,
                     status,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -2364,15 +2760,27 @@
                     userId: currentUser.uid
                 };
                 
-                console.log('Salvando empresa:', empresaData);
+                let empresaId = itemToEdit;
                 
                 if (editMode && itemToEdit) {
                     // Atualizar empresa existente
                     await db.collection('empresas').doc(itemToEdit).update(empresaData);
+                    
+                    // Atualizar cache
+                    const index = cache.empresas.findIndex(e => e.id === itemToEdit);
+                    if (index !== -1) {
+                        cache.empresas[index] = { id: itemToEdit, ...empresaData };
+                    }
+                    
                     showNotification('Empresa atualizada com sucesso!', 'success');
                 } else {
                     // Criar nova empresa
-                    await db.collection('empresas').add(empresaData);
+                    const docRef = await db.collection('empresas').add(empresaData);
+                    empresaId = docRef.id;
+                    
+                    // Adicionar ao cache
+                    cache.empresas.push({ id: empresaId, ...empresaData });
+                    
                     showNotification('Empresa salva com sucesso!', 'success');
                 }
                 
@@ -2384,6 +2792,8 @@
                 // Recarregar dados
                 loadEmpresas();
                 loadEmpresasSelect();
+                loadFiltrosExames();
+                loadFiltrosRelatorios();
                 
             } catch (error) {
                 console.error('Erro ao salvar empresa:', error);
@@ -2418,15 +2828,27 @@
                     userId: currentUser.uid
                 };
                 
-                console.log('Salvando departamento:', departamentoData);
+                let departamentoId = itemToEdit;
                 
                 if (editMode && itemToEdit) {
                     // Atualizar departamento existente
                     await db.collection('departamentos').doc(itemToEdit).update(departamentoData);
+                    
+                    // Atualizar cache
+                    const index = cache.departamentos.findIndex(d => d.id === itemToEdit);
+                    if (index !== -1) {
+                        cache.departamentos[index] = { id: itemToEdit, ...departamentoData };
+                    }
+                    
                     showNotification('Departamento atualizado com sucesso!', 'success');
                 } else {
                     // Criar novo departamento
-                    await db.collection('departamentos').add(departamentoData);
+                    const docRef = await db.collection('departamentos').add(departamentoData);
+                    departamentoId = docRef.id;
+                    
+                    // Adicionar ao cache
+                    cache.departamentos.push({ id: departamentoId, ...departamentoData });
+                    
                     showNotification('Departamento salva com sucesso!', 'success');
                 }
                 
@@ -2438,6 +2860,8 @@
                 // Recarregar dados
                 loadDepartamentos();
                 loadDepartamentosSelect();
+                loadFiltrosExames();
+                loadFiltrosRelatorios();
                 
             } catch (error) {
                 console.error('Erro ao salvar departamento:', error);
@@ -2474,15 +2898,27 @@
                     userId: currentUser.uid
                 };
                 
-                console.log('Salvando CID:', cidData);
+                let cidId = itemToEdit;
                 
                 if (editMode && itemToEdit) {
                     // Atualizar CID existente
                     await db.collection('cids').doc(itemToEdit).update(cidData);
+                    
+                    // Atualizar cache
+                    const index = cache.cids.findIndex(c => c.id === itemToEdit);
+                    if (index !== -1) {
+                        cache.cids[index] = { id: itemToEdit, ...cidData };
+                    }
+                    
                     showNotification('CID atualizado com sucesso!', 'success');
                 } else {
                     // Criar novo CID
-                    await db.collection('cids').add(cidData);
+                    const docRef = await db.collection('cids').add(cidData);
+                    cidId = docRef.id;
+                    
+                    // Adicionar ao cache
+                    cache.cids.push({ id: cidId, ...cidData });
+                    
                     showNotification('CID salvo com sucesso!', 'success');
                 }
                 
@@ -2493,6 +2929,7 @@
                 
                 // Recarregar dados
                 loadCIDs();
+                loadCIDsSelect();
                 
             } catch (error) {
                 console.error('Erro ao salvar CID:', error);
@@ -2507,14 +2944,13 @@
         // Editar colaborador
         async function editarColaborador(id) {
             try {
-                const doc = await db.collection('colaboradores').doc(id).get();
+                const colaborador = cache.colaboradores.find(c => c.id === id);
                 
-                if (!doc.exists) {
+                if (!colaborador) {
                     showNotification('Colaborador não encontrado', 'error');
                     return;
                 }
                 
-                const data = doc.data();
                 itemToEdit = id;
                 editMode = true;
                 
@@ -2524,11 +2960,11 @@
                 document.getElementById('btn-colaborador-text').textContent = 'Atualizar Colaborador';
                 
                 // Preencher formulário
-                document.getElementById('colaborador-nome').value = data.nome || '';
-                document.getElementById('colaborador-data-admissao').value = data.dataAdmissao || '';
-                document.getElementById('colaborador-departamento').value = data.departamento || '';
-                document.getElementById('colaborador-empresa').value = data.empresa || '';
-                document.getElementById('colaborador-status').value = data.status || 'ativo';
+                document.getElementById('colaborador-nome').value = colaborador.nome || '';
+                document.getElementById('colaborador-data-admissao').value = colaborador.dataAdmissao || '';
+                document.getElementById('colaborador-departamento').value = colaborador.departamento || '';
+                document.getElementById('colaborador-empresa').value = colaborador.empresa || '';
+                document.getElementById('colaborador-status').value = colaborador.status || 'ativo';
                 
             } catch (error) {
                 console.error('Erro ao carregar colaborador para edição:', error);
@@ -2560,9 +2996,6 @@
                 document.getElementById('exame-tipo').value = data.tipo || '';
                 document.getElementById('exame-data').value = data.dataExame || '';
                 document.getElementById('exame-vencimento').value = data.vencimento || '';
-                document.getElementById('exame-medico').value = data.medico || '';
-                document.getElementById('exame-observacoes').value = data.observacoes || '';
-                document.getElementById('exame-status').value = data.status || 'em-dia';
                 
             } catch (error) {
                 console.error('Erro ao carregar exame para edição:', error);
@@ -2570,22 +3003,31 @@
             }
         }
 
+        // Editar atestado
+        async function editarAtestado(id) {
+            showNotification('Redirecionando para edição de atestado...', 'info');
+        }
+
+        // Editar CAT
+        async function editarCAT(id) {
+            showNotification('Redirecionando para edição de CAT...', 'info');
+        }
+
         // Editar empresa
         async function editarEmpresa(id) {
             try {
-                const doc = await db.collection('empresas').doc(id).get();
+                const empresa = cache.empresas.find(e => e.id === id);
                 
-                if (!doc.exists) {
+                if (!empresa) {
                     showNotification('Empresa não encontrada', 'error');
                     return;
                 }
                 
-                const data = doc.data();
                 itemToEdit = id;
                 editMode = true;
                 
                 // Preencher formulário
-                document.getElementById('empresa-nome').value = data.nome || '';
+                document.getElementById('empresa-nome').value = empresa.nome || '';
                 document.getElementById('btn-empresa-text').textContent = 'Atualizar Empresa';
                 
             } catch (error) {
@@ -2597,19 +3039,18 @@
         // Editar departamento
         async function editarDepartamento(id) {
             try {
-                const doc = await db.collection('departamentos').doc(id).get();
+                const departamento = cache.departamentos.find(d => d.id === id);
                 
-                if (!doc.exists) {
+                if (!departamento) {
                     showNotification('Departamento não encontrado', 'error');
                     return;
                 }
                 
-                const data = doc.data();
                 itemToEdit = id;
                 editMode = true;
                 
                 // Preencher formulário
-                document.getElementById('departamento-nome').value = data.nome || '';
+                document.getElementById('departamento-nome').value = departamento.nome || '';
                 document.getElementById('btn-departamento-text').textContent = 'Atualizar Departamento';
                 
             } catch (error) {
@@ -2621,44 +3062,24 @@
         // Editar CID
         async function editarCID(id) {
             try {
-                const doc = await db.collection('cids').doc(id).get();
+                const cid = cache.cids.find(c => c.id === id);
                 
-                if (!doc.exists) {
+                if (!cid) {
                     showNotification('CID não encontrado', 'error');
                     return;
                 }
                 
-                const data = doc.data();
                 itemToEdit = id;
                 editMode = true;
                 
                 // Preencher formulário
-                document.getElementById('cid-codigo').value = data.codigo || '';
-                document.getElementById('cid-descricao').value = data.descricao || '';
+                document.getElementById('cid-codigo').value = cid.codigo || '';
+                document.getElementById('cid-descricao').value = cid.descricao || '';
                 document.getElementById('btn-cid-text').textContent = 'Atualizar CID';
                 
             } catch (error) {
                 console.error('Erro ao carregar CID para edição:', error);
                 showNotification('Erro ao carregar CID para edição', 'error');
-            }
-        }
-
-        // Editar item genérico (atestados, cats)
-        async function editarItem(collection, id) {
-            try {
-                const doc = await db.collection(collection).doc(id).get();
-                
-                if (!doc.exists) {
-                    showNotification('Item não encontrado', 'error');
-                    return;
-                }
-                
-                showNotification('Redirecionando para edição...', 'info');
-                // Em uma aplicação completa, redirecionaria para o formulário de edição específico
-                
-            } catch (error) {
-                console.error('Erro ao carregar item para edição:', error);
-                showNotification('Erro ao carregar item para edição', 'error');
             }
         }
 
@@ -2677,6 +3098,18 @@
         async function confirmDelete() {
             try {
                 await db.collection(deleteCollection).doc(itemToDelete).delete();
+                
+                // Remover do cache
+                if (deleteCollection === 'colaboradores') {
+                    cache.colaboradores = cache.colaboradores.filter(c => c.id !== itemToDelete);
+                } else if (deleteCollection === 'empresas') {
+                    cache.empresas = cache.empresas.filter(e => e.id !== itemToDelete);
+                } else if (deleteCollection === 'departamentos') {
+                    cache.departamentos = cache.departamentos.filter(d => d.id !== itemToDelete);
+                } else if (deleteCollection === 'cids') {
+                    cache.cids = cache.cids.filter(c => c.id !== itemToDelete);
+                }
+                
                 showNotification('Item excluído com sucesso!', 'success');
                 
                 // Recarregar dados
@@ -2685,6 +3118,8 @@
                 if (deleteCollection === 'colaboradores') {
                     loadColaboradores();
                     loadColaboradoresSelect();
+                    loadColaboradoresFiltro('filtro-colaborador-atestado');
+                    loadColaboradoresFiltro('filtro-colaborador-cat');
                 } else if (deleteCollection === 'exames') {
                     loadExames();
                 } else if (deleteCollection === 'atestados') {
@@ -2694,11 +3129,16 @@
                 } else if (deleteCollection === 'empresas') {
                     loadEmpresas();
                     loadEmpresasSelect();
+                    loadFiltrosExames();
+                    loadFiltrosRelatorios();
                 } else if (deleteCollection === 'departamentos') {
                     loadDepartamentos();
                     loadDepartamentosSelect();
+                    loadFiltrosExames();
+                    loadFiltrosRelatorios();
                 } else if (deleteCollection === 'cids') {
                     loadCIDs();
+                    loadCIDsSelect();
                 }
                 
                 closeModal();
@@ -2719,16 +3159,15 @@
         // Carregar estatísticas para relatórios
         async function loadEstatisticas() {
             try {
-                const colaboradoresQuery = await db.collection('colaboradores').get();
                 const examesQuery = await db.collection('exames').get();
                 const atestadosQuery = await db.collection('atestados').get();
                 const catsQuery = await db.collection('cats').get();
                 
                 const estatisticasDiv = document.getElementById('estatisticas-relatorio');
                 
-                const totalColaboradores = colaboradoresQuery.size;
-                const colaboradoresAtivos = colaboradoresQuery.docs.filter(doc => 
-                    doc.data().status === 'ativo'
+                const totalColaboradores = cache.colaboradores.length;
+                const colaboradoresAtivos = cache.colaboradores.filter(colaborador => 
+                    colaborador.status === 'ativo'
                 ).length;
                 
                 const totalExames = examesQuery.size;
@@ -2782,6 +3221,8 @@
             try {
                 const tipo = document.getElementById('tipo-relatorio').value;
                 const periodo = document.getElementById('periodo-relatorio').value;
+                const filtroEmpresa = document.getElementById('filtro-empresa-relatorio').value;
+                const filtroDepartamento = document.getElementById('filtro-departamento-relatorio').value;
                 
                 if (!tipo) {
                     showNotification('Selecione o tipo de relatório', 'warning');
@@ -2805,7 +3246,15 @@
                     dataInicio = dataInicio.toISOString().split('T')[0];
                 }
                 
-                showNotification(`Relatório de ${tipo} gerado para o período de ${formatDate(new Date(dataInicio))} a ${formatDate(new Date(dataFim))}`, 'success');
+                let filtroInfo = '';
+                if (filtroEmpresa !== 'todos') {
+                    filtroInfo += `, Empresa: ${filtroEmpresa}`;
+                }
+                if (filtroDepartamento !== 'todos') {
+                    filtroInfo += `, Departamento: ${filtroDepartamento}`;
+                }
+                
+                showNotification(`Relatório de ${tipo} gerado para o período de ${formatDate(new Date(dataInicio))} a ${formatDate(new Date(dataFim))}${filtroInfo}`, 'success');
                 
                 // Aqui você implementaria a geração do relatório específico
                 
@@ -2840,9 +3289,6 @@
                 document.getElementById('exame-tipo').value = '';
                 document.getElementById('exame-data').value = new Date().toISOString().split('T')[0];
                 document.getElementById('exame-vencimento').value = '';
-                document.getElementById('exame-medico').value = '';
-                document.getElementById('exame-observacoes').value = '';
-                document.getElementById('exame-status').value = 'em-dia';
             }
         }
 
