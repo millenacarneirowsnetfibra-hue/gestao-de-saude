@@ -1244,6 +1244,88 @@
             color: #666;
             font-size: 0.85rem;
         }
+
+        /* Cards de CATs */
+        .cat-stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .cat-stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border-bottom: 4px solid var(--accent);
+            transition: transform 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .cat-stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .cat-stat-card.total {
+            border-bottom-color: var(--info);
+        }
+
+        .cat-stat-card.fora-prazo {
+            border-bottom-color: var(--danger);
+        }
+
+        .cat-stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.8rem;
+        }
+
+        .cat-stat-card.total .cat-stat-icon {
+            background: linear-gradient(135deg, var(--info), #26c6da);
+        }
+
+        .cat-stat-card.fora-prazo .cat-stat-icon {
+            background: linear-gradient(135deg, var(--danger), #ef5350);
+        }
+
+        .cat-stat-info {
+            flex: 1;
+        }
+
+        .cat-stat-info h3 {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .cat-stat-info .value {
+            font-size: 2.2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .cat-stat-card.total .value {
+            color: var(--info);
+        }
+
+        .cat-stat-card.fora-prazo .value {
+            color: var(--danger);
+        }
+
+        .cat-stat-info small {
+            color: #666;
+            font-size: 0.85rem;
+        }
     </style>
 </head>
 <body>
@@ -2028,6 +2110,30 @@
                     </div>
                 </div>
 
+                <!-- Cards de CATs - Total e Fora do Prazo com Filtros -->
+                <div class="cat-stats-cards">
+                    <div class="cat-stat-card total">
+                        <div class="cat-stat-icon">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="cat-stat-info">
+                            <h3>Total de CATs</h3>
+                            <div class="value" id="totalCatsFiltradas">0</div>
+                            <small>com filtros aplicados</small>
+                        </div>
+                    </div>
+                    <div class="cat-stat-card fora-prazo">
+                        <div class="cat-stat-icon">
+                            <i class="fas fa-exclamation-circle"></i>
+                        </div>
+                        <div class="cat-stat-info">
+                            <h3>Fora do Prazo (24h)</h3>
+                            <div class="value" id="totalCatsForaPrazoFiltradas">0</div>
+                            <small>registros fora do prazo legal</small>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Filtros de CATs - Ocultos por padrão com botão para exibir -->
                 <div class="filter-container">
                     <div class="filter-header" onclick="toggleFilters('cats-filters')">
@@ -2366,6 +2472,15 @@
             dataFim: ''
         };
 
+        // Filtros de CATs
+        let catsFiltros = {
+            status: 'todos',
+            tipo: 'todos',
+            colaborador: 'todos',
+            dataInicio: '',
+            dataFim: ''
+        };
+
         // Limites de atestados
         const LIMITES_ATESTADOS = {
             odontologico: {
@@ -2417,6 +2532,26 @@
             
             filtrarAtestados();
             showNotification('Filtros de atestados limpos com sucesso!', 'info');
+        }
+
+        // Limpar filtros de CATs
+        function limparFiltrosCATs() {
+            document.getElementById('filtro-status-cat').value = 'todos';
+            document.getElementById('filtro-tipo-cat').value = 'todos';
+            document.getElementById('filtro-colaborador-cat').value = 'todos';
+            document.getElementById('filtro-periodo-inicio-cat').value = '';
+            document.getElementById('filtro-periodo-fim-cat').value = '';
+            
+            catsFiltros = {
+                status: 'todos',
+                tipo: 'todos',
+                colaborador: 'todos',
+                dataInicio: '',
+                dataFim: ''
+            };
+            
+            filtrarCATs();
+            showNotification('Filtros de CATs limpos com sucesso!', 'info');
         }
 
         // Inicializar aplicação
@@ -2848,23 +2983,33 @@
             
             // Filtros automáticos para CATs
             document.getElementById('filtro-status-cat').addEventListener('change', function() {
+                catsFiltros.status = this.value;
                 filtrarCATs();
+                atualizarCardsCATs();
             });
             
             document.getElementById('filtro-tipo-cat').addEventListener('change', function() {
+                catsFiltros.tipo = this.value;
                 filtrarCATs();
+                atualizarCardsCATs();
             });
             
             document.getElementById('filtro-colaborador-cat').addEventListener('change', function() {
+                catsFiltros.colaborador = this.value;
                 filtrarCATs();
+                atualizarCardsCATs();
             });
             
             document.getElementById('filtro-periodo-inicio-cat').addEventListener('change', function() {
+                catsFiltros.dataInicio = this.value;
                 filtrarCATs();
+                atualizarCardsCATs();
             });
             
             document.getElementById('filtro-periodo-fim-cat').addEventListener('change', function() {
+                catsFiltros.dataFim = this.value;
                 filtrarCATs();
+                atualizarCardsCATs();
             });
             
             document.getElementById('btn-limpar-filtros-cat').addEventListener('click', function() {
@@ -2885,18 +3030,6 @@
             filtrarExames();
             atualizarCardsExames();
             showNotification('Filtros de exames limpos com sucesso!', 'info');
-        }
-
-        // Limpar filtros de CATs
-        function limparFiltrosCATs() {
-            document.getElementById('filtro-status-cat').value = 'todos';
-            document.getElementById('filtro-tipo-cat').value = 'todos';
-            document.getElementById('filtro-colaborador-cat').value = 'todos';
-            document.getElementById('filtro-periodo-inicio-cat').value = '';
-            document.getElementById('filtro-periodo-fim-cat').value = '';
-            
-            filtrarCATs();
-            showNotification('Filtros de CATs limpos com sucesso!', 'info');
         }
 
         // Função para verificar se um atestado está dentro do período dos filtros
@@ -3001,6 +3134,26 @@
             return true;
         }
 
+        // Função para verificar se CAT está dentro do período do filtro
+        function catDentroPeriodoFiltro(dataRegistro, dataInicioFiltro, dataFimFiltro) {
+            if (!dataInicioFiltro && !dataFimFiltro) return true;
+            
+            const dataRegistroCat = new Date(dataRegistro);
+            
+            if (dataInicioFiltro) {
+                const dataInicioFiltroObj = new Date(dataInicioFiltro);
+                if (dataRegistroCat < dataInicioFiltroObj) return false;
+            }
+            
+            if (dataFimFiltro) {
+                const dataFimFiltroObj = new Date(dataFimFiltro);
+                dataFimFiltroObj.setHours(23, 59, 59);
+                if (dataRegistroCat > dataFimFiltroObj) return false;
+            }
+            
+            return true;
+        }
+
         // Função para verificar se atestado atende aos filtros de departamento e empresa
         function atestadoAtendeFiltrosDepartamentoEmpresa(atestado) {
             const colaborador = cache.colaboradores.find(c => c.nome === atestado.funcionario);
@@ -3016,6 +3169,12 @@
             }
             
             return true;
+        }
+
+        // Função para verificar se CAT atende aos filtros de colaborador
+        function catAtendeFiltrosColaborador(cat) {
+            if (catsFiltros.colaborador === 'todos') return true;
+            return cat.funcionario === catsFiltros.colaborador;
         }
 
         // Carregar cache de dados sincronizados
@@ -3083,6 +3242,24 @@
             
             cache.empresas.forEach(empresa => {
                 filtroEmpresa.innerHTML += `<option value="${empresa.nome}">${empresa.nome}</option>`;
+            });
+        }
+
+        // Carregar filtros de CATs
+        function loadFiltrosCATs() {
+            const filtroColaborador = document.getElementById('filtro-colaborador-cat');
+            
+            filtroColaborador.innerHTML = '<option value="todos">Todos</option>';
+            
+            const colaboradoresOrdenados = [...cache.colaboradores];
+            colaboradoresOrdenados.sort((a, b) => {
+                const nomeA = a.nome || '';
+                const nomeB = b.nome || '';
+                return nomeA.localeCompare(nomeB);
+            });
+            
+            colaboradoresOrdenados.forEach(colaborador => {
+                filtroColaborador.innerHTML += `<option value="${colaborador.nome}">${colaborador.nome}</option>`;
             });
         }
 
@@ -3262,6 +3439,8 @@
                         document.getElementById('cats').classList.add('active');
                         document.getElementById('cat-cadastro').classList.remove('active');
                         document.getElementById('cat-cadastro').classList.add('hidden');
+                        loadFiltrosCATs();
+                        atualizarCardsCATs();
                     }
                     
                     if (pageId === 'dashboard') {
@@ -3275,7 +3454,6 @@
                         loadAtestados();
                     } else if (pageId === 'cats') {
                         loadCATs();
-                        loadColaboradoresFiltro('filtro-colaborador-cat');
                     } else if (pageId === 'configuracoes') {
                         loadConfiguracoes();
                     }
@@ -4044,6 +4222,19 @@
             document.getElementById('percentualEmDia').textContent = `${percentualEmDia}%`;
         }
 
+        // Atualizar cards de CATs com os totais filtrados
+        function atualizarCardsCATs() {
+            const catsFiltradosResultado = obterCATsFiltrados();
+            const totalCats = catsFiltradosResultado.length;
+            const catsForaPrazo = catsFiltradosResultado.filter(cat => {
+                if (!cat.data.dataAcidente || !cat.data.dataRegistro) return false;
+                return !verificarPrazoCAT(cat.data.dataAcidente, cat.data.dataRegistro);
+            }).length;
+            
+            document.getElementById('totalCatsFiltradas').textContent = totalCats;
+            document.getElementById('totalCatsForaPrazoFiltradas').textContent = catsForaPrazo;
+        }
+
         // Atualizar card de total de atestados com filtros
         function atualizarCardTotalAtestados() {
             const atestadosFiltradosResultado = obterAtestadosFiltrados();
@@ -4300,6 +4491,29 @@
             });
         }
 
+        // Obter CATs filtrados
+        function obterCATsFiltrados() {
+            if (!catsFiltrados || catsFiltrados.length === 0) {
+                return [];
+            }
+            
+            return catsFiltrados.filter(cat => {
+                const statusMatch = catsFiltros.status === 'todos' || cat.data.status === catsFiltros.status;
+                
+                const tipoMatch = catsFiltros.tipo === 'todos' || cat.data.tipo === catsFiltros.tipo;
+                
+                const colaboradorMatch = catAtendeFiltrosColaborador(cat.data);
+                
+                const periodoMatch = catDentroPeriodoFiltro(
+                    cat.data.dataRegistro,
+                    catsFiltros.dataInicio,
+                    catsFiltros.dataFim
+                );
+                
+                return statusMatch && tipoMatch && colaboradorMatch && periodoMatch;
+            });
+        }
+
         // Carregar CATs
         async function loadCATs() {
             try {
@@ -4317,6 +4531,7 @@
                             </td>
                         </tr>
                     `;
+                    atualizarCardsCATs();
                     return;
                 }
                 
@@ -4353,6 +4568,7 @@
                 });
                 
                 filtrarCATs();
+                atualizarCardsCATs();
                 
             } catch (error) {
                 console.error('Erro ao carregar CATs:', error);
@@ -4362,49 +4578,10 @@
 
         // Filtrar CATs
         function filtrarCATs() {
-            const filtroStatus = document.getElementById('filtro-status-cat').value;
-            const filtroTipo = document.getElementById('filtro-tipo-cat').value;
-            const filtroColaborador = document.getElementById('filtro-colaborador-cat').value;
-            const filtroPeriodoInicio = document.getElementById('filtro-periodo-inicio-cat').value;
-            const filtroPeriodoFim = document.getElementById('filtro-periodo-fim-cat').value;
+            const catsFiltradosResultado = obterCATsFiltrados();
             
             const catsBody = document.getElementById('catsBody');
             catsBody.innerHTML = '';
-            
-            if (catsFiltrados.length === 0) {
-                catsBody.innerHTML = `
-                    <tr>
-                        <td colspan="7" style="text-align: center; padding: 30px;">
-                            <div class="empty-state">
-                                <i class="fas fa-exclamation-triangle"></i>
-                                <p>Nenhuma CAT registrada</p>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-            
-            const catsFiltradosResultado = catsFiltrados.filter(cat => {
-                const statusMatch = filtroStatus === 'todos' || cat.data.status === filtroStatus;
-                const tipoMatch = filtroTipo === 'todos' || cat.data.tipo === filtroTipo;
-                const colaboradorMatch = filtroColaborador === 'todos' || cat.data.funcionario === filtroColaborador;
-                
-                let periodoMatch = true;
-                if (filtroPeriodoInicio && cat.data.dataRegistro) {
-                    const dataRegistro = new Date(cat.data.dataRegistro);
-                    const dataInicio = new Date(filtroPeriodoInicio);
-                    periodoMatch = dataRegistro >= dataInicio;
-                }
-                
-                if (filtroPeriodoFim && cat.data.dataRegistro) {
-                    const dataRegistro = new Date(cat.data.dataRegistro);
-                    const dataFim = new Date(filtroPeriodoFim);
-                    periodoMatch = periodoMatch && dataRegistro <= dataFim;
-                }
-                
-                return statusMatch && tipoMatch && colaboradorMatch && periodoMatch;
-            });
             
             if (catsFiltradosResultado.length === 0) {
                 catsBody.innerHTML = `
@@ -4456,6 +4633,8 @@
                     </tr>
                 `;
             });
+            
+            atualizarCardsCATs();
         }
 
         // Verificar se CAT foi aberta dentro do prazo de 24h
@@ -4576,6 +4755,7 @@
                 await loadCATsCache();
                 loadDashboardData();
                 loadCATs();
+                loadFiltrosCATs();
                 
                 btn.innerHTML = originalText;
                 btn.disabled = false;
@@ -4865,24 +5045,6 @@
             });
         }
 
-        // Carregar colaboradores para filtro
-        function loadColaboradoresFiltro(selectId) {
-            const select = document.getElementById(selectId);
-            
-            select.innerHTML = '<option value="todos">Todos</option>';
-            
-            const colaboradoresOrdenados = [...cache.colaboradores];
-            colaboradoresOrdenados.sort((a, b) => {
-                const nomeA = a.nome || '';
-                const nomeB = b.nome || '';
-                return nomeA.localeCompare(nomeB);
-            });
-            
-            colaboradoresOrdenados.forEach(colaborador => {
-                select.innerHTML += `<option value="${colaborador.nome}">${colaborador.nome}</option>`;
-            });
-        }
-
         // Carregar CIDs para select
         function loadCIDsSelect(selectId = 'atestado-cid') {
             const selectCID = document.getElementById(selectId);
@@ -5110,6 +5272,7 @@
                 loadDepartamentosFiltro();
                 loadFiltrosDashboard();
                 loadFiltrosAtestados();
+                loadFiltrosCATs();
                 
                 btn.innerHTML = originalText;
                 btn.disabled = false;
@@ -5621,6 +5784,7 @@
                 loadDepartamentosFiltro();
                 loadFiltrosDashboard();
                 loadFiltrosAtestados();
+                loadFiltrosCATs();
                 
                 btn.innerHTML = originalText;
                 btn.disabled = false;
@@ -5945,12 +6109,14 @@
                     loadDepartamentosFiltro();
                     loadFiltrosDashboard();
                     loadFiltrosAtestados();
+                    loadFiltrosCATs();
                 } else if (deleteCollection === 'exames') {
                     loadExames();
                 } else if (deleteCollection === 'atestados') {
                     loadAtestados();
                 } else if (deleteCollection === 'cats') {
                     loadCATs();
+                    loadFiltrosCATs();
                 } else if (deleteCollection === 'empresas') {
                     loadEmpresas();
                     loadEmpresasSelect();
@@ -5963,6 +6129,7 @@
                     loadDepartamentosFiltro();
                     loadFiltrosDashboard();
                     loadFiltrosAtestados();
+                    loadFiltrosCATs();
                 } else if (deleteCollection === 'cids') {
                     loadCIDs();
                     loadCIDsSelect();
@@ -6155,6 +6322,7 @@
         window.visualizarCAT = visualizarCAT;
         window.limparFiltrosDashboard = limparFiltrosDashboard;
         window.limparFiltrosAtestados = limparFiltrosAtestados;
+        window.limparFiltrosCATs = limparFiltrosCATs;
         window.calcularVencimentoExame = calcularVencimentoExame;
         window.toggleFilters = toggleFilters;
         
