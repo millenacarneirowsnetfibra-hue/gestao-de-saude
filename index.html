@@ -2872,7 +2872,7 @@
         function calcularVencimentoExame() {
             const dataExame = document.getElementById('exame-data').value;
             if (dataExame) {
-                const data = new Date(dataExame);
+                const data = new Date(dataExame + 'T12:00:00'); // Usar meio-dia para evitar problemas de fuso horário
                 data.setFullYear(data.getFullYear() + 1);
                 
                 const ano = data.getFullYear();
@@ -2938,8 +2938,8 @@
 
         // Calcular dias entre duas datas
         function calcularDiasAtestado(dataInicio, dataFinal) {
-            const inicio = new Date(dataInicio);
-            const fim = new Date(dataFinal);
+            const inicio = new Date(dataInicio + 'T12:00:00');
+            const fim = new Date(dataFinal + 'T12:00:00');
             
             const diffTime = Math.abs(fim - inicio);
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -2952,7 +2952,11 @@
             if (!dataVencimento) return 'em-dia';
             
             const hoje = new Date();
-            const vencimento = new Date(dataVencimento);
+            hoje.setHours(0, 0, 0, 0);
+            
+            const vencimento = new Date(dataVencimento + 'T12:00:00');
+            vencimento.setHours(0, 0, 0, 0);
+            
             const diffTime = vencimento - hoje;
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
             
@@ -2970,7 +2974,11 @@
             if (!dataVencimento) return 0;
             
             const hoje = new Date();
-            const vencimento = new Date(dataVencimento);
+            hoje.setHours(0, 0, 0, 0);
+            
+            const vencimento = new Date(dataVencimento + 'T12:00:00');
+            vencimento.setHours(0, 0, 0, 0);
+            
             const diffTime = vencimento - hoje;
             return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         }
@@ -2979,8 +2987,8 @@
         function verificarPrazoCAT(dataAcidente, dataRegistro) {
             if (!dataAcidente || !dataRegistro) return false;
             
-            const acidente = new Date(dataAcidente);
-            const registro = new Date(dataRegistro);
+            const acidente = new Date(dataAcidente + 'T12:00:00');
+            const registro = new Date(dataRegistro + 'T12:00:00');
             
             const prazoLimite = new Date(acidente);
             prazoLimite.setHours(prazoLimite.getHours() + 24);
@@ -3148,16 +3156,15 @@
                 return true;
             }
             
-            const dataAtestado = new Date(dataInicioAtestado);
+            const dataAtestado = new Date(dataInicioAtestado + 'T12:00:00');
             
             if (dashboardFiltros.dataInicio) {
-                const dataInicio = new Date(dashboardFiltros.dataInicio);
+                const dataInicio = new Date(dashboardFiltros.dataInicio + 'T00:00:00');
                 if (dataAtestado < dataInicio) return false;
             }
             
             if (dashboardFiltros.dataFim) {
-                const dataFim = new Date(dashboardFiltros.dataFim);
-                dataFim.setHours(23, 59, 59);
+                const dataFim = new Date(dashboardFiltros.dataFim + 'T23:59:59');
                 if (dataAtestado > dataFim) return false;
             }
             
@@ -3170,16 +3177,15 @@
                 return true;
             }
             
-            const dataExameObj = new Date(dataExame);
+            const dataExameObj = new Date(dataExame + 'T12:00:00');
             
             if (dashboardFiltros.dataInicio) {
-                const dataInicio = new Date(dashboardFiltros.dataInicio);
+                const dataInicio = new Date(dashboardFiltros.dataInicio + 'T00:00:00');
                 if (dataExameObj < dataInicio) return false;
             }
             
             if (dashboardFiltros.dataFim) {
-                const dataFim = new Date(dashboardFiltros.dataFim);
-                dataFim.setHours(23, 59, 59);
+                const dataFim = new Date(dashboardFiltros.dataFim + 'T23:59:59');
                 if (dataExameObj > dataFim) return false;
             }
             
@@ -3192,16 +3198,15 @@
                 return true;
             }
             
-            const dataRegistroObj = new Date(dataRegistro);
+            const dataRegistroObj = new Date(dataRegistro + 'T12:00:00');
             
             if (dashboardFiltros.dataInicio) {
-                const dataInicio = new Date(dashboardFiltros.dataInicio);
+                const dataInicio = new Date(dashboardFiltros.dataInicio + 'T00:00:00');
                 if (dataRegistroObj < dataInicio) return false;
             }
             
             if (dashboardFiltros.dataFim) {
-                const dataFim = new Date(dashboardFiltros.dataFim);
-                dataFim.setHours(23, 59, 59);
+                const dataFim = new Date(dashboardFiltros.dataFim + 'T23:59:59');
                 if (dataRegistroObj > dataFim) return false;
             }
             
@@ -3214,16 +3219,15 @@
                 return true;
             }
             
-            const dataDeclaracaoObj = new Date(dataDeclaracao);
+            const dataDeclaracaoObj = new Date(dataDeclaracao + 'T12:00:00');
             
             if (dashboardFiltros.dataInicio) {
-                const dataInicio = new Date(dashboardFiltros.dataInicio);
+                const dataInicio = new Date(dashboardFiltros.dataInicio + 'T00:00:00');
                 if (dataDeclaracaoObj < dataInicio) return false;
             }
             
             if (dashboardFiltros.dataFim) {
-                const dataFim = new Date(dashboardFiltros.dataFim);
-                dataFim.setHours(23, 59, 59);
+                const dataFim = new Date(dashboardFiltros.dataFim + 'T23:59:59');
                 if (dataDeclaracaoObj > dataFim) return false;
             }
             
@@ -3250,16 +3254,15 @@
         function atestadoDentroPeriodoFiltro(dataInicio, dataInicioFiltro, dataFimFiltro) {
             if (!dataInicioFiltro && !dataFimFiltro) return true;
             
-            const dataInicioAtestado = new Date(dataInicio);
+            const dataInicioAtestado = new Date(dataInicio + 'T12:00:00');
             
             if (dataInicioFiltro) {
-                const dataInicioFiltroObj = new Date(dataInicioFiltro);
+                const dataInicioFiltroObj = new Date(dataInicioFiltro + 'T00:00:00');
                 if (dataInicioAtestado < dataInicioFiltroObj) return false;
             }
             
             if (dataFimFiltro) {
-                const dataFimFiltroObj = new Date(dataFimFiltro);
-                dataFimFiltroObj.setHours(23, 59, 59);
+                const dataFimFiltroObj = new Date(dataFimFiltro + 'T23:59:59');
                 if (dataInicioAtestado > dataFimFiltroObj) return false;
             }
             
@@ -3270,16 +3273,15 @@
         function catDentroPeriodoFiltro(dataRegistro, dataInicioFiltro, dataFimFiltro) {
             if (!dataInicioFiltro && !dataFimFiltro) return true;
             
-            const dataRegistroCat = new Date(dataRegistro);
+            const dataRegistroCat = new Date(dataRegistro + 'T12:00:00');
             
             if (dataInicioFiltro) {
-                const dataInicioFiltroObj = new Date(dataInicioFiltro);
+                const dataInicioFiltroObj = new Date(dataInicioFiltro + 'T00:00:00');
                 if (dataRegistroCat < dataInicioFiltroObj) return false;
             }
             
             if (dataFimFiltro) {
-                const dataFimFiltroObj = new Date(dataFimFiltro);
-                dataFimFiltroObj.setHours(23, 59, 59);
+                const dataFimFiltroObj = new Date(dataFimFiltro + 'T23:59:59');
                 if (dataRegistroCat > dataFimFiltroObj) return false;
             }
             
@@ -3290,16 +3292,15 @@
         function declaracaoDentroPeriodoFiltro(dataDeclaracao, dataInicioFiltro, dataFimFiltro) {
             if (!dataInicioFiltro && !dataFimFiltro) return true;
             
-            const dataDeclaracaoObj = new Date(dataDeclaracao);
+            const dataDeclaracaoObj = new Date(dataDeclaracao + 'T12:00:00');
             
             if (dataInicioFiltro) {
-                const dataInicioFiltroObj = new Date(dataInicioFiltro);
+                const dataInicioFiltroObj = new Date(dataInicioFiltro + 'T00:00:00');
                 if (dataDeclaracaoObj < dataInicioFiltroObj) return false;
             }
             
             if (dataFimFiltro) {
-                const dataFimFiltroObj = new Date(dataFimFiltro);
-                dataFimFiltroObj.setHours(23, 59, 59);
+                const dataFimFiltroObj = new Date(dataFimFiltro + 'T23:59:59');
                 if (dataDeclaracaoObj > dataFimFiltroObj) return false;
             }
             
@@ -3700,7 +3701,7 @@
                 
                 const atestadosMes = atestadosFiltrados.filter(a => {
                     if (!a.dataInicio) return false;
-                    const dataInicio = new Date(a.dataInicio);
+                    const dataInicio = new Date(a.dataInicio + 'T12:00:00');
                     return dataInicio.getMonth() + 1 === mesAtual && dataInicio.getFullYear() === anoAtual;
                 }).length;
                 
@@ -3984,8 +3985,11 @@
         async function loadProximosVencimentos() {
             try {
                 const hoje = new Date();
+                hoje.setHours(0, 0, 0, 0);
+                
                 const daqui30Dias = new Date();
                 daqui30Dias.setDate(hoje.getDate() + 30);
+                daqui30Dias.setHours(0, 0, 0, 0);
                 
                 const vencimentosBody = document.getElementById('vencimentosBody');
                 vencimentosBody.innerHTML = '';
@@ -4031,7 +4035,9 @@
                 examesFiltrados.forEach(exame => {
                     if (!exame.vencimento) return;
                     
-                    const vencimentoDate = new Date(exame.vencimento);
+                    const vencimentoDate = new Date(exame.vencimento + 'T12:00:00');
+                    vencimentoDate.setHours(0, 0, 0, 0);
+                    
                     const diffTime = vencimentoDate - hoje;
                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                     
@@ -4073,8 +4079,8 @@
                         <tr>
                             <td><strong>${data.funcionario || 'N/A'}</strong></td>
                             <td>Exame ${formatTipoExame(data.tipo)}</td>
-                            <td>${data.dataExame ? formatDate(new Date(data.dataExame)) : 'N/A'}</td>
-                            <td>${formatDate(exame.vencimentoDate)}</td>
+                            <td>${formatDate(data.dataExame)}</td>
+                            <td>${formatDate(data.vencimento)}</td>
                             <td>${exame.diasRestantes} dias</td>
                             <td><span class="status ${status}">${formatStatusExame(status)}</span></td>
                             <td>
@@ -4178,7 +4184,7 @@
                 colaboradoresBody.innerHTML += `
                     <tr>
                         <td><strong>${colaborador.nome || 'Sem nome'}</strong></td>
-                        <td>${colaborador.dataAdmissao ? formatDate(new Date(colaborador.dataAdmissao)) : 'N/A'}</td>
+                        <td>${formatDate(colaborador.dataAdmissao)}</td>
                         <td>${colaborador.departamento || 'N/A'}</td>
                         <td>${colaborador.empresa || 'N/A'}</td>
                         <td><span class="status ${colaborador.status || 'ativo'}">${colaborador.status === 'ativo' ? 'Ativo' : 'Inativo'}</span></td>
@@ -4237,8 +4243,8 @@
                 });
                 
                 examesFiltrados.sort((a, b) => {
-                    const dataA = a.data.vencimento ? new Date(a.data.vencimento) : new Date(9999, 11, 31);
-                    const dataB = b.data.vencimento ? new Date(b.data.vencimento) : new Date(9999, 11, 31);
+                    const dataA = a.data.vencimento ? new Date(a.data.vencimento + 'T12:00:00') : new Date(9999, 11, 31);
+                    const dataB = b.data.vencimento ? new Date(b.data.vencimento + 'T12:00:00') : new Date(9999, 11, 31);
                     
                     if (dataA.getTime() === dataB.getTime()) {
                         const statusOrder = { 'vencido': 1, 'proximo-vencer': 2, 'em-dia': 3 };
@@ -4361,14 +4367,14 @@
                 
                 let periodoMatch = true;
                 if (filtroPeriodoInicio && exame.data.dataExame) {
-                    const dataExame = new Date(exame.data.dataExame);
-                    const dataInicio = new Date(filtroPeriodoInicio);
+                    const dataExame = new Date(exame.data.dataExame + 'T12:00:00');
+                    const dataInicio = new Date(filtroPeriodoInicio + 'T00:00:00');
                     periodoMatch = dataExame >= dataInicio;
                 }
                 
                 if (filtroPeriodoFim && exame.data.dataExame) {
-                    const dataExame = new Date(exame.data.dataExame);
-                    const dataFim = new Date(filtroPeriodoFim);
+                    const dataExame = new Date(exame.data.dataExame + 'T12:00:00');
+                    const dataFim = new Date(filtroPeriodoFim + 'T23:59:59');
                     periodoMatch = periodoMatch && dataExame <= dataFim;
                 }
                 
@@ -4390,8 +4396,8 @@
             }
             
             examesFiltradosResultado.sort((a, b) => {
-                const dataA = a.data.vencimento ? new Date(a.data.vencimento) : new Date(9999, 11, 31);
-                const dataB = b.data.vencimento ? new Date(b.data.vencimento) : new Date(9999, 11, 31);
+                const dataA = a.data.vencimento ? new Date(a.data.vencimento + 'T12:00:00') : new Date(9999, 11, 31);
+                const dataB = b.data.vencimento ? new Date(b.data.vencimento + 'T12:00:00') : new Date(9999, 11, 31);
                 
                 if (dataA.getTime() === dataB.getTime()) {
                     const statusOrder = { 'vencido': 1, 'proximo-vencer': 2, 'em-dia': 3 };
@@ -4410,8 +4416,8 @@
                             ${exameInfo.colaborador ? `<br><small>${exameInfo.colaborador.departamento || ''} - ${exameInfo.colaborador.empresa || ''}</small>` : ''}
                         </td>
                         <td>${formatTipoExame(data.tipo)}</td>
-                        <td>${data.dataExame ? formatDate(new Date(data.dataExame)) : 'N/A'}</td>
-                        <td>${data.vencimento ? formatDate(new Date(data.vencimento)) : 'N/A'}</td>
+                        <td>${formatDate(data.dataExame)}</td>
+                        <td>${formatDate(data.vencimento)}</td>
                         <td>${exameInfo.diasRestantes > 0 ? `${exameInfo.diasRestantes} dias` : '<span style="color: var(--danger);">Vencido</span>'}</td>
                         <td><span class="status ${exameInfo.status}">${formatStatusExame(exameInfo.status)}</span></td>
                         <td>
@@ -4465,8 +4471,8 @@
                 });
                 
                 atestadosFiltrados.sort((a, b) => {
-                    const dataA = a.data.dataInicio ? new Date(a.data.dataInicio) : new Date(0);
-                    const dataB = b.data.dataInicio ? new Date(b.data.dataInicio) : new Date(0);
+                    const dataA = a.data.dataInicio ? new Date(a.data.dataInicio + 'T12:00:00') : new Date(0);
+                    const dataB = b.data.dataInicio ? new Date(b.data.dataInicio + 'T12:00:00') : new Date(0);
                     return dataB - dataA;
                 });
                 
@@ -4544,8 +4550,8 @@
                             ${atestadoInfo.colaborador ? `<br><small>${atestadoInfo.colaborador.departamento || ''} - ${atestadoInfo.colaborador.empresa || ''}</small>` : ''}
                         </td>
                         <td>${formatTipoAtestado(data.tipo)}</td>
-                        <td>${data.dataInicio ? formatDate(new Date(data.dataInicio)) : 'N/A'}</td>
-                        <td>${data.dataFinal ? formatDate(new Date(data.dataFinal)) : 'N/A'}</td>
+                        <td>${formatDate(data.dataInicio)}</td>
+                        <td>${formatDate(data.dataFinal)}</td>
                         <td>${periodoTexto}</td>
                         <td>${data.cid || 'N/A'}</td>
                         <td>
@@ -4634,8 +4640,8 @@
                 });
                 
                 catsFiltrados.sort((a, b) => {
-                    const dataA = a.data.dataRegistro ? new Date(a.data.dataRegistro) : new Date(0);
-                    const dataB = b.data.dataRegistro ? new Date(b.data.dataRegistro) : new Date(0);
+                    const dataA = a.data.dataRegistro ? new Date(a.data.dataRegistro + 'T12:00:00') : new Date(0);
+                    const dataB = b.data.dataRegistro ? new Date(b.data.dataRegistro + 'T12:00:00') : new Date(0);
                     return dataB - dataA;
                 });
                 
@@ -4678,8 +4684,8 @@
                             ${catInfo.colaborador ? `<br><small>${catInfo.colaborador.departamento || ''} - ${catInfo.colaborador.empresa || ''}</small>` : ''}
                         </td>
                         <td>${formatTipoCAT(data.tipo)}</td>
-                        <td>${data.dataAcidente ? formatDate(new Date(data.dataAcidente)) : 'N/A'}</td>
-                        <td>${data.dataRegistro ? formatDate(new Date(data.dataRegistro)) : 'N/A'}</td>
+                        <td>${formatDate(data.dataAcidente)}</td>
+                        <td>${formatDate(data.dataRegistro)}</td>
                         <td>
                             <span class="status ${catInfo.dentroPrazo ? 'dentro-prazo' : 'fora-prazo'}">
                                 ${catInfo.dentroPrazo ? 'Dentro do prazo (24h)' : 'Fora do prazo (24h)'}
@@ -4745,8 +4751,8 @@
                 });
                 
                 declaracoesFiltradas.sort((a, b) => {
-                    const dataA = a.data.data ? new Date(a.data.data) : new Date(0);
-                    const dataB = b.data.data ? new Date(b.data.data) : new Date(0);
+                    const dataA = a.data.data ? new Date(a.data.data + 'T12:00:00') : new Date(0);
+                    const dataB = b.data.data ? new Date(b.data.data + 'T12:00:00') : new Date(0);
                     return dataB - dataA;
                 });
                 
@@ -4811,7 +4817,7 @@
                             <strong>${data.funcionario || 'N/A'}</strong>
                             ${declaracaoInfo.colaborador ? `<br><small>${declaracaoInfo.colaborador.departamento || ''} - ${declaracaoInfo.colaborador.empresa || ''}</small>` : ''}
                         </td>
-                        <td>${data.data ? formatDate(new Date(data.data)) : 'N/A'}</td>
+                        <td>${formatDate(data.data)}</td>
                         <td>${data.horaInicio || 'N/A'}</td>
                         <td>${data.horaFinal || 'N/A'}</td>
                         <td><strong>${formatarHorasDecimal(data.horas)}</strong></td>
@@ -4863,7 +4869,7 @@
                 
                 const declaracaoData = {
                     funcionario,
-                    data,
+                    data, // Mantém a data exata como inserida
                     horaInicio,
                     horaFinal,
                     horas,
@@ -4888,8 +4894,8 @@
                     cache.declaracoes.push({ id: docRef.id, ...declaracaoData });
                     
                     cache.declaracoes.sort((a, b) => {
-                        const dataA = a.data ? new Date(a.data) : new Date(0);
-                        const dataB = b.data ? new Date(b.data) : new Date(0);
+                        const dataA = a.data ? new Date(a.data + 'T12:00:00') : new Date(0);
+                        const dataB = b.data ? new Date(b.data + 'T12:00:00') : new Date(0);
                         return dataB - dataA;
                     });
                     
@@ -4939,8 +4945,10 @@
                     return;
                 }
                 
-                const dataAdmissaoDate = new Date(dataAdmissao);
+                const dataAdmissaoDate = new Date(dataAdmissao + 'T12:00:00');
                 const hoje = new Date();
+                hoje.setHours(0, 0, 0, 0);
+                
                 if (dataAdmissaoDate > hoje) {
                     showNotification('A data de admissão não pode ser futura', 'warning');
                     return;
@@ -4955,10 +4963,10 @@
                 
                 const colaboradorData = {
                     nome: nome.trim(),
-                    dataAdmissao: dataAdmissao,
-                    departamento: departamento,
-                    empresa: empresa,
-                    status: status,
+                    dataAdmissao, // Mantém a data exata como inserida
+                    departamento,
+                    empresa,
+                    status,
                     createdAt: new Date(),
                     updatedAt: new Date(),
                     userId: currentUser ? currentUser.uid : 'demo-user'
@@ -5040,9 +5048,10 @@
                     return;
                 }
                 
-                const dataExameDate = new Date(dataExame);
-                const vencimentoDate = new Date(vencimento);
+                const dataExameDate = new Date(dataExame + 'T12:00:00');
+                const vencimentoDate = new Date(vencimento + 'T12:00:00');
                 const hoje = new Date();
+                hoje.setHours(0, 0, 0, 0);
                 
                 if (dataExameDate > hoje) {
                     showNotification('A data do exame não pode ser futura', 'warning');
@@ -5066,8 +5075,8 @@
                 const exameData = {
                     funcionario,
                     tipo,
-                    dataExame,
-                    vencimento,
+                    dataExame, // Mantém a data exata como inserida
+                    vencimento, // Mantém a data exata como inserida
                     status,
                     createdAt: new Date(),
                     updatedAt: new Date(),
@@ -5131,8 +5140,8 @@
                     return;
                 }
                 
-                const dataInicioDate = new Date(dataInicio);
-                const dataFinalDate = new Date(dataFinal);
+                const dataInicioDate = new Date(dataInicio + 'T12:00:00');
+                const dataFinalDate = new Date(dataFinal + 'T12:00:00');
                 
                 if (dataFinalDate < dataInicioDate) {
                     showNotification('A data final não pode ser anterior à data inicial', 'warning');
@@ -5303,8 +5312,8 @@
                     cache.atestados.push({ id: docRef.id, ...atestadoData });
                     
                     cache.atestados.sort((a, b) => {
-                        const dataA = a.dataInicio ? new Date(a.dataInicio) : new Date(0);
-                        const dataB = b.dataInicio ? new Date(b.dataInicio) : new Date(0);
+                        const dataA = a.dataInicio ? new Date(a.dataInicio + 'T12:00:00') : new Date(0);
+                        const dataB = b.dataInicio ? new Date(b.dataInicio + 'T12:00:00') : new Date(0);
                         return dataB - dataA;
                     });
                     
@@ -5385,8 +5394,8 @@
                 const catData = {
                     funcionario,
                     tipo,
-                    dataAcidente,
-                    dataRegistro,
+                    dataAcidente, // Mantém a data exata como inserida
+                    dataRegistro, // Mantém a data exata como inserida
                     descricao,
                     local: local || '',
                     afastamentoInicio: afastamentoInicio || '',
@@ -5414,8 +5423,8 @@
                     cache.cats.push({ id: docRef.id, ...catData });
                     
                     cache.cats.sort((a, b) => {
-                        const dataA = a.dataRegistro ? new Date(a.dataRegistro) : new Date(0);
-                        const dataB = b.dataRegistro ? new Date(b.dataRegistro) : new Date(0);
+                        const dataA = a.dataRegistro ? new Date(a.dataRegistro + 'T12:00:00') : new Date(0);
+                        const dataB = b.dataRegistro ? new Date(b.dataRegistro + 'T12:00:00') : new Date(0);
                         return dataB - dataA;
                     });
                     
@@ -6019,12 +6028,12 @@
             
             let afastamentoText = 'Não houve afastamento';
             if (data.afastamentoInicio && data.afastamentoFim) {
-                afastamentoText = `${formatDate(new Date(data.afastamentoInicio))} a ${formatDate(new Date(data.afastamentoFim))} (${diasAfastado} ${diasAfastado === 1 ? 'dia' : 'dias'})`;
+                afastamentoText = `${formatDate(data.afastamentoInicio)} a ${formatDate(data.afastamentoFim)} (${diasAfastado} ${diasAfastado === 1 ? 'dia' : 'dias'})`;
                 if (afastamentoINSS) {
                     afastamentoText += '<br><span class="status inss">Afastamento superior a 15 dias - encaminhado ao INSS</span>';
                 }
             } else if (data.afastamentoInicio) {
-                afastamentoText = `A partir de ${formatDate(new Date(data.afastamentoInicio))} (em andamento)`;
+                afastamentoText = `A partir de ${formatDate(data.afastamentoInicio)} (em andamento)`;
             }
             
             const cidInfo = cache.cids.find(c => c.codigo === data.cid);
@@ -6050,8 +6059,8 @@
                     <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 15px;">
                         <h5 style="color: var(--primary); margin-bottom: 15px;">Detalhes da CAT</h5>
                         <p><strong>Tipo:</strong> ${formatTipoCAT(data.tipo)}</p>
-                        <p><strong>Data do Acidente/Diagnóstico:</strong> ${formatDate(new Date(data.dataAcidente))}</p>
-                        <p><strong>Data de Registro:</strong> ${formatDate(new Date(data.dataRegistro))}</p>
+                        <p><strong>Data do Acidente/Diagnóstico:</strong> ${formatDate(data.dataAcidente)}</p>
+                        <p><strong>Data de Registro:</strong> ${formatDate(data.dataRegistro)}</p>
                         <p><strong>Prazo de 24h:</strong> ${prazoStatus}</p>
                         <p><strong>Local:</strong> ${data.local || 'Não informado'}</p>
                     </div>
@@ -6068,8 +6077,8 @@
                     </div>
                     
                     <div style="margin-top: 20px; color: #666; font-size: 0.85rem;">
-                        <p>Registrado em: ${data.createdAt ? formatDate(new Date(data.createdAt)) : 'N/A'}</p>
-                        <p>Última atualização: ${data.updatedAt ? formatDate(new Date(data.updatedAt)) : 'N/A'}</p>
+                        <p>Registrado em: ${data.createdAt ? formatDate(data.createdAt) : 'N/A'}</p>
+                        <p>Última atualização: ${data.updatedAt ? formatDate(data.updatedAt) : 'N/A'}</p>
                     </div>
                 </div>
             `;
@@ -6487,7 +6496,16 @@
         function formatDate(date) {
             if (!date) return 'N/A';
             try {
+                // Se for uma string ISO (YYYY-MM-DD), mantém como está
+                if (typeof date === 'string' && date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                    const [ano, mes, dia] = date.split('-');
+                    return `${dia}/${mes}/${ano}`;
+                }
+                
+                // Se for um objeto Date ou string com timestamp
                 const d = new Date(date);
+                if (isNaN(d.getTime())) return 'Data inválida';
+                
                 return d.toLocaleDateString('pt-BR');
             } catch (error) {
                 return 'Data inválida';
