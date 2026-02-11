@@ -349,6 +349,16 @@
             color: #004085;
         }
 
+        .status.em_analise {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status.concluida {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
         .status.ativo {
             background-color: #d4edda;
             color: #155724;
@@ -798,6 +808,24 @@
             display: block;
         }
         
+        /* Página de atestados */
+        .atestado-page {
+            display: none;
+        }
+        
+        .atestado-page.active {
+            display: block;
+        }
+        
+        /* Página de CATs */
+        .cat-page {
+            display: none;
+        }
+        
+        .cat-page.active {
+            display: block;
+        }
+        
         /* Calendário para filtros */
         .date-range {
             display: flex;
@@ -840,15 +868,6 @@
             font-weight: 500;
         }
         
-        /* Página de atestados */
-        .atestado-page {
-            display: none;
-        }
-        
-        .atestado-page.active {
-            display: block;
-        }
-        
         /* Modal de confirmação de limite */
         .limit-warning {
             background-color: #fff3cd;
@@ -865,6 +884,71 @@
         
         .limit-warning p {
             margin: 5px 0;
+        }
+
+        /* Timeline para CATs */
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-left: 40px;
+            margin-bottom: 30px;
+        }
+
+        .timeline-item:before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: -20px;
+            width: 2px;
+            background-color: #e0e0e0;
+        }
+
+        .timeline-item:last-child:before {
+            display: none;
+        }
+
+        .timeline-icon {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            z-index: 1;
+        }
+
+        .timeline-content {
+            background-color: #f8f9fa;
+            padding: 15px 20px;
+            border-radius: 8px;
+        }
+
+        .timeline-date {
+            color: #666;
+            font-size: 0.85rem;
+            margin-bottom: 5px;
+        }
+
+        .timeline-title {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .timeline-text {
+            color: #333;
+            font-size: 0.95rem;
         }
     </style>
 </head>
@@ -903,6 +987,19 @@
             <div class="form-actions">
                 <button class="btn btn-warning" onclick="proceedWithAtestado()">Continuar</button>
                 <button class="btn" onclick="closeLimitModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Detalhes da CAT -->
+    <div id="catDetailsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-exclamation-triangle"></i> Detalhes da CAT</h3>
+                <button class="close-modal" onclick="closeCatDetailsModal()">&times;</button>
+            </div>
+            <div id="catDetailsContent">
+                <!-- Conteúdo carregado dinamicamente -->
             </div>
         </div>
     </div>
@@ -993,7 +1090,7 @@
                     <div class="stat-card atestados">
                         <h3>Atestados</h3>
                         <div class="value" id="totalAtestados">0</div>
-                        <small id="atestadosVencidos">0 vencidos</small>
+                        <small id="atestadosMes">0 este mês</small>
                     </div>
                     <div class="stat-card cats">
                         <h3>CATs Registradas</h3>
@@ -1430,8 +1527,8 @@
                 </div>
             </section>
 
-            <!-- CATs -->
-            <section id="cats" class="page-content hidden">
+            <!-- CATs - Página Principal -->
+            <section id="cats" class="page-content cat-page active">
                 <div class="page-title">
                     <h2><i class="fas fa-exclamation-triangle"></i> CATs (Comunicação de Acidente de Trabalho)</h2>
                     <button class="btn btn-primary" id="btn-nova-cat">
@@ -1441,8 +1538,8 @@
 
                 <div class="filters">
                     <div class="form-group">
-                        <label for="filtro-status-cat">Filtrar por Status:</label>
-                            <select id="filtro-status-cat">
+                        <label for="filtro-status-cat">Status:</label>
+                        <select id="filtro-status-cat">
                             <option value="todos">Todos</option>
                             <option value="registrada">Registrada</option>
                             <option value="em_analise">Em Análise</option>
@@ -1450,7 +1547,7 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="filtro-tipo-cat">Filtrar por Tipo:</label>
+                        <label for="filtro-tipo-cat">Tipo:</label>
                         <select id="filtro-tipo-cat">
                             <option value="todos">Todos</option>
                             <option value="acidente">Acidente de Trabalho</option>
@@ -1459,10 +1556,23 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="filtro-colaborador-cat">Filtrar por Colaborador:</label>
+                        <label for="filtro-colaborador-cat">Colaborador:</label>
                         <select id="filtro-colaborador-cat">
                             <option value="todos">Todos</option>
                         </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="filtro-periodo-inicio-cat">Data Início:</label>
+                        <input type="date" id="filtro-periodo-inicio-cat">
+                    </div>
+                    <div class="form-group">
+                        <label for="filtro-periodo-fim-cat">Data Fim:</label>
+                        <input type="date" id="filtro-periodo-fim-cat">
+                    </div>
+                    <div class="form-group clear-filters">
+                        <button class="btn btn-warning" id="btn-limpar-filtros-cat">
+                            <i class="fas fa-times"></i> Limpar Filtros
+                        </button>
                     </div>
                 </div>
 
@@ -1470,21 +1580,119 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>Número</th>
+                                <th>Nº CAT</th>
                                 <th>Colaborador</th>
+                                <th>Tipo</th>
                                 <th>Data do Acidente</th>
                                 <th>Data de Registro</th>
-                                <th>Tipo</th>
                                 <th>Status</th>
+                                <th>Dias Afastado</th>
                                 <th>Ações</th>
                             </tr>
                         </thead>
                         <tbody id="catsBody">
                             <tr>
-                                <td colspan="7" style="text-align: center; padding: 30px;">Carregando CATs...</td>
+                                <td colspan="8" style="text-align: center; padding: 30px;">Carregando CATs...</td>
                             </tr>
                         </tbody>
                     </table>
+                </div>
+            </section>
+
+            <!-- CATs - Página de Cadastro/Edição -->
+            <section id="cat-cadastro" class="page-content cat-page">
+                <button class="back-button" id="btn-voltar-cats">
+                    <i class="fas fa-arrow-left"></i> Voltar para Lista
+                </button>
+                
+                <div class="page-title">
+                    <h2><i class="fas fa-exclamation-triangle"></i> <span id="form-cat-title">Nova CAT</span></h2>
+                </div>
+
+                <div class="form-section">
+                    <div class="simple-form">
+                        <div class="form-group">
+                            <label for="cat-colaborador">Colaborador *</label>
+                            <select id="cat-colaborador" required>
+                                <option value="">Selecione um colaborador</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="cat-tipo">Tipo de CAT *</label>
+                            <select id="cat-tipo" required>
+                                <option value="">Selecione o tipo</option>
+                                <option value="acidente">Acidente de Trabalho</option>
+                                <option value="doenca">Doença Ocupacional</option>
+                                <option value="acidente-trajeto">Acidente de Trajeto</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="cat-data-acidente">Data do Acidente/Diagnóstico *</label>
+                                <input type="date" id="cat-data-acidente" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="cat-data-registro">Data de Registro *</label>
+                                <input type="date" id="cat-data-registro" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="cat-descricao">Descrição do Acidente/Doença *</label>
+                            <textarea id="cat-descricao" placeholder="Descreva detalhadamente o acidente ou doença ocupacional" rows="4" required></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="cat-local">Local do Acidente</label>
+                            <input type="text" id="cat-local" placeholder="Local onde ocorreu o acidente">
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="cat-afastamento-inicio">Data Início do Afastamento</label>
+                                <input type="date" id="cat-afastamento-inicio">
+                            </div>
+                            <div class="form-group">
+                                <label for="cat-afastamento-fim">Data Fim do Afastamento</label>
+                                <input type="date" id="cat-afastamento-fim">
+                            </div>
+                        </div>
+                        
+                        <div id="cat-dias-afastamento" class="calc-result" style="display: none;">
+                            <h4><i class="fas fa-calendar-alt"></i> Período de Afastamento</h4>
+                            <p id="cat-dias-afastamento-text">Dias afastado: <strong>0 dias</strong></p>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="cat-cid">CID (Opcional)</label>
+                            <select id="cat-cid">
+                                <option value="">Selecione um CID (Opcional)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="cat-status">Status *</label>
+                            <select id="cat-status" required>
+                                <option value="registrada">Registrada</option>
+                                <option value="em_analise">Em Análise</option>
+                                <option value="concluida">Concluída</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="cat-observacoes">Observações</label>
+                            <textarea id="cat-observacoes" placeholder="Observações adicionais" rows="3"></textarea>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-primary" id="btn-salvar-cat">
+                                <span id="btn-cat-text">Salvar CAT</span>
+                            </button>
+                            <button type="button" class="btn" id="btn-cancelar-cat">Cancelar</button>
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -1630,7 +1838,7 @@
                         </div>
                         <div class="form-group">
                             <label for="filtro-departamento-relatorio">Filtrar por Departamento:</label>
-                                <select id="filtro-departamento-relatorio">
+                            <select id="filtro-departamento-relatorio">
                                 <option value="todos">Todos</option>
                             </select>
                         </div>
@@ -1700,14 +1908,15 @@
         let atestadosFiltrados = [];
         let catsFiltrados = [];
         let colaboradoresFiltrados = [];
-        let atestadoPendente = null; // Para controle do modal de limite
+        let atestadoPendente = null;
         
         // Cache de dados sincronizados
         let cache = {
             colaboradores: [],
             empresas: [],
             departamentos: [],
-            cids: []
+            cids: [],
+            cats: []
         };
 
         // Limites de atestados
@@ -1774,12 +1983,10 @@
                 filtrarColaboradores();
             });
             
-            // Filtro de departamento para colaboradores
             document.getElementById('filtro-departamento-colaborador').addEventListener('change', function() {
                 filtrarColaboradores();
             });
             
-            // Filtro de status para colaboradores
             document.getElementById('filtro-status-colaborador').addEventListener('change', function() {
                 filtrarColaboradores();
             });
@@ -1805,7 +2012,6 @@
                 filtrarExames();
             });
             
-            // Filtro por período para exames
             document.getElementById('filtro-periodo-inicio-exame').addEventListener('change', function() {
                 filtrarExames();
             });
@@ -1814,7 +2020,6 @@
                 filtrarExames();
             });
             
-            // Botão para limpar filtros de exames
             document.getElementById('btn-limpar-filtros-exame').addEventListener('click', function() {
                 limparFiltrosExames();
             });
@@ -1852,6 +2057,18 @@
             document.getElementById('filtro-colaborador-cat').addEventListener('change', function() {
                 filtrarCATs();
             });
+            
+            document.getElementById('filtro-periodo-inicio-cat').addEventListener('change', function() {
+                filtrarCATs();
+            });
+            
+            document.getElementById('filtro-periodo-fim-cat').addEventListener('change', function() {
+                filtrarCATs();
+            });
+            
+            document.getElementById('btn-limpar-filtros-cat').addEventListener('click', function() {
+                limparFiltrosCATs();
+            });
         }
 
         // Limpar filtros de exames
@@ -1865,23 +2082,34 @@
             document.getElementById('filtro-periodo-fim-exame').value = '';
             
             filtrarExames();
-            showNotification('Filtros limpos com sucesso!', 'info');
+            showNotification('Filtros de exames limpos com sucesso!', 'info');
+        }
+
+        // Limpar filtros de CATs
+        function limparFiltrosCATs() {
+            document.getElementById('filtro-status-cat').value = 'todos';
+            document.getElementById('filtro-tipo-cat').value = 'todos';
+            document.getElementById('filtro-colaborador-cat').value = 'todos';
+            document.getElementById('filtro-periodo-inicio-cat').value = '';
+            document.getElementById('filtro-periodo-fim-cat').value = '';
+            
+            filtrarCATs();
+            showNotification('Filtros de CATs limpos com sucesso!', 'info');
         }
 
         // Carregar cache de dados sincronizados
         async function loadCacheData() {
             try {
-                // Carregar todos os dados em cache
                 await Promise.all([
                     loadColaboradoresCache(),
                     loadEmpresasCache(),
                     loadDepartamentosCache(),
-                    loadCIDsCache()
+                    loadCIDsCache(),
+                    loadCATsCache()
                 ]);
                 
                 console.log('Cache de dados carregado com sucesso:', cache);
                 
-                // Após carregar cache, carregar os colaboradores
                 loadColaboradores();
                 
             } catch (error) {
@@ -1889,7 +2117,7 @@
             }
         }
 
-        // Carregar colaboradores em cache (ordenado alfabeticamente)
+        // Carregar colaboradores em cache
         async function loadColaboradoresCache() {
             try {
                 const colaboradoresQuery = await db.collection('colaboradores')
@@ -1901,7 +2129,6 @@
                     ...doc.data()
                 }));
                 
-                // Carregar dados nos filtros
                 loadDepartamentosFiltro();
                 
             } catch (error) {
@@ -1960,9 +2187,25 @@
             }
         }
 
+        // Carregar CATs em cache
+        async function loadCATsCache() {
+            try {
+                const catsQuery = await db.collection('cats')
+                    .orderBy('dataRegistro', 'desc')
+                    .get();
+                
+                cache.cats = catsQuery.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                
+            } catch (error) {
+                console.error('Erro ao carregar CATs em cache:', error);
+            }
+        }
+
         // Inicializar autenticação
         function initAuth() {
-            // Usuário fixo para demonstração
             currentUser = {
                 uid: 'demo-user',
                 displayName: 'Gestor de Saúde',
@@ -1979,15 +2222,12 @@
                 link.addEventListener('click', function(e) {
                     e.preventDefault();
                     
-                    // Remove a classe active de todos os links
                     document.querySelectorAll('.nav-link').forEach(item => {
                         item.classList.remove('active');
                     });
                     
-                    // Adiciona a classe active ao link clicado
                     this.classList.add('active');
                     
-                    // Oculta todas as páginas
                     document.querySelectorAll('.page-content').forEach(page => {
                         page.classList.add('hidden');
                     });
@@ -2004,11 +2244,13 @@
                         page.classList.remove('active');
                     });
                     
-                    // Mostra a página correspondente ao link clicado
+                    document.querySelectorAll('.cat-page').forEach(page => {
+                        page.classList.remove('active');
+                    });
+                    
                     const pageId = this.getAttribute('data-page');
                     document.getElementById(pageId).classList.remove('hidden');
                     
-                    // Para colaboradores, mostrar a página principal
                     if (pageId === 'colaboradores') {
                         document.getElementById('colaboradores').classList.add('active');
                         document.getElementById('colaborador-cadastro').classList.remove('active');
@@ -2021,9 +2263,12 @@
                         document.getElementById('atestados').classList.add('active');
                         document.getElementById('atestado-cadastro').classList.remove('active');
                         document.getElementById('atestado-cadastro').classList.add('hidden');
+                    } else if (pageId === 'cats') {
+                        document.getElementById('cats').classList.add('active');
+                        document.getElementById('cat-cadastro').classList.remove('active');
+                        document.getElementById('cat-cadastro').classList.add('hidden');
                     }
                     
-                    // Carregar dados específicos da página
                     if (pageId === 'dashboard') {
                         loadDashboardData();
                     } else if (pageId === 'colaboradores') {
@@ -2052,7 +2297,6 @@
                 btn.addEventListener('click', function() {
                     const tabId = this.getAttribute('data-tab');
                     
-                    // Remove a classe active de todas as abas
                     document.querySelectorAll('.tab-btn').forEach(tab => {
                         tab.classList.remove('active');
                     });
@@ -2060,11 +2304,9 @@
                         content.classList.remove('active');
                     });
                     
-                    // Adiciona a classe active à aba clicada
                     this.classList.add('active');
                     document.getElementById(`tab-${tabId}`).classList.add('active');
                     
-                    // Carregar dados específicos da aba
                     if (tabId === 'empresas') {
                         loadEmpresas();
                     } else if (tabId === 'departamentos') {
@@ -2078,12 +2320,11 @@
 
         // Configurar formulários
         function setupForms() {
-            // Botão para novo colaborador
+            // Colaboradores
             document.getElementById('btn-novo-colaborador').addEventListener('click', function() {
                 showColaboradorForm('Novo Colaborador', 'Salvar Colaborador');
             });
 
-            // Botão para voltar da página de cadastro de colaborador
             document.getElementById('btn-voltar-colaboradores').addEventListener('click', function() {
                 document.getElementById('colaboradores').classList.add('active');
                 document.getElementById('colaborador-cadastro').classList.remove('active');
@@ -2093,7 +2334,6 @@
                 itemToEdit = null;
             });
 
-            // Botão cancelar no formulário de colaborador
             document.getElementById('btn-cancelar-colaborador').addEventListener('click', function() {
                 document.getElementById('colaboradores').classList.add('active');
                 document.getElementById('colaborador-cadastro').classList.remove('active');
@@ -2103,12 +2343,11 @@
                 itemToEdit = null;
             });
 
-            // Botão para novo exame
+            // Exames
             document.getElementById('btn-novo-exame').addEventListener('click', function() {
                 showExameForm('Novo Exame Ocupacional', 'Salvar Exame');
             });
 
-            // Botão para voltar da página de cadastro de exame
             document.getElementById('btn-voltar-exames').addEventListener('click', function() {
                 document.getElementById('exames').classList.add('active');
                 document.getElementById('exame-cadastro').classList.remove('active');
@@ -2118,7 +2357,6 @@
                 itemToEdit = null;
             });
 
-            // Botão cancelar no formulário de exame
             document.getElementById('btn-cancelar-exame').addEventListener('click', function() {
                 document.getElementById('exames').classList.add('active');
                 document.getElementById('exame-cadastro').classList.remove('active');
@@ -2128,12 +2366,11 @@
                 itemToEdit = null;
             });
 
-            // Botão para novo atestado
+            // Atestados
             document.getElementById('btn-novo-atestado').addEventListener('click', function() {
                 showAtestadoForm('Novo Atestado', 'Salvar Atestado');
             });
 
-            // Botão para voltar da página de cadastro de atestado
             document.getElementById('btn-voltar-atestados').addEventListener('click', function() {
                 document.getElementById('atestados').classList.add('active');
                 document.getElementById('atestado-cadastro').classList.remove('active');
@@ -2143,12 +2380,34 @@
                 itemToEdit = null;
             });
 
-            // Botão cancelar no formulário de atestado
             document.getElementById('btn-cancelar-atestado').addEventListener('click', function() {
                 document.getElementById('atestados').classList.add('active');
                 document.getElementById('atestado-cadastro').classList.remove('active');
                 document.getElementById('atestado-cadastro').classList.add('hidden');
                 clearForm('atestado');
+                editMode = false;
+                itemToEdit = null;
+            });
+
+            // CATs
+            document.getElementById('btn-nova-cat').addEventListener('click', function() {
+                showCATForm('Nova CAT', 'Salvar CAT');
+            });
+
+            document.getElementById('btn-voltar-cats').addEventListener('click', function() {
+                document.getElementById('cats').classList.add('active');
+                document.getElementById('cat-cadastro').classList.remove('active');
+                document.getElementById('cat-cadastro').classList.add('hidden');
+                clearForm('cat');
+                editMode = false;
+                itemToEdit = null;
+            });
+
+            document.getElementById('btn-cancelar-cat').addEventListener('click', function() {
+                document.getElementById('cats').classList.add('active');
+                document.getElementById('cat-cadastro').classList.remove('active');
+                document.getElementById('cat-cadastro').classList.add('hidden');
+                clearForm('cat');
                 editMode = false;
                 itemToEdit = null;
             });
@@ -2160,6 +2419,7 @@
             document.getElementById('btn-salvar-cid').addEventListener('click', salvarCID);
             document.getElementById('btn-salvar-exame').addEventListener('click', salvarExame);
             document.getElementById('btn-salvar-atestado').addEventListener('click', verificarLimitesAtestado);
+            document.getElementById('btn-salvar-cat').addEventListener('click', salvarCAT);
             
             // Botões de cancelar para configurações
             document.getElementById('btn-cancelar-empresa').addEventListener('click', function() {
@@ -2191,7 +2451,6 @@
                 
                 if (unidade === 'horas') {
                     camposHora.classList.remove('hidden');
-                    // Definir horas padrão (08:00 às 17:00)
                     document.getElementById('atestado-hora-inicio').value = '08:00';
                     document.getElementById('atestado-hora-final').value = '17:00';
                 } else {
@@ -2200,6 +2459,10 @@
                 
                 calcularAtestado();
             });
+            
+            // Eventos para cálculo automático no formulário de CAT
+            document.getElementById('cat-afastamento-inicio').addEventListener('change', calcularDiasAfastamento);
+            document.getElementById('cat-afastamento-fim').addEventListener('change', calcularDiasAfastamento);
         }
 
         // Mostrar formulário de colaborador
@@ -2211,11 +2474,9 @@
             document.getElementById('form-colaborador-title').textContent = title;
             document.getElementById('btn-colaborador-text').textContent = buttonText;
             
-            // Carregar selects se necessário
             loadDepartamentosSelect();
             loadEmpresasSelect();
             
-            // Definir data atual como padrão
             if (!editMode) {
                 const hoje = new Date();
                 document.getElementById('colaborador-data-admissao').value = hoje.toISOString().split('T')[0];
@@ -2231,15 +2492,12 @@
             document.getElementById('form-exame-title').textContent = title;
             document.getElementById('btn-exame-text').textContent = buttonText;
             
-            // Carregar selects se necessário
             loadColaboradoresSelect();
             
-            // Definir datas padrão
             if (!editMode) {
                 const hoje = new Date();
                 document.getElementById('exame-data').value = hoje.toISOString().split('T')[0];
                 
-                // Definir vencimento padrão para 1 ano a partir de hoje
                 const vencimento = new Date();
                 vencimento.setFullYear(vencimento.getFullYear() + 1);
                 document.getElementById('exame-vencimento').value = vencimento.toISOString().split('T')[0];
@@ -2255,52 +2513,58 @@
             document.getElementById('form-atestado-title').textContent = title;
             document.getElementById('btn-atestado-text').textContent = buttonText;
             
-            // Carregar selects se necessário
             loadColaboradoresAtestadoSelect();
             loadCIDsSelect();
             
-            // Definir datas padrão
             if (!editMode) {
                 const hoje = new Date();
                 document.getElementById('atestado-data-inicio').value = hoje.toISOString().split('T')[0];
                 document.getElementById('atestado-data-final').value = hoje.toISOString().split('T')[0];
                 document.getElementById('atestado-unidade').value = 'dias';
                 
-                // Esconder campos de hora inicialmente
                 document.getElementById('campos-hora').classList.add('hidden');
                 
-                // Calcular automaticamente
                 calcularAtestado();
+            }
+        }
+
+        // Mostrar formulário de CAT
+        function showCATForm(title, buttonText) {
+            document.getElementById('cats').classList.remove('active');
+            document.getElementById('cat-cadastro').classList.add('active');
+            document.getElementById('cat-cadastro').classList.remove('hidden');
+            
+            document.getElementById('form-cat-title').textContent = title;
+            document.getElementById('btn-cat-text').textContent = buttonText;
+            
+            loadColaboradoresCATSelect();
+            loadCIDsSelect('cat-cid');
+            
+            if (!editMode) {
+                const hoje = new Date();
+                document.getElementById('cat-data-acidente').value = hoje.toISOString().split('T')[0];
+                document.getElementById('cat-data-registro').value = hoje.toISOString().split('T')[0];
+                document.getElementById('cat-status').value = 'registrada';
+                
+                document.getElementById('cat-dias-afastamento').style.display = 'none';
             }
         }
 
         // Configurar botões
         function setupButtons() {
-            // Botões para criar novos registros
-            document.getElementById('btn-nova-cat').addEventListener('click', function() {
-                showNotification('Redirecionando para formulário de CAT...', 'info');
-            });
-
-            // Botão para gerar relatório
             document.getElementById('btn-gerar-relatorio').addEventListener('click', gerarRelatorio);
-            
-            // Botão para exportar relatório
             document.getElementById('btn-exportar-relatorio').addEventListener('click', exportarRelatorio);
         }
 
         // Carregar dados do dashboard
         function loadDashboardData() {
-            // Carregar contadores
             loadCounters();
-            
-            // Carregar próximos vencimentos
             loadProximosVencimentos();
         }
 
         // Carregar contadores
         async function loadCounters() {
             try {
-                // Usar cache para contadores
                 const totalColaboradores = cache.colaboradores.length;
                 const colaboradoresAtivos = cache.colaboradores.filter(colaborador => 
                     colaborador.status === 'ativo'
@@ -2309,7 +2573,6 @@
                 document.getElementById('totalColaboradores').textContent = totalColaboradores;
                 document.getElementById('colaboradoresAtivos').textContent = `${colaboradoresAtivos} ativos`;
                 
-                // Contar exames
                 const examesSnapshot = await db.collection('exames').get();
                 const totalExames = examesSnapshot.size;
                 const examesVencidos = examesSnapshot.docs.filter(doc => {
@@ -2321,14 +2584,23 @@
                 document.getElementById('totalExames').textContent = totalExames;
                 document.getElementById('examesPendentes').textContent = `${examesVencidos} vencidos`;
                 
-                // Contar atestados
                 const atestadosSnapshot = await db.collection('atestados').get();
                 const totalAtestados = atestadosSnapshot.size;
                 
-                document.getElementById('totalAtestados').textContent = totalAtestados;
-                document.getElementById('atestadosVencidos').textContent = '0 vencidos';
+                const hoje = new Date();
+                const mesAtual = hoje.getMonth() + 1;
+                const anoAtual = hoje.getFullYear();
                 
-                // Contar CATs
+                const atestadosMes = atestadosSnapshot.docs.filter(doc => {
+                    const data = doc.data();
+                    if (!data.dataInicio) return false;
+                    const dataInicio = new Date(data.dataInicio);
+                    return dataInicio.getMonth() + 1 === mesAtual && dataInicio.getFullYear() === anoAtual;
+                }).length;
+                
+                document.getElementById('totalAtestados').textContent = totalAtestados;
+                document.getElementById('atestadosMes').textContent = `${atestadosMes} este mês`;
+                
                 const catsSnapshot = await db.collection('cats').get();
                 const totalCats = catsSnapshot.size;
                 const catsAnalise = catsSnapshot.docs.filter(doc => 
@@ -2343,10 +2615,9 @@
             }
         }
 
-        // Carregar colaboradores (sem filtro, para manter lista completa em cache)
+        // Carregar colaboradores
         async function loadColaboradores() {
             try {
-                // Usar cache de colaboradores
                 if (cache.colaboradores.length === 0) {
                     const colaboradoresBody = document.getElementById('colaboradoresBody');
                     colaboradoresBody.innerHTML = `
@@ -2362,10 +2633,8 @@
                     return;
                 }
                 
-                // Armazenar todos os colaboradores para filtragem
                 colaboradoresFiltrados = [...cache.colaboradores];
                 
-                // Aplicar filtro inicial (apenas ativos)
                 filtrarColaboradores();
                 
             } catch (error) {
@@ -2397,17 +2666,13 @@
                 return;
             }
             
-            // Filtrar colaboradores
             const colaboradoresFiltradosResultado = cache.colaboradores.filter(colaborador => {
-                // Filtro por nome (busca digitável)
                 const nomeMatch = !filtroNome || 
                     (colaborador.nome && colaborador.nome.toLowerCase().includes(filtroNome));
                 
-                // Filtro por departamento
                 const departamentoMatch = filtroDepartamento === 'todos' || 
                     (colaborador.departamento && colaborador.departamento === filtroDepartamento);
                 
-                // Filtro por status (padrão: apenas ativos)
                 const statusMatch = filtroStatus === 'todos' || 
                     (colaborador.status && colaborador.status === filtroStatus);
                 
@@ -2428,14 +2693,12 @@
                 return;
             }
             
-            // Ordenar por nome (alfabético)
             colaboradoresFiltradosResultado.sort((a, b) => {
                 const nomeA = a.nome || '';
                 const nomeB = b.nome || '';
                 return nomeA.localeCompare(nomeB);
             });
             
-            // Exibir colaboradores filtrados
             colaboradoresFiltradosResultado.forEach(colaborador => {
                 colaboradoresBody.innerHTML += `
                     <tr>
@@ -2464,7 +2727,6 @@
             const filtroDepartamento = document.getElementById('filtro-departamento-colaborador');
             filtroDepartamento.innerHTML = '<option value="todos">Todos</option>';
             
-            // Coletar departamentos únicos dos colaboradores
             const departamentosUnicos = [...new Set(cache.colaboradores
                 .map(colaborador => colaborador.departamento)
                 .filter(departamento => departamento && departamento.trim() !== '')
@@ -2474,7 +2736,6 @@
                 filtroDepartamento.innerHTML += `<option value="${departamento}">${departamento}</option>`;
             });
             
-            // Carregar também para o filtro de exames
             const filtroDepartamentoExame = document.getElementById('filtro-departamento-exame');
             filtroDepartamentoExame.innerHTML = '<option value="todos">Todos</option>';
             
@@ -2505,7 +2766,6 @@
                     return;
                 }
                 
-                // Armazenar exames para filtragem
                 examesFiltrados = [];
                 
                 examesQuery.docs.forEach(doc => {
@@ -2513,7 +2773,6 @@
                     const status = calcularStatusVencimento(data.vencimento);
                     const diasRestantes = calcularDiasRestantes(data.vencimento);
                     
-                    // Buscar informações do colaborador do cache
                     const colaboradorInfo = cache.colaboradores.find(c => c.nome === data.funcionario);
                     
                     const exameInfo = {
@@ -2527,22 +2786,18 @@
                     examesFiltrados.push(exameInfo);
                 });
                 
-                // Ordenar exames por vencimento (mais próximos primeiro)
                 examesFiltrados.sort((a, b) => {
                     const dataA = a.data.vencimento ? new Date(a.data.vencimento) : new Date(9999, 11, 31);
                     const dataB = b.data.vencimento ? new Date(b.data.vencimento) : new Date(9999, 11, 31);
                     
-                    // Se a data for a mesma, ordena por status
                     if (dataA.getTime() === dataB.getTime()) {
                         const statusOrder = { 'vencido': 1, 'proximo-vencer': 2, 'em-dia': 3 };
                         return statusOrder[a.status] - statusOrder[b.status];
                     }
                     
-                    // Ordena por data de vencimento (mais próximos primeiro)
                     return dataA - dataB;
                 });
                 
-                // Exibir exames ordenados
                 examesFiltrados.forEach(exameInfo => {
                     const data = exameInfo.data;
                     examesBody.innerHTML += `
@@ -2570,7 +2825,6 @@
                     `;
                 });
                 
-                // Aplicar filtros iniciais
                 filtrarExames();
                 
             } catch (error) {
@@ -2581,7 +2835,6 @@
 
         // Carregar filtros para exames
         function loadFiltrosExames() {
-            // Carregar empresas no filtro
             const filtroEmpresa = document.getElementById('filtro-empresa-exame');
             filtroEmpresa.innerHTML = '<option value="todos">Todas</option>';
             
@@ -2617,19 +2870,14 @@
                 return;
             }
             
-            // Filtrar exames
             const examesFiltradosResultado = examesFiltrados.filter(exame => {
-                // Filtro por nome (busca digitável)
                 const nomeMatch = !filtroNome || 
                     (exame.data.funcionario && exame.data.funcionario.toLowerCase().includes(filtroNome));
                 
-                // Filtro por status
                 const statusMatch = filtroStatus === 'todos' || exame.status === filtroStatus;
                 
-                // Filtro por tipo
                 const tipoMatch = filtroTipo === 'todos' || exame.data.tipo === filtroTipo;
                 
-                // Filtros por empresa e departamento
                 let empresaMatch = true;
                 let departamentoMatch = true;
                 
@@ -2641,7 +2889,6 @@
                     departamentoMatch = exame.colaborador.departamento === filtroDepartamento;
                 }
                 
-                // Filtro por período
                 let periodoMatch = true;
                 if (filtroPeriodoInicio && exame.data.dataExame) {
                     const dataExame = new Date(exame.data.dataExame);
@@ -2672,22 +2919,18 @@
                 return;
             }
             
-            // Ordenar por vencimento (mais próximos primeiro)
             examesFiltradosResultado.sort((a, b) => {
                 const dataA = a.data.vencimento ? new Date(a.data.vencimento) : new Date(9999, 11, 31);
                 const dataB = b.data.vencimento ? new Date(b.data.vencimento) : new Date(9999, 11, 31);
                 
-                // Se a data for a mesma, ordena por status
                 if (dataA.getTime() === dataB.getTime()) {
                     const statusOrder = { 'vencido': 1, 'proximo-vencer': 2, 'em-dia': 3 };
                     return statusOrder[a.status] - statusOrder[b.status];
                 }
                 
-                // Ordena por data de vencimento (mais próximos primeiro)
                 return dataA - dataB;
             });
             
-            // Exibir exames filtrados e ordenados
             examesFiltradosResultado.forEach(exameInfo => {
                 const data = exameInfo.data;
                 examesBody.innerHTML += `
@@ -2716,7 +2959,7 @@
             });
         }
 
-        // Carregar atestados - MODIFICADO para nova estrutura
+        // Carregar atestados
         async function loadAtestados() {
             try {
                 const atestadosQuery = await db.collection('atestados')
@@ -2740,13 +2983,11 @@
                     return;
                 }
                 
-                // Armazenar atestados para filtragem
                 atestadosFiltrados = [];
                 
                 atestadosQuery.docs.forEach(doc => {
                     const data = doc.data();
                     
-                    // Buscar informações do colaborador do cache
                     const colaboradorInfo = cache.colaboradores.find(c => c.nome === data.funcionario);
                     
                     const atestadoInfo = {
@@ -2757,7 +2998,6 @@
                     
                     atestadosFiltrados.push(atestadoInfo);
                     
-                    // Calcular período
                     const dias = calcularDiasAtestado(data.dataInicio, data.dataFinal);
                     let periodoTexto = `${dias} ${dias === 1 ? 'dia' : 'dias'}`;
                     
@@ -2791,7 +3031,6 @@
                     `;
                 });
                 
-                // Aplicar filtros iniciais
                 filtrarAtestados();
                 
             } catch (error) {
@@ -2800,7 +3039,7 @@
             }
         }
 
-        // Filtrar atestados - MODIFICADO para nova estrutura
+        // Filtrar atestados
         function filtrarAtestados() {
             const filtroNome = document.getElementById('filtro-nome-atestado').value.toLowerCase();
             const filtroTipo = document.getElementById('filtro-tipo-atestado').value;
@@ -2825,27 +3064,21 @@
                 return;
             }
             
-            // Filtrar atestados
             const atestadosFiltradosResultado = atestadosFiltrados.filter(atestado => {
-                // Filtro por nome (busca digitável)
                 const nomeMatch = !filtroNome || 
                     (atestado.data.funcionario && atestado.data.funcionario.toLowerCase().includes(filtroNome));
                 
-                // Filtro por tipo
                 const tipoMatch = filtroTipo === 'todos' || atestado.data.tipo === filtroTipo;
                 
-                // Filtro por unidade
                 const unidadeMatch = filtroUnidade === 'todos' || atestado.data.unidade === filtroUnidade;
                 
-                // Filtro por mês
                 let mesMatch = true;
                 if (filtroMes !== 'todos' && atestado.data.dataInicio) {
                     const dataInicio = new Date(atestado.data.dataInicio);
-                    const mes = dataInicio.getMonth() + 1; // getMonth() retorna 0-11
+                    const mes = dataInicio.getMonth() + 1;
                     mesMatch = mes == filtroMes;
                 }
                 
-                // Filtro por ano
                 let anoMatch = true;
                 if (filtroAno !== 'todos' && atestado.data.dataInicio) {
                     const dataInicio = new Date(atestado.data.dataInicio);
@@ -2870,11 +3103,9 @@
                 return;
             }
             
-            // Exibir atestados filtrados
             atestadosFiltradosResultado.forEach(atestadoInfo => {
                 const data = atestadoInfo.data;
                 
-                // Calcular período
                 const dias = calcularDiasAtestado(data.dataInicio, data.dataFinal);
                 let periodoTexto = `${dias} ${dias === 1 ? 'dia' : 'dias'}`;
                 
@@ -2922,7 +3153,7 @@
                 if (catsQuery.empty) {
                     catsBody.innerHTML = `
                         <tr>
-                            <td colspan="7" style="text-align: center; padding: 30px;">
+                            <td colspan="8" style="text-align: center; padding: 30px;">
                                 <div class="empty-state">
                                     <i class="fas fa-exclamation-triangle"></i>
                                     <p>Nenhuma CAT registrada</p>
@@ -2933,40 +3164,51 @@
                     return;
                 }
                 
-                // Armazenar CATs para filtragem
                 catsFiltrados = [];
                 
                 catsQuery.docs.forEach(doc => {
                     const data = doc.data();
                     
-                    // Buscar informações do colaborador do cache
                     const colaboradorInfo = cache.colaboradores.find(c => c.nome === data.funcionario);
+                    
+                    const numeroCAT = data.numero || `CAT-${doc.id.substring(0, 8)}`;
+                    
+                    let diasAfastado = 0;
+                    if (data.afastamentoInicio && data.afastamentoFim) {
+                        diasAfastado = calcularDiasAtestado(data.afastamentoInicio, data.afastamentoFim);
+                    }
                     
                     const catInfo = {
                         id: doc.id,
                         data: data,
-                        colaborador: colaboradorInfo
+                        numero: numeroCAT,
+                        colaborador: colaboradorInfo,
+                        diasAfastado: diasAfastado
                     };
                     
                     catsFiltrados.push(catInfo);
                     
                     catsBody.innerHTML += `
                         <tr>
-                            <td>${data.numero || `CAT-${doc.id.substring(0, 8)}`}</td>
+                            <td>${numeroCAT}</td>
                             <td>
                                 <strong>${data.funcionario || 'N/A'}</strong>
                                 ${colaboradorInfo ? `<br><small>${colaboradorInfo.departamento || ''} - ${colaboradorInfo.empresa || ''}</small>` : ''}
                             </td>
+                            <td>${formatTipoCAT(data.tipo)}</td>
                             <td>${data.dataAcidente ? formatDate(new Date(data.dataAcidente)) : 'N/A'}</td>
                             <td>${data.dataRegistro ? formatDate(new Date(data.dataRegistro)) : 'N/A'}</td>
-                            <td>${formatTipoCAT(data.tipo)}</td>
                             <td><span class="status ${data.status || 'registrada'}">${formatStatus(data.status || 'registrada')}</span></td>
+                            <td>${diasAfastado > 0 ? `${diasAfastado} ${diasAfastado === 1 ? 'dia' : 'dias'}` : 'N/A'}</td>
                             <td>
                                 <div class="actions-cell">
                                     <button class="btn btn-primary btn-small" onclick="editarCAT('${doc.id}')">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <button class="btn btn-danger btn-small" onclick="solicitarExclusao('cats', '${doc.id}', '${data.funcionario || "Sem nome"} - ${formatTipoCAT(data.tipo)}')">
+                                    <button class="btn btn-info btn-small" onclick="visualizarCAT('${doc.id}')">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-danger btn-small" onclick="solicitarExclusao('cats', '${doc.id}', '${numeroCAT} - ${data.funcionario || "Sem nome"}')">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </div>
@@ -2975,7 +3217,6 @@
                     `;
                 });
                 
-                // Aplicar filtros iniciais
                 filtrarCATs();
                 
             } catch (error) {
@@ -2989,6 +3230,8 @@
             const filtroStatus = document.getElementById('filtro-status-cat').value;
             const filtroTipo = document.getElementById('filtro-tipo-cat').value;
             const filtroColaborador = document.getElementById('filtro-colaborador-cat').value;
+            const filtroPeriodoInicio = document.getElementById('filtro-periodo-inicio-cat').value;
+            const filtroPeriodoFim = document.getElementById('filtro-periodo-fim-cat').value;
             
             const catsBody = document.getElementById('catsBody');
             catsBody.innerHTML = '';
@@ -2996,7 +3239,7 @@
             if (catsFiltrados.length === 0) {
                 catsBody.innerHTML = `
                     <tr>
-                        <td colspan="7" style="text-align: center; padding: 30px;">
+                        <td colspan="8" style="text-align: center; padding: 30px;">
                             <div class="empty-state">
                                 <i class="fas fa-exclamation-triangle"></i>
                                 <p>Nenhuma CAT registrada</p>
@@ -3007,19 +3250,31 @@
                 return;
             }
             
-            // Filtrar CATs
             const catsFiltradosResultado = catsFiltrados.filter(cat => {
                 const statusMatch = filtroStatus === 'todos' || cat.data.status === filtroStatus;
                 const tipoMatch = filtroTipo === 'todos' || cat.data.tipo === filtroTipo;
                 const colaboradorMatch = filtroColaborador === 'todos' || cat.data.funcionario === filtroColaborador;
                 
-                return statusMatch && tipoMatch && colaboradorMatch;
+                let periodoMatch = true;
+                if (filtroPeriodoInicio && cat.data.dataRegistro) {
+                    const dataRegistro = new Date(cat.data.dataRegistro);
+                    const dataInicio = new Date(filtroPeriodoInicio);
+                    periodoMatch = dataRegistro >= dataInicio;
+                }
+                
+                if (filtroPeriodoFim && cat.data.dataRegistro) {
+                    const dataRegistro = new Date(cat.data.dataRegistro);
+                    const dataFim = new Date(filtroPeriodoFim);
+                    periodoMatch = periodoMatch && dataRegistro <= dataFim;
+                }
+                
+                return statusMatch && tipoMatch && colaboradorMatch && periodoMatch;
             });
             
             if (catsFiltradosResultado.length === 0) {
                 catsBody.innerHTML = `
                     <tr>
-                        <td colspan="7" style="text-align: center; padding: 30px;">
+                        <td colspan="8" style="text-align: center; padding: 30px;">
                             <div class="empty-state">
                                 <i class="fas fa-search"></i>
                                 <p>Nenhuma CAT encontrada com os filtros selecionados</p>
@@ -3030,26 +3285,29 @@
                 return;
             }
             
-            // Exibir CATs filtradas
             catsFiltradosResultado.forEach(catInfo => {
                 const data = catInfo.data;
                 catsBody.innerHTML += `
                     <tr>
-                        <td>${data.numero || `CAT-${catInfo.id.substring(0, 8)}`}</td>
+                        <td>${catInfo.numero}</td>
                         <td>
                             <strong>${data.funcionario || 'N/A'}</strong>
                             ${catInfo.colaborador ? `<br><small>${catInfo.colaborador.departamento || ''} - ${catInfo.colaborador.empresa || ''}</small>` : ''}
                         </td>
+                        <td>${formatTipoCAT(data.tipo)}</td>
                         <td>${data.dataAcidente ? formatDate(new Date(data.dataAcidente)) : 'N/A'}</td>
                         <td>${data.dataRegistro ? formatDate(new Date(data.dataRegistro)) : 'N/A'}</td>
-                        <td>${formatTipoCAT(data.tipo)}</td>
                         <td><span class="status ${data.status || 'registrada'}">${formatStatus(data.status || 'registrada')}</span></td>
+                        <td>${catInfo.diasAfastado > 0 ? `${catInfo.diasAfastado} ${catInfo.diasAfastado === 1 ? 'dia' : 'dias'}` : 'N/A'}</td>
                         <td>
                             <div class="actions-cell">
                                 <button class="btn btn-primary btn-small" onclick="editarCAT('${catInfo.id}')">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button class="btn btn-danger btn-small" onclick="solicitarExclusao('cats', '${catInfo.id}', '${data.funcionario || "Sem nome"} - ${formatTipoCAT(data.tipo)}')">
+                                <button class="btn btn-info btn-small" onclick="visualizarCAT('${catInfo.id}')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-danger btn-small" onclick="solicitarExclusao('cats', '${catInfo.id}', '${catInfo.numero} - ${data.funcionario || "Sem nome"}')">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </div>
@@ -3057,6 +3315,181 @@
                     </tr>
                 `;
             });
+        }
+
+        // Salvar CAT
+        async function salvarCAT() {
+            try {
+                const funcionario = document.getElementById('cat-colaborador').value;
+                const tipo = document.getElementById('cat-tipo').value;
+                const dataAcidente = document.getElementById('cat-data-acidente').value;
+                const dataRegistro = document.getElementById('cat-data-registro').value;
+                const descricao = document.getElementById('cat-descricao').value;
+                const local = document.getElementById('cat-local').value;
+                const afastamentoInicio = document.getElementById('cat-afastamento-inicio').value;
+                const afastamentoFim = document.getElementById('cat-afastamento-fim').value;
+                const cid = document.getElementById('cat-cid').value;
+                const status = document.getElementById('cat-status').value;
+                const observacoes = document.getElementById('cat-observacoes').value;
+                
+                if (!funcionario || !tipo || !dataAcidente || !dataRegistro || !descricao || !status) {
+                    showNotification('Preencha todos os campos obrigatórios', 'warning');
+                    return;
+                }
+                
+                const btn = document.getElementById('btn-salvar-cat');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = 'Salvando...';
+                btn.disabled = true;
+                
+                const catData = {
+                    funcionario,
+                    tipo,
+                    dataAcidente,
+                    dataRegistro,
+                    descricao,
+                    local: local || '',
+                    afastamentoInicio: afastamentoInicio || '',
+                    afastamentoFim: afastamentoFim || '',
+                    cid: cid || '',
+                    status,
+                    observacoes: observacoes || '',
+                    numero: `CAT-${Date.now().toString().slice(-8)}`,
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                    userId: currentUser.uid
+                };
+                
+                if (editMode && itemToEdit) {
+                    await db.collection('cats').doc(itemToEdit).update(catData);
+                    showNotification('CAT atualizada com sucesso!', 'success');
+                } else {
+                    await db.collection('cats').add(catData);
+                    showNotification('CAT registrada com sucesso!', 'success');
+                }
+                
+                document.getElementById('cats').classList.add('active');
+                document.getElementById('cat-cadastro').classList.remove('active');
+                document.getElementById('cat-cadastro').classList.add('hidden');
+                clearForm('cat');
+                editMode = false;
+                itemToEdit = null;
+                
+                await loadCATsCache();
+                loadDashboardData();
+                loadCATs();
+                
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                
+            } catch (error) {
+                console.error('Erro ao salvar CAT:', error);
+                showNotification('Erro ao salvar CAT: ' + error.message, 'error');
+                
+                const btn = document.getElementById('btn-salvar-cat');
+                btn.innerHTML = 'Salvar CAT';
+                btn.disabled = false;
+            }
+        }
+
+        // Visualizar CAT
+        function visualizarCAT(id) {
+            const cat = catsFiltrados.find(c => c.id === id);
+            
+            if (!cat) {
+                showNotification('CAT não encontrada', 'error');
+                return;
+            }
+            
+            const data = cat.data;
+            
+            const colaboradorNome = data.funcionario || 'N/A';
+            const colaboradorInfo = cat.colaborador;
+            const departamento = colaboradorInfo ? colaboradorInfo.departamento : 'N/A';
+            const empresa = colaboradorInfo ? colaboradorInfo.empresa : 'N/A';
+            
+            const diasAfastado = cat.diasAfastado;
+            
+            let afastamentoText = 'Não houve afastamento';
+            if (data.afastamentoInicio && data.afastamentoFim) {
+                afastamentoText = `${formatDate(new Date(data.afastamentoInicio))} a ${formatDate(new Date(data.afastamentoFim))} (${diasAfastado} ${diasAfastado === 1 ? 'dia' : 'dias'})`;
+            } else if (data.afastamentoInicio) {
+                afastamentoText = `A partir de ${formatDate(new Date(data.afastamentoInicio))} (em andamento)`;
+            }
+            
+            const cidInfo = cache.cids.find(c => c.codigo === data.cid);
+            const cidText = data.cid ? `${data.cid} - ${cidInfo ? cidInfo.descricao : 'Descrição não encontrada'}` : 'Não informado';
+            
+            const detailsHTML = `
+                <div style="margin-bottom: 25px;">
+                    <h4 style="color: var(--primary); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-file-alt"></i> CAT: ${cat.numero}
+                    </h4>
+                    
+                    <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px;">
+                        <h5 style="color: var(--primary); margin-bottom: 15px;">Informações do Colaborador</h5>
+                        <p><strong>Nome:</strong> ${colaboradorNome}</p>
+                        <p><strong>Departamento:</strong> ${departamento}</p>
+                        <p><strong>Empresa:</strong> ${empresa}</p>
+                    </div>
+                    
+                    <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 15px;">
+                        <h5 style="color: var(--primary); margin-bottom: 15px;">Detalhes da CAT</h5>
+                        <p><strong>Tipo:</strong> ${formatTipoCAT(data.tipo)}</p>
+                        <p><strong>Data do Acidente/Diagnóstico:</strong> ${formatDate(new Date(data.dataAcidente))}</p>
+                        <p><strong>Data de Registro:</strong> ${formatDate(new Date(data.dataRegistro))}</p>
+                        <p><strong>Local:</strong> ${data.local || 'Não informado'}</p>
+                        <p><strong>Status:</strong> <span class="status ${data.status || 'registrada'}">${formatStatus(data.status || 'registrada')}</span></p>
+                    </div>
+                    
+                    <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 15px;">
+                        <h5 style="color: var(--primary); margin-bottom: 15px;">Descrição do Acidente/Doença</h5>
+                        <p style="white-space: pre-line;">${data.descricao || 'Não informado'}</p>
+                    </div>
+                    
+                    <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 15px;">
+                        <h5 style="color: var(--primary); margin-bottom: 15px;">Informações Médicas</h5>
+                        <p><strong>CID:</strong> ${cidText}</p>
+                        <p><strong>Afastamento:</strong> ${afastamentoText}</p>
+                    </div>
+                    
+                    ${data.observacoes ? `
+                    <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 15px;">
+                        <h5 style="color: var(--primary); margin-bottom: 15px;">Observações</h5>
+                        <p style="white-space: pre-line;">${data.observacoes}</p>
+                    </div>
+                    ` : ''}
+                    
+                    <div style="margin-top: 20px; color: #666; font-size: 0.85rem;">
+                        <p>Registrado em: ${data.createdAt ? formatDate(new Date(data.createdAt)) : 'N/A'}</p>
+                        <p>Última atualização: ${data.updatedAt ? formatDate(new Date(data.updatedAt)) : 'N/A'}</p>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('catDetailsContent').innerHTML = detailsHTML;
+            document.getElementById('catDetailsModal').style.display = 'flex';
+        }
+
+        // Fechar modal de detalhes da CAT
+        function closeCatDetailsModal() {
+            document.getElementById('catDetailsModal').style.display = 'none';
+        }
+
+        // Calcular dias de afastamento
+        function calcularDiasAfastamento() {
+            const dataInicio = document.getElementById('cat-afastamento-inicio').value;
+            const dataFim = document.getElementById('cat-afastamento-fim').value;
+            
+            if (dataInicio && dataFim) {
+                const dias = calcularDiasAtestado(dataInicio, dataFim);
+                
+                const diasAfastamentoDiv = document.getElementById('cat-dias-afastamento');
+                diasAfastamentoDiv.style.display = 'block';
+                document.getElementById('cat-dias-afastamento-text').innerHTML = `Dias afastado: <strong>${dias} ${dias === 1 ? 'dia' : 'dias'}</strong>`;
+            } else {
+                document.getElementById('cat-dias-afastamento').style.display = 'none';
+            }
         }
 
         // Carregar configurações
@@ -3168,12 +3601,10 @@
             
             selectColaborador.innerHTML = '<option value="">Selecione um colaborador</option>';
             
-            // Filtrar apenas colaboradores ativos, de férias ou afastados
             const colaboradoresAtivos = cache.colaboradores.filter(colaborador => 
                 colaborador.status === 'ativo' || colaborador.status === 'ferias' || colaborador.status === 'afastado'
             );
             
-            // Ordenar por nome (alfabético)
             colaboradoresAtivos.sort((a, b) => {
                 const nomeA = a.nome || '';
                 const nomeB = b.nome || '';
@@ -3191,12 +3622,31 @@
             
             selectColaborador.innerHTML = '<option value="">Selecione um colaborador</option>';
             
-            // Filtrar apenas colaboradores ativos, de férias ou afastados
             const colaboradoresAtivos = cache.colaboradores.filter(colaborador => 
                 colaborador.status === 'ativo' || colaborador.status === 'ferias' || colaborador.status === 'afastado'
             );
             
-            // Ordenar por nome (alfabético)
+            colaboradoresAtivos.sort((a, b) => {
+                const nomeA = a.nome || '';
+                const nomeB = b.nome || '';
+                return nomeA.localeCompare(nomeB);
+            });
+            
+            colaboradoresAtivos.forEach(colaborador => {
+                selectColaborador.innerHTML += `<option value="${colaborador.nome}">${colaborador.nome} - ${colaborador.departamento || 'Sem departamento'}</option>`;
+            });
+        }
+
+        // Carregar colaboradores para select de CATs
+        function loadColaboradoresCATSelect() {
+            const selectColaborador = document.getElementById('cat-colaborador');
+            
+            selectColaborador.innerHTML = '<option value="">Selecione um colaborador</option>';
+            
+            const colaboradoresAtivos = cache.colaboradores.filter(colaborador => 
+                colaborador.status === 'ativo' || colaborador.status === 'ferias' || colaborador.status === 'afastado'
+            );
+            
             colaboradoresAtivos.sort((a, b) => {
                 const nomeA = a.nome || '';
                 const nomeB = b.nome || '';
@@ -3214,7 +3664,6 @@
             
             select.innerHTML = '<option value="todos">Todos</option>';
             
-            // Ordenar por nome (alfabético)
             const colaboradoresOrdenados = [...cache.colaboradores];
             colaboradoresOrdenados.sort((a, b) => {
                 const nomeA = a.nome || '';
@@ -3228,8 +3677,8 @@
         }
 
         // Carregar CIDs para select
-        function loadCIDsSelect() {
-            const selectCID = document.getElementById('atestado-cid');
+        function loadCIDsSelect(selectId = 'atestado-cid') {
+            const selectCID = document.getElementById(selectId);
             if (!selectCID) return;
             
             selectCID.innerHTML = '<option value="">Selecione um CID (Opcional)</option>';
@@ -3263,7 +3712,6 @@
 
         // Carregar filtros para relatórios
         function loadFiltrosRelatorios() {
-            // Carregar empresas no filtro
             const filtroEmpresa = document.getElementById('filtro-empresa-relatorio');
             filtroEmpresa.innerHTML = '<option value="todos">Todas</option>';
             
@@ -3271,7 +3719,6 @@
                 filtroEmpresa.innerHTML += `<option value="${empresa.nome}">${empresa.nome}</option>`;
             });
             
-            // Carregar departamentos no filtro
             const filtroDepartamento = document.getElementById('filtro-departamento-relatorio');
             filtroDepartamento.innerHTML = '<option value="todos">Todos</option>';
             
@@ -3287,7 +3734,6 @@
                 const daqui30Dias = new Date();
                 daqui30Dias.setDate(hoje.getDate() + 30);
                 
-                // Buscar exames com vencimento próximo
                 const examesQuery = await db.collection('exames').get();
                 
                 const vencimentosBody = document.getElementById('vencimentosBody');
@@ -3307,7 +3753,6 @@
                     return;
                 }
                 
-                // Filtrar e ordenar exames
                 const examesProximos = [];
                 
                 examesQuery.docs.forEach(doc => {
@@ -3318,7 +3763,6 @@
                     const diffTime = vencimentoDate - hoje;
                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                     
-                    // Incluir apenas exames que vencem nos próximos 30 dias ou estão vencidos
                     if (diffDays <= 30) {
                         examesProximos.push({
                             id: doc.id,
@@ -3329,12 +3773,10 @@
                     }
                 });
                 
-                // Ordenar por vencimento (mais próximos primeiro)
                 examesProximos.sort((a, b) => {
                     return a.vencimentoDate - b.vencimentoDate;
                 });
                 
-                // Limitar a 10 resultados
                 const examesExibir = examesProximos.slice(0, 10);
                 
                 if (examesExibir.length === 0) {
@@ -3351,7 +3793,6 @@
                     return;
                 }
                 
-                // Adicionar exames ordenados
                 examesExibir.forEach(exame => {
                     const data = exame.data;
                     const status = calcularStatusVencimento(data.vencimento);
@@ -3386,13 +3827,11 @@
                 const empresa = document.getElementById('colaborador-empresa').value;
                 const status = document.getElementById('colaborador-status').value;
                 
-                // Validação básica
                 if (!nome || !dataAdmissao || !departamento || !empresa) {
                     showNotification('Preencha todos os campos obrigatórios', 'warning');
                     return;
                 }
                 
-                // Validar data de admissão (não permitir datas futuras)
                 const dataAdmissaoDate = new Date(dataAdmissao);
                 const hoje = new Date();
                 if (dataAdmissaoDate > hoje) {
@@ -3416,19 +3855,14 @@
                     userId: currentUser.uid
                 };
                 
-                let colaboradorId = itemToEdit;
-                
                 if (editMode && itemToEdit) {
-                    // Atualizar colaborador existente
                     await db.collection('colaboradores').doc(itemToEdit).update(colaboradorData);
                     
-                    // Atualizar cache
                     const index = cache.colaboradores.findIndex(c => c.id === itemToEdit);
                     if (index !== -1) {
                         cache.colaboradores[index] = { id: itemToEdit, ...colaboradorData };
                     }
                     
-                    // Reordenar cache por nome
                     cache.colaboradores.sort((a, b) => {
                         const nomeA = a.nome || '';
                         const nomeB = b.nome || '';
@@ -3437,15 +3871,11 @@
                     
                     showNotification('Colaborador atualizado com sucesso!', 'success');
                 } else {
-                    // Criar novo colaborador
                     const docRef = await db.collection('colaboradores').add(colaboradorData);
-                    colaboradorId = docRef.id;
                     
-                    // Adicionar ao cache
-                    const novoColaborador = { id: colaboradorId, ...colaboradorData };
+                    const novoColaborador = { id: docRef.id, ...colaboradorData };
                     cache.colaboradores.push(novoColaborador);
                     
-                    // Reordenar cache por nome
                     cache.colaboradores.sort((a, b) => {
                         const nomeA = a.nome || '';
                         const nomeB = b.nome || '';
@@ -3455,7 +3885,6 @@
                     showNotification('Colaborador salvo com sucesso!', 'success');
                 }
                 
-                // Voltar para a lista
                 document.getElementById('colaboradores').classList.add('active');
                 document.getElementById('colaborador-cadastro').classList.remove('active');
                 document.getElementById('colaborador-cadastro').classList.add('hidden');
@@ -3463,14 +3892,13 @@
                 editMode = false;
                 itemToEdit = null;
                 
-                // Recarregar dados
                 loadDashboardData();
                 loadColaboradores();
                 loadColaboradoresSelect();
                 loadColaboradoresAtestadoSelect();
+                loadColaboradoresCATSelect();
                 loadDepartamentosFiltro();
                 
-                // Restaurar botão
                 btn.innerHTML = originalText;
                 btn.disabled = false;
                 
@@ -3478,7 +3906,6 @@
                 console.error('Erro ao salvar colaborador:', error);
                 showNotification('Erro ao salvar colaborador: ' + error.message, 'error');
                 
-                // Restaurar botão em caso de erro
                 const btn = document.getElementById('btn-salvar-colaborador');
                 btn.innerHTML = 'Salvar Colaborador';
                 btn.disabled = false;
@@ -3493,13 +3920,11 @@
                 const dataExame = document.getElementById('exame-data').value;
                 const vencimento = document.getElementById('exame-vencimento').value;
                 
-                // Validação básica
                 if (!funcionario || !tipo || !dataExame || !vencimento) {
                     showNotification('Preencha todos os campos obrigatórios', 'warning');
                     return;
                 }
                 
-                // Validar datas
                 const dataExameDate = new Date(dataExame);
                 const vencimentoDate = new Date(vencimento);
                 const hoje = new Date();
@@ -3509,7 +3934,6 @@
                     return;
                 }
                 
-                // O vencimento deve ser posterior à data do exame
                 if (vencimentoDate <= dataExameDate) {
                     showNotification('A data de vencimento deve ser posterior à data do exame', 'warning');
                     return;
@@ -3520,7 +3944,6 @@
                 btn.innerHTML = 'Salvando...';
                 btn.disabled = true;
                 
-                // Calcular status automático com base na data de vencimento
                 const status = calcularStatusVencimento(vencimento);
                 
                 const exameData = {
@@ -3535,16 +3958,13 @@
                 };
                 
                 if (editMode && itemToEdit) {
-                    // Atualizar exame existente
                     await db.collection('exames').doc(itemToEdit).update(exameData);
                     showNotification('Exame atualizado com sucesso!', 'success');
                 } else {
-                    // Criar novo exame
                     await db.collection('exames').add(exameData);
                     showNotification('Exame salvo com sucesso!', 'success');
                 }
                 
-                // Limpar formulário e recarregar dados
                 document.getElementById('exames').classList.add('active');
                 document.getElementById('exame-cadastro').classList.remove('active');
                 document.getElementById('exame-cadastro').classList.add('hidden');
@@ -3552,11 +3972,9 @@
                 editMode = false;
                 itemToEdit = null;
                 
-                // Recarregar dados
                 loadDashboardData();
                 loadExames();
                 
-                // Restaurar botão
                 btn.innerHTML = originalText;
                 btn.disabled = false;
                 
@@ -3564,14 +3982,13 @@
                 console.error('Erro ao salvar exame:', error);
                 showNotification('Erro ao salvar exame: ' + error.message, 'error');
                 
-                // Restaurar botão em caso de erro
                 const btn = document.getElementById('btn-salvar-exame');
                 btn.innerHTML = 'Salvar Exame';
                 btn.disabled = false;
             }
         }
 
-        // Calcular atestado (dias ou horas)
+        // Calcular atestado
         function calcularAtestado() {
             const dataInicio = document.getElementById('atestado-data-inicio').value;
             const dataFinal = document.getElementById('atestado-data-final').value;
@@ -3594,7 +4011,6 @@
                 }
             }
             
-            // Mostrar resultado
             const calcResultado = document.getElementById('calc-resultado');
             calcResultado.classList.remove('hidden');
             
@@ -3613,13 +4029,9 @@
             const inicio = new Date(dataInicio);
             const fim = new Date(dataFinal);
             
-            // Diferença em milissegundos
             const diffTime = Math.abs(fim - inicio);
-            
-            // Converter para dias (arredondar para cima para incluir o dia inicial)
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
             
-            // Adicionar 1 para incluir o dia inicial
             return diffDays + 1;
         }
 
@@ -3633,17 +4045,15 @@
             
             let diffMinutos = fimMinutos - inicioMinutos;
             
-            // Se for negativo, significa que passou da meia-noite
             if (diffMinutos < 0) {
                 diffMinutos += 24 * 60;
             }
             
-            // Converter para horas (com uma casa decimal)
             const diffHoras = diffMinutos / 60;
             return Math.round(diffHoras * 10) / 10;
         }
 
-        // Verificar limites de atestado antes de salvar
+        // Verificar limites de atestado
         async function verificarLimitesAtestado() {
             try {
                 const funcionario = document.getElementById('atestado-colaborador').value;
@@ -3653,13 +4063,11 @@
                 const unidade = document.getElementById('atestado-unidade').value;
                 const cid = document.getElementById('atestado-cid').value;
                 
-                // Validação básica
                 if (!funcionario || !tipo || !dataInicio || !dataFinal || !unidade) {
                     showNotification('Preencha todos os campos obrigatórios', 'warning');
                     return;
                 }
                 
-                // Validação de datas
                 const dataInicioDate = new Date(dataInicio);
                 const dataFinalDate = new Date(dataFinal);
                 
@@ -3668,9 +4076,7 @@
                     return;
                 }
                 
-                // Verificar se é um tipo com limite
                 if (tipo === 'odontologico' || tipo === 'acompanhamento-filho') {
-                    // Calcular quantidade do atestado atual
                     let quantidadeAtual = 0;
                     
                     if (unidade === 'dias') {
@@ -3687,7 +4093,6 @@
                         quantidadeAtual = calcularHorasAtestado(horaInicio, horaFinal);
                     }
                     
-                    // Buscar atestados anteriores do colaborador
                     const atestadosAnterioresQuery = await db.collection('atestados')
                         .where('funcionario', '==', funcionario)
                         .where('tipo', '==', tipo)
@@ -3707,12 +4112,10 @@
                         });
                     }
                     
-                    // Verificar limites
                     const limite = tipo === 'odontologico' ? LIMITES_ATESTADOS.odontologico : LIMITES_ATESTADOS.acompanhamento_filho;
                     const unidadeLimite = unidade === 'dias' ? 'dias' : 'horas';
                     
                     if (quantidadeTotal > limite[unidadeLimite]) {
-                        // Preparar dados do atestado pendente
                         atestadoPendente = {
                             funcionario,
                             tipo,
@@ -3727,7 +4130,6 @@
                             limite: limite[unidadeLimite]
                         };
                         
-                        // Mostrar modal de confirmação
                         let mensagem = '';
                         if (tipo === 'odontologico') {
                             mensagem = `O colaborador <strong>${funcionario}</strong> já atingiu o limite de ${limite.dias} dias para atestados odontológicos.<br><br>`;
@@ -3745,7 +4147,6 @@
                     }
                 }
                 
-                // Se não ultrapassou o limite, salvar diretamente
                 salvarAtestado();
                 
             } catch (error) {
@@ -3754,13 +4155,12 @@
             }
         }
 
-        // Salvar atestado (após verificação de limites)
+        // Salvar atestado
         async function salvarAtestado() {
             try {
                 let atestadoData;
                 
                 if (atestadoPendente) {
-                    // Usar dados do atestado pendente (do modal)
                     atestadoData = {
                         funcionario: atestadoPendente.funcionario,
                         tipo: atestadoPendente.tipo,
@@ -3775,7 +4175,6 @@
                         userId: currentUser.uid
                     };
                 } else {
-                    // Pegar dados do formulário
                     const funcionario = document.getElementById('atestado-colaborador').value;
                     const tipo = document.getElementById('atestado-tipo').value;
                     const dataInicio = document.getElementById('atestado-data-inicio').value;
@@ -3795,7 +4194,6 @@
                         userId: currentUser.uid
                     };
                     
-                    // Adicionar horas se for atestado por horas
                     if (unidade === 'horas') {
                         atestadoData.horaInicio = document.getElementById('atestado-hora-inicio').value;
                         atestadoData.horaFinal = document.getElementById('atestado-hora-final').value;
@@ -3808,11 +4206,9 @@
                 btn.disabled = true;
                 
                 if (editMode && itemToEdit) {
-                    // Atualizar atestado existente
                     await db.collection('atestados').doc(itemToEdit).update(atestadoData);
                     showNotification('Atestado atualizado com sucesso!', 'success');
                 } else {
-                    // Criar novo atestado
                     await db.collection('atestados').add(atestadoData);
                     
                     if (atestadoPendente && atestadoPendente.tipo === 'odontologico') {
@@ -3824,7 +4220,6 @@
                     }
                 }
                 
-                // Limpar formulário e recarregar dados
                 document.getElementById('atestados').classList.add('active');
                 document.getElementById('atestado-cadastro').classList.remove('active');
                 document.getElementById('atestado-cadastro').classList.add('hidden');
@@ -3833,11 +4228,9 @@
                 itemToEdit = null;
                 atestadoPendente = null;
                 
-                // Recarregar dados
                 loadDashboardData();
                 loadAtestados();
                 
-                // Restaurar botão
                 btn.innerHTML = originalText;
                 btn.disabled = false;
                 
@@ -3845,14 +4238,13 @@
                 console.error('Erro ao salvar atestado:', error);
                 showNotification('Erro ao salvar atestado: ' + error.message, 'error');
                 
-                // Restaurar botão em caso de erro
                 const btn = document.getElementById('btn-salvar-atestado');
                 btn.innerHTML = 'Salvar Atestado';
                 btn.disabled = false;
             }
         }
 
-        // Continuar com o salvamento do atestado após confirmação no modal
+        // Continuar com o salvamento do atestado
         function proceedWithAtestado() {
             closeLimitModal();
             salvarAtestado();
@@ -3868,7 +4260,6 @@
             try {
                 const nome = document.getElementById('empresa-nome').value;
                 
-                // Validação básica
                 if (!nome) {
                     showNotification('Preencha o nome da empresa', 'warning');
                     return;
@@ -3886,19 +4277,14 @@
                     userId: currentUser.uid
                 };
                 
-                let empresaId = itemToEdit;
-                
                 if (editMode && itemToEdit) {
-                    // Atualizar empresa existente
                     await db.collection('empresas').doc(itemToEdit).update(empresaData);
                     
-                    // Atualizar cache
                     const index = cache.empresas.findIndex(e => e.id === itemToEdit);
                     if (index !== -1) {
                         cache.empresas[index] = { id: itemToEdit, ...empresaData };
                     }
                     
-                    // Reordenar cache por nome
                     cache.empresas.sort((a, b) => {
                         const nomeA = a.nome || '';
                         const nomeB = b.nome || '';
@@ -3907,14 +4293,10 @@
                     
                     showNotification('Empresa atualizada com sucesso!', 'success');
                 } else {
-                    // Criar nova empresa
                     const docRef = await db.collection('empresas').add(empresaData);
-                    empresaId = docRef.id;
                     
-                    // Adicionar ao cache
-                    cache.empresas.push({ id: empresaId, ...empresaData });
+                    cache.empresas.push({ id: docRef.id, ...empresaData });
                     
-                    // Reordenar cache por nome
                     cache.empresas.sort((a, b) => {
                         const nomeA = a.nome || '';
                         const nomeB = b.nome || '';
@@ -3924,18 +4306,15 @@
                     showNotification('Empresa salva com sucesso!', 'success');
                 }
                 
-                // Limpar formulário e recarregar dados
                 clearForm('empresa');
                 editMode = false;
                 itemToEdit = null;
                 
-                // Recarregar dados
                 loadEmpresas();
                 loadEmpresasSelect();
                 loadFiltrosExames();
                 loadFiltrosRelatorios();
                 
-                // Restaurar botão
                 btn.innerHTML = originalText;
                 btn.disabled = false;
                 
@@ -3943,7 +4322,6 @@
                 console.error('Erro ao salvar empresa:', error);
                 showNotification('Erro ao salvar empresa: ' + error.message, 'error');
                 
-                // Restaurar botão em caso de erro
                 const btn = document.getElementById('btn-salvar-empresa');
                 btn.innerHTML = 'Salvar Empresa';
                 btn.disabled = false;
@@ -3955,7 +4333,6 @@
             try {
                 const nome = document.getElementById('departamento-nome').value;
                 
-                // Validação básica
                 if (!nome) {
                     showNotification('Preencha o nome do departamento', 'warning');
                     return;
@@ -3973,19 +4350,14 @@
                     userId: currentUser.uid
                 };
                 
-                let departamentoId = itemToEdit;
-                
                 if (editMode && itemToEdit) {
-                    // Atualizar departamento existente
                     await db.collection('departamentos').doc(itemToEdit).update(departamentoData);
                     
-                    // Atualizar cache
                     const index = cache.departamentos.findIndex(d => d.id === itemToEdit);
                     if (index !== -1) {
                         cache.departamentos[index] = { id: itemToEdit, ...departamentoData };
                     }
                     
-                    // Reordenar cache por nome
                     cache.departamentos.sort((a, b) => {
                         const nomeA = a.nome || '';
                         const nomeB = b.nome || '';
@@ -3994,14 +4366,10 @@
                     
                     showNotification('Departamento atualizado com sucesso!', 'success');
                 } else {
-                    // Criar novo departamento
                     const docRef = await db.collection('departamentos').add(departamentoData);
-                    departamentoId = docRef.id;
                     
-                    // Adicionar ao cache
-                    cache.departamentos.push({ id: departamentoId, ...departamentoData });
+                    cache.departamentos.push({ id: docRef.id, ...departamentoData });
                     
-                    // Reordenar cache por nome
                     cache.departamentos.sort((a, b) => {
                         const nomeA = a.nome || '';
                         const nomeB = b.nome || '';
@@ -4011,19 +4379,16 @@
                     showNotification('Departamento salvo com sucesso!', 'success');
                 }
                 
-                // Limpar formulário e recarregar dados
                 clearForm('departamento');
                 editMode = false;
                 itemToEdit = null;
                 
-                // Recarregar dados
                 loadDepartamentos();
                 loadDepartamentosSelect();
                 loadFiltrosExames();
                 loadFiltrosRelatorios();
                 loadDepartamentosFiltro();
                 
-                // Restaurar botão
                 btn.innerHTML = originalText;
                 btn.disabled = false;
                 
@@ -4031,7 +4396,6 @@
                 console.error('Erro ao salvar departamento:', error);
                 showNotification('Erro ao salvar departamento: ' + error.message, 'error');
                 
-                // Restaurar botão em caso de erro
                 const btn = document.getElementById('btn-salvar-departamento');
                 btn.innerHTML = 'Salvar Departamento';
                 btn.disabled = false;
@@ -4044,7 +4408,6 @@
                 const codigo = document.getElementById('cid-codigo').value;
                 const descricao = document.getElementById('cid-descricao').value;
                 
-                // Validação básica
                 if (!codigo || !descricao) {
                     showNotification('Preencha todos os campos obrigatórios', 'warning');
                     return;
@@ -4063,19 +4426,14 @@
                     userId: currentUser.uid
                 };
                 
-                let cidId = itemToEdit;
-                
                 if (editMode && itemToEdit) {
-                    // Atualizar CID existente
                     await db.collection('cids').doc(itemToEdit).update(cidData);
                     
-                    // Atualizar cache
                     const index = cache.cids.findIndex(c => c.id === itemToEdit);
                     if (index !== -1) {
                         cache.cids[index] = { id: itemToEdit, ...cidData };
                     }
                     
-                    // Reordenar cache por código
                     cache.cids.sort((a, b) => {
                         const codigoA = a.codigo || '';
                         const codigoB = b.codigo || '';
@@ -4084,14 +4442,10 @@
                     
                     showNotification('CID atualizado com sucesso!', 'success');
                 } else {
-                    // Criar novo CID
                     const docRef = await db.collection('cids').add(cidData);
-                    cidId = docRef.id;
                     
-                    // Adicionar ao cache
-                    cache.cids.push({ id: cidId, ...cidData });
+                    cache.cids.push({ id: docRef.id, ...cidData });
                     
-                    // Reordenar cache por código
                     cache.cids.sort((a, b) => {
                         const codigoA = a.codigo || '';
                         const codigoB = b.codigo || '';
@@ -4101,16 +4455,14 @@
                     showNotification('CID salvo com sucesso!', 'success');
                 }
                 
-                // Limpar formulário e recarregar dados
                 clearForm('cid');
                 editMode = false;
                 itemToEdit = null;
                 
-                // Recarregar dados
                 loadCIDs();
                 loadCIDsSelect();
+                loadCIDsSelect('cat-cid');
                 
-                // Restaurar botão
                 btn.innerHTML = originalText;
                 btn.disabled = false;
                 
@@ -4118,7 +4470,6 @@
                 console.error('Erro ao salvar CID:', error);
                 showNotification('Erro ao salvar CID: ' + error.message, 'error');
                 
-                // Restaurar botão em caso de erro
                 const btn = document.getElementById('btn-salvar-cid');
                 btn.innerHTML = 'Salvar CID';
                 btn.disabled = false;
@@ -4138,10 +4489,8 @@
                 itemToEdit = id;
                 editMode = true;
                 
-                // Mostrar formulário de edição
                 showColaboradorForm('Editar Colaborador', 'Atualizar Colaborador');
                 
-                // Preencher formulário
                 document.getElementById('colaborador-nome').value = colaborador.nome || '';
                 document.getElementById('colaborador-data-admissao').value = colaborador.dataAdmissao || '';
                 document.getElementById('colaborador-departamento').value = colaborador.departamento || '';
@@ -4168,10 +4517,8 @@
                 itemToEdit = id;
                 editMode = true;
                 
-                // Mostrar formulário
                 showExameForm('Editar Exame Ocupacional', 'Atualizar Exame');
                 
-                // Preencher formulário
                 document.getElementById('exame-colaborador').value = data.funcionario || '';
                 document.getElementById('exame-tipo').value = data.tipo || '';
                 document.getElementById('exame-data').value = data.dataExame || '';
@@ -4197,10 +4544,8 @@
                 itemToEdit = id;
                 editMode = true;
                 
-                // Mostrar formulário
                 showAtestadoForm('Editar Atestado', 'Atualizar Atestado');
                 
-                // Preencher formulário
                 document.getElementById('atestado-colaborador').value = data.funcionario || '';
                 document.getElementById('atestado-tipo').value = data.tipo || '';
                 document.getElementById('atestado-cid').value = data.cid || '';
@@ -4208,7 +4553,6 @@
                 document.getElementById('atestado-data-final').value = data.dataFinal || '';
                 document.getElementById('atestado-unidade').value = data.unidade || 'dias';
                 
-                // Mostrar/ocultar campos de hora
                 if (data.unidade === 'horas') {
                     document.getElementById('campos-hora').classList.remove('hidden');
                     document.getElementById('atestado-hora-inicio').value = data.horaInicio || '08:00';
@@ -4217,7 +4561,6 @@
                     document.getElementById('campos-hora').classList.add('hidden');
                 }
                 
-                // Calcular automaticamente
                 calcularAtestado();
                 
             } catch (error) {
@@ -4228,7 +4571,38 @@
 
         // Editar CAT
         async function editarCAT(id) {
-            showNotification('Redirecionando para edição de CAT...', 'info');
+            try {
+                const doc = await db.collection('cats').doc(id).get();
+                
+                if (!doc.exists) {
+                    showNotification('CAT não encontrada', 'error');
+                    return;
+                }
+                
+                const data = doc.data();
+                itemToEdit = id;
+                editMode = true;
+                
+                showCATForm('Editar CAT', 'Atualizar CAT');
+                
+                document.getElementById('cat-colaborador').value = data.funcionario || '';
+                document.getElementById('cat-tipo').value = data.tipo || '';
+                document.getElementById('cat-data-acidente').value = data.dataAcidente || '';
+                document.getElementById('cat-data-registro').value = data.dataRegistro || '';
+                document.getElementById('cat-descricao').value = data.descricao || '';
+                document.getElementById('cat-local').value = data.local || '';
+                document.getElementById('cat-afastamento-inicio').value = data.afastamentoInicio || '';
+                document.getElementById('cat-afastamento-fim').value = data.afastamentoFim || '';
+                document.getElementById('cat-cid').value = data.cid || '';
+                document.getElementById('cat-status').value = data.status || 'registrada';
+                document.getElementById('cat-observacoes').value = data.observacoes || '';
+                
+                calcularDiasAfastamento();
+                
+            } catch (error) {
+                console.error('Erro ao carregar CAT para edição:', error);
+                showNotification('Erro ao carregar CAT para edição', 'error');
+            }
         }
 
         // Editar empresa
@@ -4244,7 +4618,6 @@
                 itemToEdit = id;
                 editMode = true;
                 
-                // Preencher formulário
                 document.getElementById('empresa-nome').value = empresa.nome || '';
                 document.getElementById('btn-empresa-text').textContent = 'Atualizar Empresa';
                 
@@ -4267,7 +4640,6 @@
                 itemToEdit = id;
                 editMode = true;
                 
-                // Preencher formulário
                 document.getElementById('departamento-nome').value = departamento.nome || '';
                 document.getElementById('btn-departamento-text').textContent = 'Atualizar Departamento';
                 
@@ -4290,7 +4662,6 @@
                 itemToEdit = id;
                 editMode = true;
                 
-                // Preencher formulário
                 document.getElementById('cid-codigo').value = cid.codigo || '';
                 document.getElementById('cid-descricao').value = cid.descricao || '';
                 document.getElementById('btn-cid-text').textContent = 'Atualizar CID';
@@ -4317,7 +4688,6 @@
             try {
                 await db.collection(deleteCollection).doc(itemToDelete).delete();
                 
-                // Remover do cache
                 if (deleteCollection === 'colaboradores') {
                     cache.colaboradores = cache.colaboradores.filter(c => c.id !== itemToDelete);
                 } else if (deleteCollection === 'empresas') {
@@ -4326,17 +4696,19 @@
                     cache.departamentos = cache.departamentos.filter(d => d.id !== itemToDelete);
                 } else if (deleteCollection === 'cids') {
                     cache.cids = cache.cids.filter(c => c.id !== itemToDelete);
+                } else if (deleteCollection === 'cats') {
+                    cache.cats = cache.cats.filter(c => c.id !== itemToDelete);
                 }
                 
                 showNotification('Item excluído com sucesso!', 'success');
                 
-                // Recarregar dados
                 loadDashboardData();
                 
                 if (deleteCollection === 'colaboradores') {
                     loadColaboradores();
                     loadColaboradoresSelect();
                     loadColaboradoresAtestadoSelect();
+                    loadColaboradoresCATSelect();
                     loadDepartamentosFiltro();
                 } else if (deleteCollection === 'exames') {
                     loadExames();
@@ -4358,6 +4730,7 @@
                 } else if (deleteCollection === 'cids') {
                     loadCIDs();
                     loadCIDsSelect();
+                    loadCIDsSelect('cat-cid');
                 }
                 
                 closeModal();
@@ -4497,18 +4870,20 @@
                 document.getElementById('colaborador-status').value = 'ativo';
             } else if (tipo === 'empresa') {
                 document.getElementById('empresa-nome').value = '';
+                document.getElementById('btn-empresa-text').textContent = 'Salvar Empresa';
             } else if (tipo === 'departamento') {
                 document.getElementById('departamento-nome').value = '';
+                document.getElementById('btn-departamento-text').textContent = 'Salvar Departamento';
             } else if (tipo === 'cid') {
                 document.getElementById('cid-codigo').value = '';
                 document.getElementById('cid-descricao').value = '';
+                document.getElementById('btn-cid-text').textContent = 'Salvar CID';
             } else if (tipo === 'exame') {
                 document.getElementById('exame-colaborador').value = '';
                 document.getElementById('exame-tipo').value = '';
                 const hoje = new Date();
                 document.getElementById('exame-data').value = hoje.toISOString().split('T')[0];
                 
-                // Definir vencimento padrão para 1 ano a partir de hoje
                 const vencimento = new Date();
                 vencimento.setFullYear(vencimento.getFullYear() + 1);
                 document.getElementById('exame-vencimento').value = vencimento.toISOString().split('T')[0];
@@ -4521,13 +4896,26 @@
                 document.getElementById('atestado-data-final').value = hoje.toISOString().split('T')[0];
                 document.getElementById('atestado-unidade').value = 'dias';
                 
-                // Esconder campos de hora
                 document.getElementById('campos-hora').classList.add('hidden');
                 document.getElementById('atestado-hora-inicio').value = '08:00';
                 document.getElementById('atestado-hora-final').value = '17:00';
                 
-                // Esconder resultado
                 document.getElementById('calc-resultado').classList.add('hidden');
+            } else if (tipo === 'cat') {
+                document.getElementById('cat-colaborador').value = '';
+                document.getElementById('cat-tipo').value = '';
+                document.getElementById('cat-descricao').value = '';
+                document.getElementById('cat-local').value = '';
+                const hoje = new Date();
+                document.getElementById('cat-data-acidente').value = hoje.toISOString().split('T')[0];
+                document.getElementById('cat-data-registro').value = hoje.toISOString().split('T')[0];
+                document.getElementById('cat-afastamento-inicio').value = '';
+                document.getElementById('cat-afastamento-fim').value = '';
+                document.getElementById('cat-cid').value = '';
+                document.getElementById('cat-status').value = 'registrada';
+                document.getElementById('cat-observacoes').value = '';
+                document.getElementById('cat-dias-afastamento').style.display = 'none';
+                document.getElementById('btn-cat-text').textContent = 'Salvar CAT';
             }
         }
 
