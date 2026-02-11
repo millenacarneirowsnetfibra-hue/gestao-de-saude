@@ -1918,7 +1918,7 @@
                         <div class="atestado-stat-info">
                             <h3>Total de Atestados</h3>
                             <div class="value" id="totalAtestadosFiltrados">0</div>
-                            <small id="atestadosFiltradosInfo">com filtros aplicados</small>
+                            <small id="atestadosFiltrosInfo">com filtros aplicados</small>
                         </div>
                     </div>
                 </div>
@@ -1942,6 +1942,8 @@
                                     <option value="medico">Médico</option>
                                     <option value="odontologico">Odontológico</option>
                                     <option value="acompanhamento-filho">Acompanhamento Filho</option>
+                                    <option value="consulta-prenatal-mae">Consulta Pré Natal - Mãe</option>
+                                    <option value="consulta-prenatal-pai">Consulta Pré Natal - Pai</option>
                                 </select>
                             </div>
                             <div class="form-group">
@@ -2031,6 +2033,8 @@
                                     <option value="medico">Médico</option>
                                     <option value="odontologico">Odontológico</option>
                                     <option value="acompanhamento-filho">Acompanhamento Filho</option>
+                                    <option value="consulta-prenatal-mae">Consulta Pré Natal - Mãe</option>
+                                    <option value="consulta-prenatal-pai">Consulta Pré Natal - Pai</option>
                                 </select>
                             </div>
                             <div class="form-group">
@@ -2490,6 +2494,14 @@
             acompanhamento_filho: {
                 dias: 3,
                 horas: 48
+            },
+            consulta_prenatal_mae: {
+                dias: 10,
+                horas: 0
+            },
+            consulta_prenatal_pai: {
+                dias: 6,
+                horas: 0
             }
         };
 
@@ -5461,7 +5473,8 @@
                     return;
                 }
                 
-                if (tipo === 'odontologico' || tipo === 'acompanhamento-filho') {
+                // Verificar limites para tipos específicos de atestado
+                if (tipo === 'odontologico' || tipo === 'acompanhamento-filho' || tipo === 'consulta-prenatal-mae' || tipo === 'consulta-prenatal-pai') {
                     let quantidadeAtual = 0;
                     
                     if (unidade === 'dias') {
@@ -5492,38 +5505,60 @@
                         }
                     });
                     
-                    const limite = tipo === 'odontologico' ? LIMITES_ATESTADOS.odontologico : LIMITES_ATESTADOS.acompanhamento_filho;
-                    const unidadeLimite = unidade === 'dias' ? 'dias' : 'horas';
+                    let limite = null;
+                    let tipoDescricao = '';
                     
-                    if (quantidadeTotal > limite[unidadeLimite]) {
-                        atestadoPendente = {
-                            funcionario,
-                            tipo,
-                            dataInicio,
-                            dataFinal,
-                            unidade,
-                            cid: cid || '',
-                            horaInicio: unidade === 'horas' ? document.getElementById('atestado-hora-inicio').value : '',
-                            horaFinal: unidade === 'horas' ? document.getElementById('atestado-hora-final').value : '',
-                            quantidade: quantidadeAtual,
-                            quantidadeTotal: quantidadeTotal,
-                            limite: limite[unidadeLimite]
-                        };
+                    if (tipo === 'odontologico') {
+                        limite = LIMITES_ATESTADOS.odontologico;
+                        tipoDescricao = 'odontológicos';
+                    } else if (tipo === 'acompanhamento-filho') {
+                        limite = LIMITES_ATESTADOS.acompanhamento_filho;
+                        tipoDescricao = 'de acompanhamento de filho';
+                    } else if (tipo === 'consulta-prenatal-mae') {
+                        limite = LIMITES_ATESTADOS.consulta_prenatal_mae;
+                        tipoDescricao = 'de consulta pré-natal (mãe)';
+                    } else if (tipo === 'consulta-prenatal-pai') {
+                        limite = LIMITES_ATESTADOS.consulta_prenatal_pai;
+                        tipoDescricao = 'de consulta pré-natal (pai)';
+                    }
+                    
+                    if (limite) {
+                        const unidadeLimite = unidade === 'dias' ? 'dias' : 'horas';
                         
-                        let mensagem = '';
-                        if (tipo === 'odontologico') {
-                            mensagem = `O colaborador <strong>${funcionario}</strong> já atingiu o limite de ${limite.dias} dias para atestados odontológicos.<br><br>`;
-                        } else {
-                            mensagem = `O colaborador <strong>${funcionario}</strong> já atingiu o limite de ${limite.dias} dias ou ${limite.horas} horas para atestados de acompanhamento de filho.<br><br>`;
+                        if (quantidadeTotal > limite[unidadeLimite]) {
+                            atestadoPendente = {
+                                funcionario,
+                                tipo,
+                                dataInicio,
+                                dataFinal,
+                                unidade,
+                                cid: cid || '',
+                                horaInicio: unidade === 'horas' ? document.getElementById('atestado-hora-inicio').value : '',
+                                horaFinal: unidade === 'horas' ? document.getElementById('atestado-hora-final').value : '',
+                                quantidade: quantidadeAtual,
+                                quantidadeTotal: quantidadeTotal,
+                                limite: limite[unidadeLimite]
+                            };
+                            
+                            let mensagem = '';
+                            if (tipo === 'odontologico') {
+                                mensagem = `O colaborador <strong>${funcionario}</strong> já atingiu o limite de ${limite.dias} dias para atestados odontológicos.<br><br>`;
+                            } else if (tipo === 'acompanhamento-filho') {
+                                mensagem = `O colaborador <strong>${funcionario}</strong> já atingiu o limite de ${limite.dias} dias ou ${limite.horas} horas para atestados de acompanhamento de filho.<br><br>`;
+                            } else if (tipo === 'consulta-prenatal-mae') {
+                                mensagem = `A colaboradora <strong>${funcionario}</strong> já atingiu o limite de ${limite.dias} dias para consultas pré-natal (mãe).<br><br>`;
+                            } else if (tipo === 'consulta-prenatal-pai') {
+                                mensagem = `O colaborador <strong>${funcionario}</strong> já atingiu o limite de ${limite.dias} dias para consultas pré-natal (pai).<br><br>`;
+                            }
+                            
+                            mensagem += `Total acumulado: ${quantidadeTotal.toFixed(1)} ${unidade === 'dias' ? 'dias' : 'horas'}<br>`;
+                            mensagem += `Limite permitido: ${limite[unidadeLimite]} ${unidade === 'dias' ? 'dias' : 'horas'}<br>`;
+                            mensagem += `Este atestado adicionará: ${quantidadeAtual.toFixed(1)} ${unidade === 'dias' ? 'dias' : 'horas'}`;
+                            
+                            document.getElementById('limitWarningText').innerHTML = mensagem;
+                            document.getElementById('limitModal').style.display = 'flex';
+                            return;
                         }
-                        
-                        mensagem += `Total acumulado: ${quantidadeTotal.toFixed(1)} ${unidade === 'dias' ? 'dias' : 'horas'}<br>`;
-                        mensagem += `Limite permitido: ${limite[unidadeLimite]} ${unidade === 'dias' ? 'dias' : 'horas'}<br>`;
-                        mensagem += `Este atestado adicionará: ${quantidadeAtual.toFixed(1)} ${unidade === 'dias' ? 'dias' : 'horas'}`;
-                        
-                        document.getElementById('limitWarningText').innerHTML = mensagem;
-                        document.getElementById('limitModal').style.display = 'flex';
-                        return;
                     }
                 }
                 
@@ -5605,10 +5640,16 @@
                         return dataB - dataA;
                     });
                     
-                    if (atestadoPendente && atestadoPendente.tipo === 'odontologico') {
-                        showNotification(`Atestado odontológico salvo! ATENÇÃO: Colaborador ultrapassou o limite de ${atestadoPendente.limite} dias. Total: ${atestadoPendente.quantidadeTotal.toFixed(1)} dias`, 'warning');
-                    } else if (atestadoPendente && atestadoPendente.tipo === 'acompanhamento-filho') {
-                        showNotification(`Atestado de acompanhamento de filho salvo! ATENÇÃO: Colaborador ultrapassou o limite de ${atestadoPendente.limite} ${atestadoPendente.unidade === 'dias' ? 'dias' : 'horas'}. Total: ${atestadoPendente.quantidadeTotal.toFixed(1)} ${atestadoPendente.unidade === 'dias' ? 'dias' : 'horas'}`, 'warning');
+                    if (atestadoPendente) {
+                        if (atestadoPendente.tipo === 'odontologico') {
+                            showNotification(`Atestado odontológico salvo! ATENÇÃO: Colaborador ultrapassou o limite de ${atestadoPendente.limite} dias. Total: ${atestadoPendente.quantidadeTotal.toFixed(1)} dias`, 'warning');
+                        } else if (atestadoPendente.tipo === 'acompanhamento-filho') {
+                            showNotification(`Atestado de acompanhamento de filho salvo! ATENÇÃO: Colaborador ultrapassou o limite de ${atestadoPendente.limite} ${atestadoPendente.unidade === 'dias' ? 'dias' : 'horas'}. Total: ${atestadoPendente.quantidadeTotal.toFixed(1)} ${atestadoPendente.unidade === 'dias' ? 'dias' : 'horas'}`, 'warning');
+                        } else if (atestadoPendente.tipo === 'consulta-prenatal-mae') {
+                            showNotification(`Atestado de consulta pré-natal (mãe) salvo! ATENÇÃO: Colaboradora ultrapassou o limite de ${atestadoPendente.limite} dias. Total: ${atestadoPendente.quantidadeTotal.toFixed(1)} dias`, 'warning');
+                        } else if (atestadoPendente.tipo === 'consulta-prenatal-pai') {
+                            showNotification(`Atestado de consulta pré-natal (pai) salvo! ATENÇÃO: Colaborador ultrapassou o limite de ${atestadoPendente.limite} dias. Total: ${atestadoPendente.quantidadeTotal.toFixed(1)} dias`, 'warning');
+                        }
                     } else {
                         showNotification('Atestado salvo com sucesso!', 'success');
                     }
@@ -6280,7 +6321,9 @@
             const tipos = {
                 'medico': 'Médico',
                 'odontologico': 'Odontológico',
-                'acompanhamento-filho': 'Acompanhamento Filho'
+                'acompanhamento-filho': 'Acompanhamento Filho',
+                'consulta-prenatal-mae': 'Consulta Pré Natal - Mãe',
+                'consulta-prenatal-pai': 'Consulta Pré Natal - Pai'
             };
             return tipos[tipo] || tipo;
         }
