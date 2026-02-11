@@ -1256,7 +1256,7 @@
                     </div>
                 </div>
 
-                <!-- Filtros do Dashboard -->
+                <!-- Filtros do Dashboard - Filtro Automático -->
                 <div class="filters">
                     <div class="form-group">
                         <label for="filtro-dashboard-colaborador">Colaborador:</label>
@@ -1279,11 +1279,8 @@
                         <input type="date" id="filtro-dashboard-data-fim">
                     </div>
                     <div class="form-group clear-filters">
-                        <button class="btn btn-warning btn-small" onclick="aplicarFiltrosDashboard()">
-                            <i class="fas fa-filter"></i> Aplicar Filtros
-                        </button>
                         <button class="btn btn-danger btn-small" onclick="limparFiltrosDashboard()">
-                            <i class="fas fa-times"></i> Limpar
+                            <i class="fas fa-times"></i> Limpar Filtros
                         </button>
                     </div>
                 </div>
@@ -2150,12 +2147,6 @@
         let catsFiltrados = [];
         let colaboradoresFiltrados = [];
         let atestadoPendente = null;
-        let dashboardFiltros = {
-            colaborador: 'todos',
-            departamento: 'todos',
-            dataInicio: '',
-            dataFim: ''
-        };
         
         // Cache de dados sincronizados
         let cache = {
@@ -2163,7 +2154,17 @@
             empresas: [],
             departamentos: [],
             cids: [],
-            cats: []
+            cats: [],
+            exames: [],
+            atestados: []
+        };
+
+        // Filtros do Dashboard
+        let dashboardFiltros = {
+            colaborador: 'todos',
+            departamento: 'todos',
+            dataInicio: '',
+            dataFim: ''
         };
 
         // Limites de atestados
@@ -2204,9 +2205,6 @@
             setupAutoFilters();
             
             // Carregar dados iniciais
-            loadDashboardData();
-            
-            // Carregar cache de dados sincronizados
             loadCacheData();
             
             // Carregar anos para filtro
@@ -2322,22 +2320,9 @@
             }
         }
 
-        // Funções para filtros do Dashboard
-        function aplicarFiltrosDashboard() {
-            dashboardFiltros = {
-                colaborador: document.getElementById('filtro-dashboard-colaborador').value,
-                departamento: document.getElementById('filtro-dashboard-departamento').value,
-                dataInicio: document.getElementById('filtro-dashboard-data-inicio').value,
-                dataFim: document.getElementById('filtro-dashboard-data-fim').value
-            };
-            
-            loadDashboardData();
-            showNotification('Filtros aplicados com sucesso!', 'success');
-        }
-
+        // Limpar filtros do Dashboard
         function limparFiltrosDashboard() {
             document.getElementById('filtro-dashboard-colaborador').value = 'todos';
-            document.getElementById('filtro-departamento-colaborador').value = 'todos';
             document.getElementById('filtro-dashboard-departamento').value = 'todos';
             document.getElementById('filtro-dashboard-data-inicio').value = '';
             document.getElementById('filtro-dashboard-data-fim').value = '';
@@ -2353,197 +2338,29 @@
             showNotification('Filtros limpos com sucesso!', 'info');
         }
 
-        // Função para verificar se um atestado está dentro do período dos filtros
-        function atestadoDentroFiltro(dataInicioAtestado) {
-            if (!dashboardFiltros.dataInicio && !dashboardFiltros.dataFim) {
-                return true;
-            }
-            
-            const dataAtestado = new Date(dataInicioAtestado);
-            
-            if (dashboardFiltros.dataInicio) {
-                const dataInicio = new Date(dashboardFiltros.dataInicio);
-                if (dataAtestado < dataInicio) return false;
-            }
-            
-            if (dashboardFiltros.dataFim) {
-                const dataFim = new Date(dashboardFiltros.dataFim);
-                dataFim.setHours(23, 59, 59);
-                if (dataAtestado > dataFim) return false;
-            }
-            
-            return true;
-        }
-
-        // Função para verificar se um colaborador está dentro dos filtros
-        function colaboradorDentroFiltro(colaboradorNome) {
-            if (dashboardFiltros.colaborador !== 'todos' && colaboradorNome !== dashboardFiltros.colaborador) {
-                return false;
-            }
-            
-            if (dashboardFiltros.departamento !== 'todos') {
-                const colaborador = cache.colaboradores.find(c => c.nome === colaboradorNome);
-                if (!colaborador || colaborador.departamento !== dashboardFiltros.departamento) {
-                    return false;
-                }
-            }
-            
-            return true;
-        }
-
-        // Função para carregar os rankings do Dashboard
-        async function loadDashboardRankings() {
-            try {
-                // Buscar todos os atestados
-                const atestadosSnapshot = await db.collection('atestados').get();
-                
-                // Aplicar filtros nos atestados
-                const atestadosFiltrados = atestadosSnapshot.docs
-                    .map(doc => doc.data())
-                    .filter(atestado => {
-                        if (!atestado.funcionario) return false;
-                        if (!colaboradorDentroFiltro(atestado.funcionario)) return false;
-                        if (!atestadoDentroFiltro(atestado.dataInicio)) return false;
-                        return true;
-                    });
-                
-                // Top 5 Colaboradores com mais atestados
-                const colaboradoresAtestados = {};
-                atestadosFiltrados.forEach(atestado => {
-                    if (!atestado.funcionario) return;
-                    colaboradoresAtestados[atestado.funcionario] = (colaboradoresAtestados[atestado.funcionario] || 0) + 1;
-                });
-                
-                const topColaboradores = Object.entries(colaboradoresAtestados)
-                    .map(([nome, quantidade]) => ({ nome, quantidade }))
-                    .sort((a, b) => b.quantidade - a.quantidade)
-                    .slice(0, 5);
-                
-                const topColaboradoresHTML = document.getElementById('topAtestadosColaboradores');
-                if (topColaboradores.length === 0) {
-                    topColaboradoresHTML.innerHTML = `
-                        <li class="ranking-item">
-                            <span style="color: #666;">Nenhum atestado encontrado</span>
-                        </li>
-                    `;
-                } else {
-                    topColaboradoresHTML.innerHTML = topColaboradores.map((item, index) => {
-                        const colaborador = cache.colaboradores.find(c => c.nome === item.nome);
-                        const departamento = colaborador ? colaborador.departamento : 'Não informado';
-                        return `
-                            <li class="ranking-item">
-                                <div class="ranking-position">${index + 1}</div>
-                                <div class="ranking-info">
-                                    <div class="ranking-name">${item.nome}</div>
-                                    <div class="ranking-department">${departamento}</div>
-                                </div>
-                                <div class="ranking-value">${item.quantidade} atestados</div>
-                            </li>
-                        `;
-                    }).join('');
-                }
-                
-                // Top 5 CIDs mais frequentes
-                const cidsFrequencia = {};
-                atestadosFiltrados.forEach(atestado => {
-                    if (atestado.cid && atestado.cid.trim() !== '') {
-                        cidsFrequencia[atestado.cid] = (cidsFrequencia[atestado.cid] || 0) + 1;
-                    }
-                });
-                
-                const topCIDs = Object.entries(cidsFrequencia)
-                    .map(([cid, quantidade]) => {
-                        const cidInfo = cache.cids.find(c => c.codigo === cid);
-                        return { 
-                            cid, 
-                            descricao: cidInfo ? cidInfo.descricao : 'CID não encontrado',
-                            quantidade 
-                        };
-                    })
-                    .sort((a, b) => b.quantidade - a.quantidade)
-                    .slice(0, 5);
-                
-                const topCIDsHTML = document.getElementById('topCIDs');
-                if (topCIDs.length === 0) {
-                    topCIDsHTML.innerHTML = `
-                        <li class="ranking-item">
-                            <span style="color: #666;">Nenhum CID registrado</span>
-                        </li>
-                    `;
-                } else {
-                    topCIDsHTML.innerHTML = topCIDs.map((item, index) => `
-                        <li class="ranking-item">
-                            <div class="ranking-position">${index + 1}</div>
-                            <div class="ranking-info">
-                                <div class="ranking-name">${item.cid}</div>
-                                <div class="ranking-department">${item.descricao}</div>
-                            </div>
-                            <div class="ranking-value">${item.quantidade} ocorrências</div>
-                        </li>
-                    `).join('');
-                }
-                
-                // Top 5 Setores com mais atestados
-                const setoresAtestados = {};
-                atestadosFiltrados.forEach(atestado => {
-                    if (!atestado.funcionario) return;
-                    const colaborador = cache.colaboradores.find(c => c.nome === atestado.funcionario);
-                    if (colaborador && colaborador.departamento) {
-                        setoresAtestados[colaborador.departamento] = (setoresAtestados[colaborador.departamento] || 0) + 1;
-                    }
-                });
-                
-                const topSetores = Object.entries(setoresAtestados)
-                    .map(([departamento, quantidade]) => ({ departamento, quantidade }))
-                    .sort((a, b) => b.quantidade - a.quantidade)
-                    .slice(0, 5);
-                
-                const topSetoresHTML = document.getElementById('topSetores');
-                if (topSetores.length === 0) {
-                    topSetoresHTML.innerHTML = `
-                        <li class="ranking-item">
-                            <span style="color: #666;">Nenhum setor encontrado</span>
-                        </li>
-                    `;
-                } else {
-                    topSetoresHTML.innerHTML = topSetores.map((item, index) => `
-                        <li class="ranking-item">
-                            <div class="ranking-position">${index + 1}</div>
-                            <div class="ranking-info">
-                                <div class="ranking-name">${item.departamento}</div>
-                            </div>
-                            <div class="ranking-value">${item.quantidade} atestados</div>
-                        </li>
-                    `).join('');
-                }
-                
-                // Estatísticas de CATs
-                const catsSnapshot = await db.collection('cats').get();
-                const cats = catsSnapshot.docs.map(doc => doc.data());
-                
-                const totalCats = cats.length;
-                const catsDentroPrazo = cats.filter(cat => cat.dentroPrazo).length;
-                const catsForaPrazo = totalCats - catsDentroPrazo;
-                const catsAfastamentoINSS = cats.filter(cat => {
-                    if (cat.afastamentoInicio && cat.afastamentoFim) {
-                        const dias = calcularDiasAtestado(cat.afastamentoInicio, cat.afastamentoFim);
-                        return dias > 15;
-                    }
-                    return false;
-                }).length;
-                
-                document.getElementById('totalCatsMini').textContent = totalCats;
-                document.getElementById('totalCatsDentroPrazo').textContent = catsDentroPrazo;
-                document.getElementById('totalCatsForaPrazo').textContent = catsForaPrazo;
-                document.getElementById('totalCatsAfastamentoINSS').textContent = catsAfastamentoINSS;
-                
-            } catch (error) {
-                console.error('Erro ao carregar rankings do dashboard:', error);
-            }
-        }
-
         // Configurar filtros automáticos
         function setupAutoFilters() {
+            // Filtros automáticos do Dashboard - sincronizados com todos os cards
+            document.getElementById('filtro-dashboard-colaborador').addEventListener('change', function() {
+                dashboardFiltros.colaborador = this.value;
+                loadDashboardData();
+            });
+            
+            document.getElementById('filtro-dashboard-departamento').addEventListener('change', function() {
+                dashboardFiltros.departamento = this.value;
+                loadDashboardData();
+            });
+            
+            document.getElementById('filtro-dashboard-data-inicio').addEventListener('change', function() {
+                dashboardFiltros.dataInicio = this.value;
+                loadDashboardData();
+            });
+            
+            document.getElementById('filtro-dashboard-data-fim').addEventListener('change', function() {
+                dashboardFiltros.dataFim = this.value;
+                loadDashboardData();
+            });
+            
             // Filtro de nome (busca digitável) para colaboradores
             document.getElementById('filtro-nome-colaborador').addEventListener('input', function() {
                 filtrarColaboradores();
@@ -2663,6 +2480,88 @@
             showNotification('Filtros de CATs limpos com sucesso!', 'info');
         }
 
+        // Função para verificar se um atestado está dentro do período dos filtros
+        function atestadoDentroFiltro(dataInicioAtestado) {
+            if (!dashboardFiltros.dataInicio && !dashboardFiltros.dataFim) {
+                return true;
+            }
+            
+            const dataAtestado = new Date(dataInicioAtestado);
+            
+            if (dashboardFiltros.dataInicio) {
+                const dataInicio = new Date(dashboardFiltros.dataInicio);
+                if (dataAtestado < dataInicio) return false;
+            }
+            
+            if (dashboardFiltros.dataFim) {
+                const dataFim = new Date(dashboardFiltros.dataFim);
+                dataFim.setHours(23, 59, 59);
+                if (dataAtestado > dataFim) return false;
+            }
+            
+            return true;
+        }
+
+        // Função para verificar se um exame está dentro do período dos filtros
+        function exameDentroFiltro(dataExame) {
+            if (!dashboardFiltros.dataInicio && !dashboardFiltros.dataFim) {
+                return true;
+            }
+            
+            const dataExameObj = new Date(dataExame);
+            
+            if (dashboardFiltros.dataInicio) {
+                const dataInicio = new Date(dashboardFiltros.dataInicio);
+                if (dataExameObj < dataInicio) return false;
+            }
+            
+            if (dashboardFiltros.dataFim) {
+                const dataFim = new Date(dashboardFiltros.dataFim);
+                dataFim.setHours(23, 59, 59);
+                if (dataExameObj > dataFim) return false;
+            }
+            
+            return true;
+        }
+
+        // Função para verificar se uma CAT está dentro do período dos filtros
+        function catDentroFiltro(dataRegistro) {
+            if (!dashboardFiltros.dataInicio && !dashboardFiltros.dataFim) {
+                return true;
+            }
+            
+            const dataRegistroObj = new Date(dataRegistro);
+            
+            if (dashboardFiltros.dataInicio) {
+                const dataInicio = new Date(dashboardFiltros.dataInicio);
+                if (dataRegistroObj < dataInicio) return false;
+            }
+            
+            if (dashboardFiltros.dataFim) {
+                const dataFim = new Date(dashboardFiltros.dataFim);
+                dataFim.setHours(23, 59, 59);
+                if (dataRegistroObj > dataFim) return false;
+            }
+            
+            return true;
+        }
+
+        // Função para verificar se um colaborador está dentro dos filtros
+        function colaboradorDentroFiltro(colaboradorNome) {
+            if (dashboardFiltros.colaborador !== 'todos' && colaboradorNome !== dashboardFiltros.colaborador) {
+                return false;
+            }
+            
+            if (dashboardFiltros.departamento !== 'todos') {
+                const colaborador = cache.colaboradores.find(c => c.nome === colaboradorNome);
+                if (!colaborador || colaborador.departamento !== dashboardFiltros.departamento) {
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+
         // Carregar cache de dados sincronizados
         async function loadCacheData() {
             try {
@@ -2671,13 +2570,25 @@
                     loadEmpresasCache(),
                     loadDepartamentosCache(),
                     loadCIDsCache(),
-                    loadCATsCache()
+                    loadCATsCache(),
+                    loadExamesCache(),
+                    loadAtestadosCache()
                 ]);
                 
                 console.log('Cache de dados carregado com sucesso:', cache);
                 
-                loadColaboradores();
+                // Carregar todos os dados das páginas
                 loadFiltrosDashboard();
+                loadDepartamentosFiltro();
+                loadFiltrosExames();
+                loadColaboradores();
+                loadExames();
+                loadAtestados();
+                loadCATs();
+                loadConfiguracoes();
+                
+                // Carregar dados do dashboard
+                loadDashboardData();
                 
             } catch (error) {
                 console.error('Erro ao carregar cache de dados:', error);
@@ -2712,8 +2623,6 @@
                     id: doc.id,
                     ...doc.data()
                 }));
-                
-                loadDepartamentosFiltro();
                 
             } catch (error) {
                 console.error('Erro ao carregar colaboradores em cache:', error);
@@ -2788,6 +2697,36 @@
             }
         }
 
+        // Carregar exames em cache
+        async function loadExamesCache() {
+            try {
+                const examesQuery = await db.collection('exames').get();
+                
+                cache.exames = examesQuery.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                
+            } catch (error) {
+                console.error('Erro ao carregar exames em cache:', error);
+            }
+        }
+
+        // Carregar atestados em cache
+        async function loadAtestadosCache() {
+            try {
+                const atestadosQuery = await db.collection('atestados').get();
+                
+                cache.atestados = atestadosQuery.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                
+            } catch (error) {
+                console.error('Erro ao carregar atestados em cache:', error);
+            }
+        }
+
         // Inicializar autenticação
         function initAuth() {
             currentUser = {
@@ -2859,7 +2798,6 @@
                         loadColaboradores();
                     } else if (pageId === 'exames') {
                         loadExames();
-                        loadFiltrosExames();
                     } else if (pageId === 'atestados') {
                         loadAtestados();
                     } else if (pageId === 'cats') {
@@ -3139,67 +3077,308 @@
         }
 
         // Carregar dados do dashboard
-        function loadDashboardData() {
-            loadCounters();
-            loadProximosVencimentos();
-            loadDashboardRankings();
-        }
-
-        // Carregar contadores
-        async function loadCounters() {
+        async function loadDashboardData() {
             try {
-                const totalColaboradores = cache.colaboradores.length;
-                const colaboradoresAtivos = cache.colaboradores.filter(colaborador => 
-                    colaborador.status === 'ativo'
-                ).length;
+                // Filtrar colaboradores ativos
+                let colaboradoresFiltrados = [...cache.colaboradores];
+                
+                if (dashboardFiltros.departamento !== 'todos') {
+                    colaboradoresFiltrados = colaboradoresFiltrados.filter(c => 
+                        c.departamento === dashboardFiltros.departamento
+                    );
+                }
+                
+                if (dashboardFiltros.colaborador !== 'todos') {
+                    colaboradoresFiltrados = colaboradoresFiltrados.filter(c => 
+                        c.nome === dashboardFiltros.colaborador
+                    );
+                }
+                
+                const totalColaboradores = colaboradoresFiltrados.length;
+                const colaboradoresAtivos = colaboradoresFiltrados.filter(c => c.status === 'ativo').length;
                 
                 document.getElementById('totalColaboradores').textContent = totalColaboradores;
                 document.getElementById('colaboradoresAtivos').textContent = `${colaboradoresAtivos} ativos`;
                 
-                const examesSnapshot = await db.collection('exames').get();
-                const totalExames = examesSnapshot.size;
-                const examesVencidos = examesSnapshot.docs.filter(doc => {
-                    const data = doc.data();
-                    const status = calcularStatusVencimento(data.vencimento);
-                    return status === 'vencido';
-                }).length;
+                // Filtrar exames
+                let examesFiltrados = [...cache.exames];
+                
+                // Aplicar filtros de colaborador/departamento
+                if (dashboardFiltros.departamento !== 'todos' || dashboardFiltros.colaborador !== 'todos') {
+                    const colaboradoresPermitidos = colaboradoresFiltrados.map(c => c.nome);
+                    examesFiltrados = examesFiltrados.filter(e => 
+                        colaboradoresPermitidos.includes(e.funcionario)
+                    );
+                }
+                
+                // Aplicar filtros de data nos exames
+                if (dashboardFiltros.dataInicio || dashboardFiltros.dataFim) {
+                    examesFiltrados = examesFiltrados.filter(e => 
+                        e.dataExame && exameDentroFiltro(e.dataExame)
+                    );
+                }
+                
+                const totalExames = examesFiltrados.length;
+                const examesVencidos = examesFiltrados.filter(e => 
+                    e.vencimento && calcularStatusVencimento(e.vencimento) === 'vencido'
+                ).length;
                 
                 document.getElementById('totalExames').textContent = totalExames;
                 document.getElementById('examesPendentes').textContent = `${examesVencidos} vencidos`;
                 
-                const atestadosSnapshot = await db.collection('atestados').get();
-                const totalAtestados = atestadosSnapshot.size;
+                // Filtrar atestados
+                let atestadosFiltrados = [...cache.atestados];
+                
+                // Aplicar filtros de colaborador/departamento
+                if (dashboardFiltros.departamento !== 'todos' || dashboardFiltros.colaborador !== 'todos') {
+                    const colaboradoresPermitidos = colaboradoresFiltrados.map(c => c.nome);
+                    atestadosFiltrados = atestadosFiltrados.filter(a => 
+                        colaboradoresPermitidos.includes(a.funcionario)
+                    );
+                }
+                
+                // Aplicar filtros de data nos atestados
+                if (dashboardFiltros.dataInicio || dashboardFiltros.dataFim) {
+                    atestadosFiltrados = atestadosFiltrados.filter(a => 
+                        a.dataInicio && atestadoDentroFiltro(a.dataInicio)
+                    );
+                }
+                
+                const totalAtestados = atestadosFiltrados.length;
                 
                 const hoje = new Date();
                 const mesAtual = hoje.getMonth() + 1;
                 const anoAtual = hoje.getFullYear();
                 
-                const atestadosMes = atestadosSnapshot.docs.filter(doc => {
-                    const data = doc.data();
-                    if (!data.dataInicio) return false;
-                    const dataInicio = new Date(data.dataInicio);
+                const atestadosMes = atestadosFiltrados.filter(a => {
+                    if (!a.dataInicio) return false;
+                    const dataInicio = new Date(a.dataInicio);
                     return dataInicio.getMonth() + 1 === mesAtual && dataInicio.getFullYear() === anoAtual;
                 }).length;
                 
                 document.getElementById('totalAtestados').textContent = totalAtestados;
                 document.getElementById('atestadosMes').textContent = `${atestadosMes} este mês`;
                 
-                const catsSnapshot = await db.collection('cats').get();
-                const totalCats = catsSnapshot.size;
-                const catsAnalise = catsSnapshot.docs.filter(doc => 
-                    doc.data().status === 'em_analise'
-                ).length;
+                // Filtrar CATs
+                let catsFiltrados = [...cache.cats];
+                
+                // Aplicar filtros de colaborador/departamento
+                if (dashboardFiltros.departamento !== 'todos' || dashboardFiltros.colaborador !== 'todos') {
+                    const colaboradoresPermitidos = colaboradoresFiltrados.map(c => c.nome);
+                    catsFiltrados = catsFiltrados.filter(c => 
+                        colaboradoresPermitidos.includes(c.funcionario)
+                    );
+                }
+                
+                // Aplicar filtros de data nas CATs
+                if (dashboardFiltros.dataInicio || dashboardFiltros.dataFim) {
+                    catsFiltrados = catsFiltrados.filter(c => 
+                        c.dataRegistro && catDentroFiltro(c.dataRegistro)
+                    );
+                }
+                
+                const totalCats = catsFiltrados.length;
+                const catsAnalise = catsFiltrados.filter(c => c.status === 'em_analise').length;
                 
                 document.getElementById('totalCats').textContent = totalCats;
                 document.getElementById('catsAnalise').textContent = `${catsAnalise} em análise`;
                 
+                // Carregar rankings e vencimentos com os filtros aplicados
+                loadDashboardRankings(atestadosFiltrados);
+                loadProximosVencimentos();
+                
             } catch (error) {
-                console.error('Erro ao carregar contadores:', error);
+                console.error('Erro ao carregar dashboard:', error);
             }
         }
 
+        // Função para carregar os rankings do Dashboard
+        async function loadDashboardRankings(atestadosFiltrados) {
+            try {
+                // Top 5 Colaboradores com mais atestados
+                const colaboradoresAtestados = {};
+                atestadosFiltrados.forEach(atestado => {
+                    if (!atestado.funcionario) return;
+                    colaboradoresAtestados[atestado.funcionario] = (colaboradoresAtestados[atestado.funcionario] || 0) + 1;
+                });
+                
+                const topColaboradores = Object.entries(colaboradoresAtestados)
+                    .map(([nome, quantidade]) => ({ nome, quantidade }))
+                    .sort((a, b) => b.quantidade - a.quantidade)
+                    .slice(0, 5);
+                
+                const topColaboradoresHTML = document.getElementById('topAtestadosColaboradores');
+                if (topColaboradores.length === 0) {
+                    topColaboradoresHTML.innerHTML = `
+                        <li class="ranking-item">
+                            <span style="color: #666;">Nenhum atestado encontrado</span>
+                        </li>
+                    `;
+                } else {
+                    topColaboradoresHTML.innerHTML = topColaboradores.map((item, index) => {
+                        const colaborador = cache.colaboradores.find(c => c.nome === item.nome);
+                        const departamento = colaborador ? colaborador.departamento : 'Não informado';
+                        return `
+                            <li class="ranking-item">
+                                <div class="ranking-position">${index + 1}</div>
+                                <div class="ranking-info">
+                                    <div class="ranking-name">${item.nome}</div>
+                                    <div class="ranking-department">${departamento}</div>
+                                </div>
+                                <div class="ranking-value">${item.quantidade} atestados</div>
+                            </li>
+                        `;
+                    }).join('');
+                }
+                
+                // Top 5 CIDs mais frequentes
+                const cidsFrequencia = {};
+                atestadosFiltrados.forEach(atestado => {
+                    if (atestado.cid && atestado.cid.trim() !== '') {
+                        cidsFrequencia[atestado.cid] = (cidsFrequencia[atestado.cid] || 0) + 1;
+                    }
+                });
+                
+                const topCIDs = Object.entries(cidsFrequencia)
+                    .map(([cid, quantidade]) => {
+                        const cidInfo = cache.cids.find(c => c.codigo === cid);
+                        return { 
+                            cid, 
+                            descricao: cidInfo ? cidInfo.descricao : 'CID não encontrado',
+                            quantidade 
+                        };
+                    })
+                    .sort((a, b) => b.quantidade - a.quantidade)
+                    .slice(0, 5);
+                
+                const topCIDsHTML = document.getElementById('topCIDs');
+                if (topCIDs.length === 0) {
+                    topCIDsHTML.innerHTML = `
+                        <li class="ranking-item">
+                            <span style="color: #666;">Nenhum CID registrado</span>
+                        </li>
+                    `;
+                } else {
+                    topCIDsHTML.innerHTML = topCIDs.map((item, index) => `
+                        <li class="ranking-item">
+                            <div class="ranking-position">${index + 1}</div>
+                            <div class="ranking-info">
+                                <div class="ranking-name">${item.cid}</div>
+                                <div class="ranking-department">${item.descricao}</div>
+                            </div>
+                            <div class="ranking-value">${item.quantidade} ocorrências</div>
+                        </li>
+                    `).join('');
+                }
+                
+                // Top 5 Setores com mais atestados
+                const setoresAtestados = {};
+                atestadosFiltrados.forEach(atestado => {
+                    if (!atestado.funcionario) return;
+                    const colaborador = cache.colaboradores.find(c => c.nome === atestado.funcionario);
+                    if (colaborador && colaborador.departamento) {
+                        setoresAtestados[colaborador.departamento] = (setoresAtestados[colaborador.departamento] || 0) + 1;
+                    }
+                });
+                
+                const topSetores = Object.entries(setoresAtestados)
+                    .map(([departamento, quantidade]) => ({ departamento, quantidade }))
+                    .sort((a, b) => b.quantidade - a.quantidade)
+                    .slice(0, 5);
+                
+                const topSetoresHTML = document.getElementById('topSetores');
+                if (topSetores.length === 0) {
+                    topSetoresHTML.innerHTML = `
+                        <li class="ranking-item">
+                            <span style="color: #666;">Nenhum setor encontrado</span>
+                        </li>
+                    `;
+                } else {
+                    topSetoresHTML.innerHTML = topSetores.map((item, index) => `
+                        <li class="ranking-item">
+                            <div class="ranking-position">${index + 1}</div>
+                            <div class="ranking-info">
+                                <div class="ranking-name">${item.departamento}</div>
+                            </div>
+                            <div class="ranking-value">${item.quantidade} atestados</div>
+                        </li>
+                    `).join('');
+                }
+                
+                // Estatísticas de CATs - aplicar filtros do dashboard
+                let catsFiltrados = [...cache.cats];
+                
+                // Aplicar filtros de colaborador/departamento
+                if (dashboardFiltros.departamento !== 'todos' || dashboardFiltros.colaborador !== 'todos') {
+                    const colaboradoresFiltrados = cache.colaboradores.filter(c => {
+                        if (dashboardFiltros.departamento !== 'todos' && c.departamento !== dashboardFiltros.departamento) return false;
+                        if (dashboardFiltros.colaborador !== 'todos' && c.nome !== dashboardFiltros.colaborador) return false;
+                        return true;
+                    });
+                    
+                    const colaboradoresPermitidos = colaboradoresFiltrados.map(c => c.nome);
+                    catsFiltrados = catsFiltrados.filter(c => 
+                        colaboradoresPermitidos.includes(c.funcionario)
+                    );
+                }
+                
+                // Aplicar filtros de data
+                if (dashboardFiltros.dataInicio || dashboardFiltros.dataFim) {
+                    catsFiltrados = catsFiltrados.filter(c => 
+                        c.dataRegistro && catDentroFiltro(c.dataRegistro)
+                    );
+                }
+                
+                const totalCats = catsFiltrados.length;
+                const catsDentroPrazo = catsFiltrados.filter(cat => {
+                    if (!cat.dataAcidente || !cat.dataRegistro) return false;
+                    return verificarPrazoCAT(cat.dataAcidente, cat.dataRegistro);
+                }).length;
+                
+                const catsForaPrazo = totalCats - catsDentroPrazo;
+                
+                const catsAfastamentoINSS = catsFiltrados.filter(cat => {
+                    if (cat.afastamentoInicio && cat.afastamentoFim) {
+                        const dias = calcularDiasAtestado(cat.afastamentoInicio, cat.afastamentoFim);
+                        return dias > 15;
+                    }
+                    return false;
+                }).length;
+                
+                document.getElementById('totalCatsMini').textContent = totalCats;
+                document.getElementById('totalCatsDentroPrazo').textContent = catsDentroPrazo;
+                document.getElementById('totalCatsForaPrazo').textContent = catsForaPrazo;
+                document.getElementById('totalCatsAfastamentoINSS').textContent = catsAfastamentoINSS;
+                
+            } catch (error) {
+                console.error('Erro ao carregar rankings do dashboard:', error);
+            }
+        }
+
+        // Carregar departamentos no filtro
+        function loadDepartamentosFiltro() {
+            const filtroDepartamento = document.getElementById('filtro-departamento-colaborador');
+            filtroDepartamento.innerHTML = '<option value="todos">Todos</option>';
+            
+            const departamentosUnicos = [...new Set(cache.colaboradores
+                .map(colaborador => colaborador.departamento)
+                .filter(departamento => departamento && departamento.trim() !== '')
+            )];
+            
+            departamentosUnicos.sort().forEach(departamento => {
+                filtroDepartamento.innerHTML += `<option value="${departamento}">${departamento}</option>`;
+            });
+            
+            const filtroDepartamentoExame = document.getElementById('filtro-departamento-exame');
+            filtroDepartamentoExame.innerHTML = '<option value="todos">Todos</option>';
+            
+            departamentosUnicos.sort().forEach(departamento => {
+                filtroDepartamentoExame.innerHTML += `<option value="${departamento}">${departamento}</option>`;
+            });
+        }
+
         // Carregar colaboradores
-        async function loadColaboradores() {
+        function loadColaboradores() {
             try {
                 if (cache.colaboradores.length === 0) {
                     const colaboradoresBody = document.getElementById('colaboradoresBody');
@@ -3217,7 +3396,6 @@
                 }
                 
                 colaboradoresFiltrados = [...cache.colaboradores];
-                
                 filtrarColaboradores();
                 
             } catch (error) {
@@ -3305,37 +3483,13 @@
             });
         }
 
-        // Carregar departamentos no filtro
-        function loadDepartamentosFiltro() {
-            const filtroDepartamento = document.getElementById('filtro-departamento-colaborador');
-            filtroDepartamento.innerHTML = '<option value="todos">Todos</option>';
-            
-            const departamentosUnicos = [...new Set(cache.colaboradores
-                .map(colaborador => colaborador.departamento)
-                .filter(departamento => departamento && departamento.trim() !== '')
-            )];
-            
-            departamentosUnicos.sort().forEach(departamento => {
-                filtroDepartamento.innerHTML += `<option value="${departamento}">${departamento}</option>`;
-            });
-            
-            const filtroDepartamentoExame = document.getElementById('filtro-departamento-exame');
-            filtroDepartamentoExame.innerHTML = '<option value="todos">Todos</option>';
-            
-            departamentosUnicos.sort().forEach(departamento => {
-                filtroDepartamentoExame.innerHTML += `<option value="${departamento}">${departamento}</option>`;
-            });
-        }
-
         // Carregar exames
         async function loadExames() {
             try {
-                const examesQuery = await db.collection('exames').get();
-                
                 const examesBody = document.getElementById('examesBody');
                 examesBody.innerHTML = '';
                 
-                if (examesQuery.empty) {
+                if (cache.exames.length === 0) {
                     examesBody.innerHTML = `
                         <tr>
                             <td colspan="7" style="text-align: center; padding: 30px;">
@@ -3351,16 +3505,15 @@
                 
                 examesFiltrados = [];
                 
-                examesQuery.docs.forEach(doc => {
-                    const data = doc.data();
-                    const status = calcularStatusVencimento(data.vencimento);
-                    const diasRestantes = calcularDiasRestantes(data.vencimento);
+                cache.exames.forEach(exame => {
+                    const status = calcularStatusVencimento(exame.vencimento);
+                    const diasRestantes = calcularDiasRestantes(exame.vencimento);
                     
-                    const colaboradorInfo = cache.colaboradores.find(c => c.nome === data.funcionario);
+                    const colaboradorInfo = cache.colaboradores.find(c => c.nome === exame.funcionario);
                     
                     const exameInfo = {
-                        id: doc.id,
-                        data: data,
+                        id: exame.id,
+                        data: exame,
                         colaborador: colaboradorInfo,
                         status: status,
                         diasRestantes: diasRestantes
@@ -3379,33 +3532,6 @@
                     }
                     
                     return dataA - dataB;
-                });
-                
-                examesFiltrados.forEach(exameInfo => {
-                    const data = exameInfo.data;
-                    examesBody.innerHTML += `
-                        <tr>
-                            <td>
-                                <strong>${data.funcionario || 'N/A'}</strong>
-                                ${exameInfo.colaborador ? `<br><small>${exameInfo.colaborador.departamento || ''} - ${exameInfo.colaborador.empresa || ''}</small>` : ''}
-                            </td>
-                            <td>${formatTipoExame(data.tipo)}</td>
-                            <td>${data.dataExame ? formatDate(new Date(data.dataExame)) : 'N/A'}</td>
-                            <td>${data.vencimento ? formatDate(new Date(data.vencimento)) : 'N/A'}</td>
-                            <td>${exameInfo.diasRestantes > 0 ? `${exameInfo.diasRestantes} dias` : '<span style="color: var(--danger);">Vencido</span>'}</td>
-                            <td><span class="status ${exameInfo.status}">${formatStatusExame(exameInfo.status)}</span></td>
-                            <td>
-                                <div class="actions-cell">
-                                    <button class="btn btn-primary btn-small" onclick="editarExame('${exameInfo.id}')">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-danger btn-small" onclick="solicitarExclusao('exames', '${exameInfo.id}', '${data.funcionario || "Sem nome"} - ${formatTipoExame(data.tipo)}')">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
                 });
                 
                 filtrarExames();
@@ -3545,14 +3671,10 @@
         // Carregar atestados
         async function loadAtestados() {
             try {
-                const atestadosQuery = await db.collection('atestados')
-                    .orderBy('dataInicio', 'desc')
-                    .get();
-                
                 const atestadosBody = document.getElementById('atestadosBody');
                 atestadosBody.innerHTML = '';
                 
-                if (atestadosQuery.empty) {
+                if (cache.atestados.length === 0) {
                     atestadosBody.innerHTML = `
                         <tr>
                             <td colspan="7" style="text-align: center; padding: 30px;">
@@ -3568,50 +3690,22 @@
                 
                 atestadosFiltrados = [];
                 
-                atestadosQuery.docs.forEach(doc => {
-                    const data = doc.data();
-                    
-                    const colaboradorInfo = cache.colaboradores.find(c => c.nome === data.funcionario);
+                cache.atestados.forEach(atestado => {
+                    const colaboradorInfo = cache.colaboradores.find(c => c.nome === atestado.funcionario);
                     
                     const atestadoInfo = {
-                        id: doc.id,
-                        data: data,
+                        id: atestado.id,
+                        data: atestado,
                         colaborador: colaboradorInfo
                     };
                     
                     atestadosFiltrados.push(atestadoInfo);
-                    
-                    const dias = calcularDiasAtestado(data.dataInicio, data.dataFinal);
-                    let periodoTexto = `${dias} ${dias === 1 ? 'dia' : 'dias'}`;
-                    
-                    if (data.unidade === 'horas') {
-                        const horas = calcularHorasAtestado(data.horaInicio, data.horaFinal);
-                        periodoTexto = `${horas} ${horas === 1 ? 'hora' : 'horas'}`;
-                    }
-                    
-                    atestadosBody.innerHTML += `
-                        <tr>
-                            <td>
-                                <strong>${data.funcionario || 'N/A'}</strong>
-                                ${colaboradorInfo ? `<br><small>${colaboradorInfo.departamento || ''} - ${colaboradorInfo.empresa || ''}</small>` : ''}
-                            </td>
-                            <td>${formatTipoAtestado(data.tipo)}</td>
-                            <td>${data.dataInicio ? formatDate(new Date(data.dataInicio)) : 'N/A'}</td>
-                            <td>${data.dataFinal ? formatDate(new Date(data.dataFinal)) : 'N/A'}</td>
-                            <td>${periodoTexto}</td>
-                            <td>${data.cid || 'N/A'}</td>
-                            <td>
-                                <div class="actions-cell">
-                                    <button class="btn btn-primary btn-small" onclick="editarAtestado('${doc.id}')">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-danger btn-small" onclick="solicitarExclusao('atestados', '${doc.id}', '${data.funcionario || "Sem nome"} - ${formatTipoAtestado(data.tipo)}')">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
+                });
+                
+                atestadosFiltrados.sort((a, b) => {
+                    const dataA = a.data.dataInicio ? new Date(a.data.dataInicio) : new Date(0);
+                    const dataB = b.data.dataInicio ? new Date(b.data.dataInicio) : new Date(0);
+                    return dataB - dataA;
                 });
                 
                 filtrarAtestados();
@@ -3726,14 +3820,10 @@
         // Carregar CATs
         async function loadCATs() {
             try {
-                const catsQuery = await db.collection('cats')
-                    .orderBy('dataRegistro', 'desc')
-                    .get();
-                
                 const catsBody = document.getElementById('catsBody');
                 catsBody.innerHTML = '';
                 
-                if (catsQuery.empty) {
+                if (cache.cats.length === 0) {
                     catsBody.innerHTML = `
                         <tr>
                             <td colspan="7" style="text-align: center; padding: 30px;">
@@ -3749,25 +3839,21 @@
                 
                 catsFiltrados = [];
                 
-                catsQuery.docs.forEach(doc => {
-                    const data = doc.data();
-                    
-                    const colaboradorInfo = cache.colaboradores.find(c => c.nome === data.funcionario);
+                cache.cats.forEach(cat => {
+                    const colaboradorInfo = cache.colaboradores.find(c => c.nome === cat.funcionario);
                     
                     let diasAfastado = 0;
-                    if (data.afastamentoInicio && data.afastamentoFim) {
-                        diasAfastado = calcularDiasAtestado(data.afastamentoInicio, data.afastamentoFim);
+                    if (cat.afastamentoInicio && cat.afastamentoFim) {
+                        diasAfastado = calcularDiasAtestado(cat.afastamentoInicio, cat.afastamentoFim);
                     }
                     
-                    // Verificar se foi aberto dentro do prazo de 24h
-                    const dentroPrazo = verificarPrazoCAT(data.dataAcidente, data.dataRegistro);
+                    const dentroPrazo = verificarPrazoCAT(cat.dataAcidente, cat.dataRegistro);
                     
-                    // Verificar se afastamento é superior a 15 dias
                     const afastamentoINSS = diasAfastado > 15;
                     
                     const catInfo = {
-                        id: doc.id,
-                        data: data,
+                        id: cat.id,
+                        data: cat,
                         colaborador: colaboradorInfo,
                         diasAfastado: diasAfastado,
                         dentroPrazo: dentroPrazo,
@@ -3775,40 +3861,12 @@
                     };
                     
                     catsFiltrados.push(catInfo);
-                    
-                    catsBody.innerHTML += `
-                        <tr>
-                            <td>
-                                <strong>${data.funcionario || 'N/A'}</strong>
-                                ${colaboradorInfo ? `<br><small>${colaboradorInfo.departamento || ''} - ${colaboradorInfo.empresa || ''}</small>` : ''}
-                            </td>
-                            <td>${formatTipoCAT(data.tipo)}</td>
-                            <td>${data.dataAcidente ? formatDate(new Date(data.dataAcidente)) : 'N/A'}</td>
-                            <td>${data.dataRegistro ? formatDate(new Date(data.dataRegistro)) : 'N/A'}</td>
-                            <td>
-                                <span class="status ${dentroPrazo ? 'dentro-prazo' : 'fora-prazo'}">
-                                    ${dentroPrazo ? 'Dentro do prazo (24h)' : 'Fora do prazo (24h)'}
-                                </span>
-                            </td>
-                            <td>
-                                ${diasAfastado > 0 ? `${diasAfastado} ${diasAfastado === 1 ? 'dia' : 'dias'}` : 'N/A'}
-                                ${afastamentoINSS ? '<br><span class="status inss">Afastamento INSS</span>' : ''}
-                            </td>
-                            <td>
-                                <div class="actions-cell">
-                                    <button class="btn btn-primary btn-small" onclick="editarCAT('${doc.id}')">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-info btn-small" onclick="visualizarCAT('${doc.id}')">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                    <button class="btn btn-danger btn-small" onclick="solicitarExclusao('cats', '${doc.id}', '${data.funcionario || "Sem nome"}')">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
+                });
+                
+                catsFiltrados.sort((a, b) => {
+                    const dataA = a.data.dataRegistro ? new Date(a.data.dataRegistro) : new Date(0);
+                    const dataB = b.data.dataRegistro ? new Date(b.data.dataRegistro) : new Date(0);
+                    return dataB - dataA;
                 });
                 
                 filtrarCATs();
@@ -3924,7 +3982,6 @@
             const acidente = new Date(dataAcidente);
             const registro = new Date(dataRegistro);
             
-            // Definir o prazo limite (24h = 1 dia)
             const prazoLimite = new Date(acidente);
             prazoLimite.setHours(prazoLimite.getHours() + 24);
             
@@ -4005,9 +4062,24 @@
                 
                 if (editMode && itemToEdit) {
                     await db.collection('cats').doc(itemToEdit).update(catData);
+                    
+                    const index = cache.cats.findIndex(c => c.id === itemToEdit);
+                    if (index !== -1) {
+                        cache.cats[index] = { id: itemToEdit, ...catData };
+                    }
+                    
                     showNotification('CAT atualizada com sucesso!', 'success');
                 } else {
-                    await db.collection('cats').add(catData);
+                    const docRef = await db.collection('cats').add(catData);
+                    
+                    cache.cats.push({ id: docRef.id, ...catData });
+                    
+                    cache.cats.sort((a, b) => {
+                        const dataA = a.dataRegistro ? new Date(a.dataRegistro) : new Date(0);
+                        const dataB = b.dataRegistro ? new Date(b.dataRegistro) : new Date(0);
+                        return dataB - dataA;
+                    });
+                    
                     showNotification('CAT registrada com sucesso!', 'success');
                 }
                 
@@ -4133,7 +4205,6 @@
                 diasAfastamentoDiv.style.display = 'block';
                 document.getElementById('cat-dias-afastamento-text').innerHTML = `Dias afastado: <strong>${dias} ${dias === 1 ? 'dia' : 'dias'}</strong>`;
                 
-                // Verificar se afastamento é superior a 15 dias
                 const alertaINSS = document.getElementById('cat-inss-alerta');
                 if (dias > 15) {
                     alertaINSS.classList.remove('hidden');
@@ -4370,12 +4441,10 @@
                 const daqui30Dias = new Date();
                 daqui30Dias.setDate(hoje.getDate() + 30);
                 
-                const examesQuery = await db.collection('exames').get();
-                
                 const vencimentosBody = document.getElementById('vencimentosBody');
                 vencimentosBody.innerHTML = '';
                 
-                if (examesQuery.empty) {
+                if (cache.exames.length === 0) {
                     vencimentosBody.innerHTML = `
                         <tr>
                             <td colspan="7" style="text-align: center; padding: 30px;">
@@ -4389,20 +4458,41 @@
                     return;
                 }
                 
+                // Aplicar filtros do dashboard aos vencimentos
+                let examesFiltrados = [...cache.exames];
+                
+                if (dashboardFiltros.departamento !== 'todos' || dashboardFiltros.colaborador !== 'todos') {
+                    const colaboradoresFiltrados = cache.colaboradores.filter(c => {
+                        if (dashboardFiltros.departamento !== 'todos' && c.departamento !== dashboardFiltros.departamento) return false;
+                        if (dashboardFiltros.colaborador !== 'todos' && c.nome !== dashboardFiltros.colaborador) return false;
+                        return true;
+                    });
+                    
+                    const colaboradoresPermitidos = colaboradoresFiltrados.map(c => c.nome);
+                    examesFiltrados = examesFiltrados.filter(e => 
+                        colaboradoresPermitidos.includes(e.funcionario)
+                    );
+                }
+                
+                if (dashboardFiltros.dataInicio || dashboardFiltros.dataFim) {
+                    examesFiltrados = examesFiltrados.filter(e => 
+                        e.dataExame && exameDentroFiltro(e.dataExame)
+                    );
+                }
+                
                 const examesProximos = [];
                 
-                examesQuery.docs.forEach(doc => {
-                    const data = doc.data();
-                    if (!data.vencimento) return;
+                examesFiltrados.forEach(exame => {
+                    if (!exame.vencimento) return;
                     
-                    const vencimentoDate = new Date(data.vencimento);
+                    const vencimentoDate = new Date(exame.vencimento);
                     const diffTime = vencimentoDate - hoje;
                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                     
-                    if (diffDays <= 30) {
+                    if (diffDays <= 30 && diffDays >= 0) {
                         examesProximos.push({
-                            id: doc.id,
-                            data: data,
+                            id: exame.id,
+                            data: exame,
                             diasRestantes: diffDays,
                             vencimentoDate: vencimentoDate
                         });
@@ -4597,9 +4687,18 @@
                 
                 if (editMode && itemToEdit) {
                     await db.collection('exames').doc(itemToEdit).update(exameData);
+                    
+                    const index = cache.exames.findIndex(e => e.id === itemToEdit);
+                    if (index !== -1) {
+                        cache.exames[index] = { id: itemToEdit, ...exameData };
+                    }
+                    
                     showNotification('Exame atualizado com sucesso!', 'success');
                 } else {
-                    await db.collection('exames').add(exameData);
+                    const docRef = await db.collection('exames').add(exameData);
+                    
+                    cache.exames.push({ id: docRef.id, ...exameData });
+                    
                     showNotification('Exame salvo com sucesso!', 'success');
                 }
                 
@@ -4610,6 +4709,7 @@
                 editMode = false;
                 itemToEdit = null;
                 
+                await loadExamesCache();
                 loadDashboardData();
                 loadExames();
                 
@@ -4731,24 +4831,19 @@
                         quantidadeAtual = calcularHorasAtestado(horaInicio, horaFinal);
                     }
                     
-                    const atestadosAnterioresQuery = await db.collection('atestados')
-                        .where('funcionario', '==', funcionario)
-                        .where('tipo', '==', tipo)
-                        .get();
+                    const atestadosAnteriores = cache.atestados.filter(a => 
+                        a.funcionario === funcionario && a.tipo === tipo
+                    );
                     
                     let quantidadeTotal = quantidadeAtual;
                     
-                    if (!atestadosAnterioresQuery.empty) {
-                        atestadosAnterioresQuery.docs.forEach(doc => {
-                            const data = doc.data();
-                            
-                            if (data.unidade === 'dias') {
-                                quantidadeTotal += calcularDiasAtestado(data.dataInicio, data.dataFinal);
-                            } else if (data.unidade === 'horas') {
-                                quantidadeTotal += calcularHorasAtestado(data.horaInicio, data.horaFinal);
-                            }
-                        });
-                    }
+                    atestadosAnteriores.forEach(atestado => {
+                        if (atestado.unidade === 'dias') {
+                            quantidadeTotal += calcularDiasAtestado(atestado.dataInicio, atestado.dataFinal);
+                        } else if (atestado.unidade === 'horas') {
+                            quantidadeTotal += calcularHorasAtestado(atestado.horaInicio, atestado.horaFinal);
+                        }
+                    });
                     
                     const limite = tipo === 'odontologico' ? LIMITES_ATESTADOS.odontologico : LIMITES_ATESTADOS.acompanhamento_filho;
                     const unidadeLimite = unidade === 'dias' ? 'dias' : 'horas';
@@ -4845,9 +4940,23 @@
                 
                 if (editMode && itemToEdit) {
                     await db.collection('atestados').doc(itemToEdit).update(atestadoData);
+                    
+                    const index = cache.atestados.findIndex(a => a.id === itemToEdit);
+                    if (index !== -1) {
+                        cache.atestados[index] = { id: itemToEdit, ...atestadoData };
+                    }
+                    
                     showNotification('Atestado atualizado com sucesso!', 'success');
                 } else {
-                    await db.collection('atestados').add(atestadoData);
+                    const docRef = await db.collection('atestados').add(atestadoData);
+                    
+                    cache.atestados.push({ id: docRef.id, ...atestadoData });
+                    
+                    cache.atestados.sort((a, b) => {
+                        const dataA = a.dataInicio ? new Date(a.dataInicio) : new Date(0);
+                        const dataB = b.dataInicio ? new Date(b.dataInicio) : new Date(0);
+                        return dataB - dataA;
+                    });
                     
                     if (atestadoPendente && atestadoPendente.tipo === 'odontologico') {
                         showNotification(`Atestado odontológico salvo! ATENÇÃO: Colaborador ultrapassou o limite de ${atestadoPendente.limite} dias. Total: ${atestadoPendente.quantidadeTotal.toFixed(1)} dias`, 'warning');
@@ -4866,6 +4975,7 @@
                 itemToEdit = null;
                 atestadoPendente = null;
                 
+                await loadAtestadosCache();
                 loadDashboardData();
                 loadAtestados();
                 
@@ -5143,23 +5253,22 @@
         // Editar exame
         async function editarExame(id) {
             try {
-                const doc = await db.collection('exames').doc(id).get();
+                const exame = cache.exames.find(e => e.id === id);
                 
-                if (!doc.exists) {
+                if (!exame) {
                     showNotification('Exame não encontrado', 'error');
                     return;
                 }
                 
-                const data = doc.data();
                 itemToEdit = id;
                 editMode = true;
                 
                 showExameForm('Editar Exame Ocupacional', 'Atualizar Exame');
                 
-                document.getElementById('exame-colaborador').value = data.funcionario || '';
-                document.getElementById('exame-tipo').value = data.tipo || '';
-                document.getElementById('exame-data').value = data.dataExame || '';
-                document.getElementById('exame-vencimento').value = data.vencimento || '';
+                document.getElementById('exame-colaborador').value = exame.funcionario || '';
+                document.getElementById('exame-tipo').value = exame.tipo || '';
+                document.getElementById('exame-data').value = exame.dataExame || '';
+                document.getElementById('exame-vencimento').value = exame.vencimento || '';
                 
             } catch (error) {
                 console.error('Erro ao carregar exame para edição:', error);
@@ -5170,30 +5279,29 @@
         // Editar atestado
         async function editarAtestado(id) {
             try {
-                const doc = await db.collection('atestados').doc(id).get();
+                const atestado = cache.atestados.find(a => a.id === id);
                 
-                if (!doc.exists) {
+                if (!atestado) {
                     showNotification('Atestado não encontrado', 'error');
                     return;
                 }
                 
-                const data = doc.data();
                 itemToEdit = id;
                 editMode = true;
                 
                 showAtestadoForm('Editar Atestado', 'Atualizar Atestado');
                 
-                document.getElementById('atestado-colaborador').value = data.funcionario || '';
-                document.getElementById('atestado-tipo').value = data.tipo || '';
-                document.getElementById('atestado-cid').value = data.cid || '';
-                document.getElementById('atestado-data-inicio').value = data.dataInicio || '';
-                document.getElementById('atestado-data-final').value = data.dataFinal || '';
-                document.getElementById('atestado-unidade').value = data.unidade || 'dias';
+                document.getElementById('atestado-colaborador').value = atestado.funcionario || '';
+                document.getElementById('atestado-tipo').value = atestado.tipo || '';
+                document.getElementById('atestado-cid').value = atestado.cid || '';
+                document.getElementById('atestado-data-inicio').value = atestado.dataInicio || '';
+                document.getElementById('atestado-data-final').value = atestado.dataFinal || '';
+                document.getElementById('atestado-unidade').value = atestado.unidade || 'dias';
                 
-                if (data.unidade === 'horas') {
+                if (atestado.unidade === 'horas') {
                     document.getElementById('campos-hora').classList.remove('hidden');
-                    document.getElementById('atestado-hora-inicio').value = data.horaInicio || '08:00';
-                    document.getElementById('atestado-hora-final').value = data.horaFinal || '17:00';
+                    document.getElementById('atestado-hora-inicio').value = atestado.horaInicio || '08:00';
+                    document.getElementById('atestado-hora-final').value = atestado.horaFinal || '17:00';
                 } else {
                     document.getElementById('campos-hora').classList.add('hidden');
                 }
@@ -5209,28 +5317,27 @@
         // Editar CAT
         async function editarCAT(id) {
             try {
-                const doc = await db.collection('cats').doc(id).get();
+                const cat = cache.cats.find(c => c.id === id);
                 
-                if (!doc.exists) {
+                if (!cat) {
                     showNotification('CAT não encontrada', 'error');
                     return;
                 }
                 
-                const data = doc.data();
                 itemToEdit = id;
                 editMode = true;
                 
                 showCATForm('Editar CAT', 'Atualizar CAT');
                 
-                document.getElementById('cat-colaborador').value = data.funcionario || '';
-                document.getElementById('cat-tipo').value = data.tipo || '';
-                document.getElementById('cat-data-acidente').value = data.dataAcidente || '';
-                document.getElementById('cat-data-registro').value = data.dataRegistro || '';
-                document.getElementById('cat-descricao').value = data.descricao || '';
-                document.getElementById('cat-local').value = data.local || '';
-                document.getElementById('cat-afastamento-inicio').value = data.afastamentoInicio || '';
-                document.getElementById('cat-afastamento-fim').value = data.afastamentoFim || '';
-                document.getElementById('cat-cid').value = data.cid || '';
+                document.getElementById('cat-colaborador').value = cat.funcionario || '';
+                document.getElementById('cat-tipo').value = cat.tipo || '';
+                document.getElementById('cat-data-acidente').value = cat.dataAcidente || '';
+                document.getElementById('cat-data-registro').value = cat.dataRegistro || '';
+                document.getElementById('cat-descricao').value = cat.descricao || '';
+                document.getElementById('cat-local').value = cat.local || '';
+                document.getElementById('cat-afastamento-inicio').value = cat.afastamentoInicio || '';
+                document.getElementById('cat-afastamento-fim').value = cat.afastamentoFim || '';
+                document.getElementById('cat-cid').value = cat.cid || '';
                 
                 calcularPrazoCAT();
                 calcularDiasAfastamento();
@@ -5334,6 +5441,10 @@
                     cache.cids = cache.cids.filter(c => c.id !== itemToDelete);
                 } else if (deleteCollection === 'cats') {
                     cache.cats = cache.cats.filter(c => c.id !== itemToDelete);
+                } else if (deleteCollection === 'exames') {
+                    cache.exames = cache.exames.filter(e => e.id !== itemToDelete);
+                } else if (deleteCollection === 'atestados') {
+                    cache.atestados = cache.atestados.filter(a => a.id !== itemToDelete);
                 }
                 
                 showNotification('Item excluído com sucesso!', 'success');
@@ -5570,7 +5681,6 @@
         window.closeCatDetailsModal = closeCatDetailsModal;
         window.proceedWithAtestado = proceedWithAtestado;
         window.visualizarCAT = visualizarCAT;
-        window.aplicarFiltrosDashboard = aplicarFiltrosDashboard;
         window.limparFiltrosDashboard = limparFiltrosDashboard;
         
         // Exportação
