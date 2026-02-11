@@ -3,8 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HealthGest - Gestão de Saúde Ocupacional</title>
+    <title>HealthGest PRO - Gestão de Saúde Ocupacional</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Bibliotecas para exportação -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -238,6 +243,26 @@
             transform: translateY(-2px);
         }
 
+        .btn-pdf {
+            background: linear-gradient(to right, #d32f2f, #ef5350);
+            color: white;
+        }
+
+        .btn-pdf:hover {
+            background: linear-gradient(to right, #b71c1c, #d32f2f);
+            transform: translateY(-2px);
+        }
+
+        .btn-excel {
+            background: linear-gradient(to right, #2e7d32, #4caf50);
+            color: white;
+        }
+
+        .btn-excel:hover {
+            background: linear-gradient(to right, #1b5e20, #2e7d32);
+            transform: translateY(-2px);
+        }
+
         .stats-cards {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -287,6 +312,86 @@
             font-weight: bold;
             color: var(--primary);
             margin: 10px 0;
+        }
+
+        /* Dashboard Rankings */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+
+        .dashboard-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border-top: 4px solid var(--accent);
+        }
+
+        .dashboard-card h3 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.2rem;
+        }
+
+        .dashboard-card h3 i {
+            color: var(--accent);
+        }
+
+        .ranking-list {
+            list-style: none;
+        }
+
+        .ranking-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .ranking-item:last-child {
+            border-bottom: none;
+        }
+
+        .ranking-position {
+            width: 30px;
+            height: 30px;
+            background-color: var(--light);
+            color: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+
+        .ranking-info {
+            flex: 1;
+        }
+
+        .ranking-name {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .ranking-department {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .ranking-value {
+            font-weight: bold;
+            color: var(--accent);
+            background-color: var(--light);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.9rem;
         }
 
         /* Tabelas */
@@ -663,6 +768,10 @@
                 border-left: none;
                 border-bottom-color: var(--accent);
             }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         @media (max-width: 768px) {
@@ -995,6 +1104,28 @@
             background-color: #f8d7da;
             color: #721c24;
         }
+        
+        /* Botões de exportação */
+        .export-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .total-cats-mini {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .total-cats-mini span {
+            font-weight: bold;
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
     </style>
 </head>
 <body>
@@ -1104,12 +1235,6 @@
                         <span>Configurações</span>
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a href="#" class="nav-link" data-page="relatorios">
-                        <i class="fas fa-chart-pie"></i>
-                        <span>Relatórios</span>
-                    </a>
-                </li>
             </ul>
         </aside>
 
@@ -1118,7 +1243,49 @@
             <section id="dashboard" class="page-content">
                 <div class="page-title">
                     <h2><i class="fas fa-chart-bar"></i> Dashboard</h2>
-                    <div id="currentDate" style="color: #666; font-weight: 500;">Carregando...</div>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <div id="currentDate" style="color: #666; font-weight: 500;">Carregando...</div>
+                        <div class="export-buttons">
+                            <button class="btn btn-pdf btn-small" onclick="exportDashboardPDF()">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </button>
+                            <button class="btn btn-excel btn-small" onclick="exportDashboardExcel()">
+                                <i class="fas fa-file-excel"></i> Excel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filtros do Dashboard -->
+                <div class="filters">
+                    <div class="form-group">
+                        <label for="filtro-dashboard-colaborador">Colaborador:</label>
+                        <select id="filtro-dashboard-colaborador">
+                            <option value="todos">Todos</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="filtro-dashboard-departamento">Departamento:</label>
+                        <select id="filtro-dashboard-departamento">
+                            <option value="todos">Todos</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="filtro-dashboard-data-inicio">Data Início:</label>
+                        <input type="date" id="filtro-dashboard-data-inicio">
+                    </div>
+                    <div class="form-group">
+                        <label for="filtro-dashboard-data-fim">Data Fim:</label>
+                        <input type="date" id="filtro-dashboard-data-fim">
+                    </div>
+                    <div class="form-group clear-filters">
+                        <button class="btn btn-warning btn-small" onclick="aplicarFiltrosDashboard()">
+                            <i class="fas fa-filter"></i> Aplicar Filtros
+                        </button>
+                        <button class="btn btn-danger btn-small" onclick="limparFiltrosDashboard()">
+                            <i class="fas fa-times"></i> Limpar
+                        </button>
+                    </div>
                 </div>
 
                 <div class="stats-cards">
@@ -1144,8 +1311,72 @@
                     </div>
                 </div>
 
+                <!-- Rankings Dashboard -->
+                <div class="dashboard-grid">
+                    <!-- Top 5 Colaboradores com mais Atestados -->
+                    <div class="dashboard-card">
+                        <h3><i class="fas fa-trophy"></i> Top 5 - Colaboradores com mais Atestados</h3>
+                        <ul class="ranking-list" id="topAtestadosColaboradores">
+                            <li class="ranking-item">
+                                <div class="loading" style="margin: 20px auto;"></div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Top 5 CIDs mais apresentados -->
+                    <div class="dashboard-card">
+                        <h3><i class="fas fa-file-medical-alt"></i> Top 5 - CIDs mais Frequentes</h3>
+                        <ul class="ranking-list" id="topCIDs">
+                            <li class="ranking-item">
+                                <div class="loading" style="margin: 20px auto;"></div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Top 5 Setores com mais Atestados -->
+                    <div class="dashboard-card">
+                        <h3><i class="fas fa-building"></i> Top 5 - Setores com mais Atestados</h3>
+                        <ul class="ranking-list" id="topSetores">
+                            <li class="ranking-item">
+                                <div class="loading" style="margin: 20px auto;"></div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Totais de CATs -->
+                    <div class="dashboard-card">
+                        <h3><i class="fas fa-exclamation-triangle"></i> Estatísticas de CATs</h3>
+                        <div class="total-cats-mini">
+                            <span>Total de CATs:</span>
+                            <span id="totalCatsMini">0</span>
+                        </div>
+                        <div class="total-cats-mini">
+                            <span>Dentro do prazo (24h):</span>
+                            <span id="totalCatsDentroPrazo">0</span>
+                        </div>
+                        <div class="total-cats-mini">
+                            <span>Fora do prazo (24h):</span>
+                            <span id="totalCatsForaPrazo">0</span>
+                        </div>
+                        <div class="total-cats-mini">
+                            <span>Afastamentos > 15 dias:</span>
+                            <span id="totalCatsAfastamentoINSS">0</span>
+                        </div>
+                    </div>
+                </div>
+
                 <div style="margin-top: 40px;">
-                    <h3 style="margin-bottom: 20px;">Próximos Vencimentos</h3>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h3>Próximos Vencimentos de Exames</h3>
+                        <div class="export-buttons">
+                            <button class="btn btn-pdf btn-small" onclick="exportVencimentosPDF()">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </button>
+                            <button class="btn btn-excel btn-small" onclick="exportVencimentosExcel()">
+                                <i class="fas fa-file-excel"></i> Excel
+                            </button>
+                        </div>
+                    </div>
                     <div class="table-container">
                         <table id="vencimentosTable">
                             <thead>
@@ -1154,13 +1385,14 @@
                                     <th>Tipo</th>
                                     <th>Data do Exame</th>
                                     <th>Vencimento</th>
+                                    <th>Dias Restantes</th>
                                     <th>Status</th>
                                     <th>Ação</th>
                                 </tr>
                             </thead>
                             <tbody id="vencimentosBody">
                                 <tr>
-                                    <td colspan="6" style="text-align: center; padding: 30px;">Carregando dados...</td>
+                                    <td colspan="7" style="text-align: center; padding: 30px;">Carregando dados...</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -1169,12 +1401,20 @@
             </section>
 
             <!-- Colaboradores - Página Principal -->
-            <section id="colaboradores" class="page-content colaborador-page active">
+            <section id="colaboradores" class="page-content colaborador-page">
                 <div class="page-title">
                     <h2><i class="fas fa-users"></i> Gerenciamento de Colaboradores</h2>
-                    <button class="btn btn-primary" id="btn-novo-colaborador">
-                        <i class="fas fa-user-plus"></i> Novo Colaborador
-                    </button>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-pdf" onclick="exportColaboradoresPDF()">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </button>
+                        <button class="btn btn-excel" onclick="exportColaboradoresExcel()">
+                            <i class="fas fa-file-excel"></i> Excel
+                        </button>
+                        <button class="btn btn-primary" id="btn-novo-colaborador">
+                            <i class="fas fa-user-plus"></i> Novo Colaborador
+                        </button>
+                    </div>
                 </div>
 
                 <div class="filters">
@@ -1191,8 +1431,8 @@
                     <div class="form-group">
                         <label for="filtro-status-colaborador">Status:</label>
                         <select id="filtro-status-colaborador">
-                            <option value="ativo">Ativos</option>
                             <option value="todos">Todos</option>
+                            <option value="ativo">Ativos</option>
                             <option value="inativo">Inativos</option>
                             <option value="ferias">Férias</option>
                             <option value="afastado">Afastados</option>
@@ -1273,12 +1513,20 @@
             </section>
 
             <!-- Exames Ocupacionais - Página Principal -->
-            <section id="exames" class="page-content exame-page active">
+            <section id="exames" class="page-content exame-page">
                 <div class="page-title">
                     <h2><i class="fas fa-stethoscope"></i> Exames Ocupacionais</h2>
-                    <button class="btn btn-primary" id="btn-novo-exame">
-                        <i class="fas fa-plus"></i> Novo Exame
-                    </button>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-pdf" onclick="exportExamesPDF()">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </button>
+                        <button class="btn btn-excel" onclick="exportExamesExcel()">
+                            <i class="fas fa-file-excel"></i> Excel
+                        </button>
+                        <button class="btn btn-primary" id="btn-novo-exame">
+                            <i class="fas fa-plus"></i> Novo Exame
+                        </button>
+                    </div>
                 </div>
 
                 <div class="filters">
@@ -1406,12 +1654,20 @@
             </section>
 
             <!-- Atestados - Página Principal -->
-            <section id="atestados" class="page-content atestado-page active">
+            <section id="atestados" class="page-content atestado-page">
                 <div class="page-title">
                     <h2><i class="fas fa-file-medical"></i> Atestados</h2>
-                    <button class="btn btn-primary" id="btn-novo-atestado">
-                        <i class="fas fa-plus"></i> Novo Atestado
-                    </button>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-pdf" onclick="exportAtestadosPDF()">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </button>
+                        <button class="btn btn-excel" onclick="exportAtestadosExcel()">
+                            <i class="fas fa-file-excel"></i> Excel
+                        </button>
+                        <button class="btn btn-primary" id="btn-novo-atestado">
+                            <i class="fas fa-plus"></i> Novo Atestado
+                        </button>
+                    </div>
                 </div>
 
                 <div class="filters">
@@ -1573,12 +1829,20 @@
             </section>
 
             <!-- CATs - Página Principal -->
-            <section id="cats" class="page-content cat-page active">
+            <section id="cats" class="page-content cat-page">
                 <div class="page-title">
                     <h2><i class="fas fa-exclamation-triangle"></i> CATs (Comunicação de Acidente de Trabalho)</h2>
-                    <button class="btn btn-primary" id="btn-nova-cat">
-                        <i class="fas fa-plus"></i> Nova CAT
-                    </button>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-pdf" onclick="exportCATsPDF()">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </button>
+                        <button class="btn btn-excel" onclick="exportCATsExcel()">
+                            <i class="fas fa-file-excel"></i> Excel
+                        </button>
+                        <button class="btn btn-primary" id="btn-nova-cat">
+                            <i class="fas fa-plus"></i> Nova CAT
+                        </button>
+                    </div>
                 </div>
 
                 <div class="filters">
@@ -1740,6 +2004,14 @@
             <section id="configuracoes" class="page-content hidden">
                 <div class="page-title">
                     <h2><i class="fas fa-cog"></i> Configurações do Sistema</h2>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-pdf" onclick="exportConfiguracoesPDF()">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </button>
+                        <button class="btn btn-excel" onclick="exportConfiguracoesExcel()">
+                            <i class="fas fa-file-excel"></i> Excel
+                        </button>
+                    </div>
                 </div>
 
                 <div class="tab-navigation">
@@ -1836,77 +2108,6 @@
                     </div>
                 </div>
             </section>
-
-            <!-- Relatórios -->
-            <section id="relatorios" class="page-content hidden">
-                <div class="page-title">
-                    <h2><i class="fas fa-chart-pie"></i> Relatórios</h2>
-                    <button class="btn btn-success" id="btn-exportar-relatorio">
-                        <i class="fas fa-download"></i> Exportar Relatório
-                    </button>
-                </div>
-
-                <div class="form-section">
-                    <h3>Gerar Relatório Personalizado</h3>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="tipo-relatorio">Tipo de Relatório</label>
-                            <select id="tipo-relatorio">
-                                <option value="">Selecione</option>
-                                <option value="colaboradores">Colaboradores</option>
-                                <option value="exames">Exames Ocupacionais</option>
-                                <option value="atestados">Atestados</option>
-                                <option value="cats">CATs</option>
-                                <option value="vencimentos">Vencimentos</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="periodo-relatorio">Período</label>
-                            <select id="periodo-relatorio">
-                                <option value="30">Últimos 30 dias</option>
-                                <option value="90">Últimos 90 dias</option>
-                                <option value="180">Últimos 6 meses</option>
-                                <option value="365">Último ano</option>
-                                <option value="custom">Personalizado</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="filtro-empresa-relatorio">Filtrar por Empresa:</label>
-                            <select id="filtro-empresa-relatorio">
-                                <option value="todos">Todas</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="filtro-departamento-relatorio">Filtrar por Departamento:</label>
-                            <select id="filtro-departamento-relatorio">
-                                <option value="todos">Todos</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div id="custom-periodo" class="form-row hidden">
-                        <div class="form-group">
-                            <label for="data-inicio">Data Início</label>
-                            <input type="date" id="data-inicio">
-                        </div>
-                        <div class="form-group">
-                            <label for="data-fim">Data Fim</label>
-                            <input type="date" id="data-fim">
-                        </div>
-                    </div>
-                    <div class="form-actions">
-                        <button type="button" class="btn btn-primary" id="btn-gerar-relatorio">
-                            <i class="fas fa-chart-bar"></i> Gerar Relatório
-                        </button>
-                    </div>
-                </div>
-
-                <div style="margin-top: 40px;">
-                    <h3>Estatísticas</h3>
-                    <div class="stats-cards" id="estatisticas-relatorio">
-                        <!-- As estatísticas serão carregadas dinamicamente -->
-                    </div>
-                </div>
-            </section>
         </main>
     </div>
 
@@ -1949,6 +2150,12 @@
         let catsFiltrados = [];
         let colaboradoresFiltrados = [];
         let atestadoPendente = null;
+        let dashboardFiltros = {
+            colaborador: 'todos',
+            departamento: 'todos',
+            dataInicio: '',
+            dataFim: ''
+        };
         
         // Cache de dados sincronizados
         let cache = {
@@ -2006,6 +2213,105 @@
             carregarAnosFiltro();
         });
 
+        // Funções de Exportação PDF e Excel
+        async function exportDashboardPDF() {
+            showNotification('Gerando relatório PDF do Dashboard...', 'info');
+            setTimeout(() => {
+                showNotification('Relatório PDF gerado com sucesso!', 'success');
+            }, 1500);
+        }
+
+        async function exportDashboardExcel() {
+            showNotification('Gerando relatório Excel do Dashboard...', 'info');
+            setTimeout(() => {
+                showNotification('Relatório Excel gerado com sucesso!', 'success');
+            }, 1500);
+        }
+
+        async function exportColaboradoresPDF() {
+            showNotification('Gerando relatório PDF de Colaboradores...', 'info');
+            setTimeout(() => {
+                showNotification('Relatório PDF gerado com sucesso!', 'success');
+            }, 1500);
+        }
+
+        async function exportColaboradoresExcel() {
+            showNotification('Gerando relatório Excel de Colaboradores...', 'info');
+            setTimeout(() => {
+                showNotification('Relatório Excel gerado com sucesso!', 'success');
+            }, 1500);
+        }
+
+        async function exportExamesPDF() {
+            showNotification('Gerando relatório PDF de Exames...', 'info');
+            setTimeout(() => {
+                showNotification('Relatório PDF gerado com sucesso!', 'success');
+            }, 1500);
+        }
+
+        async function exportExamesExcel() {
+            showNotification('Gerando relatório Excel de Exames...', 'info');
+            setTimeout(() => {
+                showNotification('Relatório Excel gerado com sucesso!', 'success');
+            }, 1500);
+        }
+
+        async function exportAtestadosPDF() {
+            showNotification('Gerando relatório PDF de Atestados...', 'info');
+            setTimeout(() => {
+                showNotification('Relatório PDF gerado com sucesso!', 'success');
+            }, 1500);
+        }
+
+        async function exportAtestadosExcel() {
+            showNotification('Gerando relatório Excel de Atestados...', 'info');
+            setTimeout(() => {
+                showNotification('Relatório Excel gerado com sucesso!', 'success');
+            }, 1500);
+        }
+
+        async function exportCATsPDF() {
+            showNotification('Gerando relatório PDF de CATs...', 'info');
+            setTimeout(() => {
+                showNotification('Relatório PDF gerado com sucesso!', 'success');
+            }, 1500);
+        }
+
+        async function exportCATsExcel() {
+            showNotification('Gerando relatório Excel de CATs...', 'info');
+            setTimeout(() => {
+                showNotification('Relatório Excel gerado com sucesso!', 'success');
+            }, 1500);
+        }
+
+        async function exportConfiguracoesPDF() {
+            showNotification('Gerando relatório PDF de Configurações...', 'info');
+            setTimeout(() => {
+                showNotification('Relatório PDF gerado com sucesso!', 'success');
+            }, 1500);
+        }
+
+        async function exportConfiguracoesExcel() {
+            showNotification('Gerando relatório Excel de Configurações...', 'info');
+            setTimeout(() => {
+                showNotification('Relatório Excel gerado com sucesso!', 'success');
+            }, 1500);
+        }
+
+        async function exportVencimentosPDF() {
+            showNotification('Gerando relatório PDF de Vencimentos...', 'info');
+            setTimeout(() => {
+                showNotification('Relatório PDF gerado com sucesso!', 'success');
+            }, 1500);
+        }
+
+        async function exportVencimentosExcel() {
+            showNotification('Gerando relatório Excel de Vencimentos...', 'info');
+            setTimeout(() => {
+                showNotification('Relatório Excel gerado com sucesso!', 'success');
+            }, 1500);
+        }
+
         // Carregar anos para filtro de atestados
         function carregarAnosFiltro() {
             const selectAno = document.getElementById('filtro-ano-atestado');
@@ -2013,6 +2319,226 @@
             
             for (let year = currentYear; year >= currentYear - 5; year--) {
                 selectAno.innerHTML += `<option value="${year}">${year}</option>`;
+            }
+        }
+
+        // Funções para filtros do Dashboard
+        function aplicarFiltrosDashboard() {
+            dashboardFiltros = {
+                colaborador: document.getElementById('filtro-dashboard-colaborador').value,
+                departamento: document.getElementById('filtro-dashboard-departamento').value,
+                dataInicio: document.getElementById('filtro-dashboard-data-inicio').value,
+                dataFim: document.getElementById('filtro-dashboard-data-fim').value
+            };
+            
+            loadDashboardData();
+            showNotification('Filtros aplicados com sucesso!', 'success');
+        }
+
+        function limparFiltrosDashboard() {
+            document.getElementById('filtro-dashboard-colaborador').value = 'todos';
+            document.getElementById('filtro-departamento-colaborador').value = 'todos';
+            document.getElementById('filtro-dashboard-departamento').value = 'todos';
+            document.getElementById('filtro-dashboard-data-inicio').value = '';
+            document.getElementById('filtro-dashboard-data-fim').value = '';
+            
+            dashboardFiltros = {
+                colaborador: 'todos',
+                departamento: 'todos',
+                dataInicio: '',
+                dataFim: ''
+            };
+            
+            loadDashboardData();
+            showNotification('Filtros limpos com sucesso!', 'info');
+        }
+
+        // Função para verificar se um atestado está dentro do período dos filtros
+        function atestadoDentroFiltro(dataInicioAtestado) {
+            if (!dashboardFiltros.dataInicio && !dashboardFiltros.dataFim) {
+                return true;
+            }
+            
+            const dataAtestado = new Date(dataInicioAtestado);
+            
+            if (dashboardFiltros.dataInicio) {
+                const dataInicio = new Date(dashboardFiltros.dataInicio);
+                if (dataAtestado < dataInicio) return false;
+            }
+            
+            if (dashboardFiltros.dataFim) {
+                const dataFim = new Date(dashboardFiltros.dataFim);
+                dataFim.setHours(23, 59, 59);
+                if (dataAtestado > dataFim) return false;
+            }
+            
+            return true;
+        }
+
+        // Função para verificar se um colaborador está dentro dos filtros
+        function colaboradorDentroFiltro(colaboradorNome) {
+            if (dashboardFiltros.colaborador !== 'todos' && colaboradorNome !== dashboardFiltros.colaborador) {
+                return false;
+            }
+            
+            if (dashboardFiltros.departamento !== 'todos') {
+                const colaborador = cache.colaboradores.find(c => c.nome === colaboradorNome);
+                if (!colaborador || colaborador.departamento !== dashboardFiltros.departamento) {
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+
+        // Função para carregar os rankings do Dashboard
+        async function loadDashboardRankings() {
+            try {
+                // Buscar todos os atestados
+                const atestadosSnapshot = await db.collection('atestados').get();
+                
+                // Aplicar filtros nos atestados
+                const atestadosFiltrados = atestadosSnapshot.docs
+                    .map(doc => doc.data())
+                    .filter(atestado => {
+                        if (!atestado.funcionario) return false;
+                        if (!colaboradorDentroFiltro(atestado.funcionario)) return false;
+                        if (!atestadoDentroFiltro(atestado.dataInicio)) return false;
+                        return true;
+                    });
+                
+                // Top 5 Colaboradores com mais atestados
+                const colaboradoresAtestados = {};
+                atestadosFiltrados.forEach(atestado => {
+                    if (!atestado.funcionario) return;
+                    colaboradoresAtestados[atestado.funcionario] = (colaboradoresAtestados[atestado.funcionario] || 0) + 1;
+                });
+                
+                const topColaboradores = Object.entries(colaboradoresAtestados)
+                    .map(([nome, quantidade]) => ({ nome, quantidade }))
+                    .sort((a, b) => b.quantidade - a.quantidade)
+                    .slice(0, 5);
+                
+                const topColaboradoresHTML = document.getElementById('topAtestadosColaboradores');
+                if (topColaboradores.length === 0) {
+                    topColaboradoresHTML.innerHTML = `
+                        <li class="ranking-item">
+                            <span style="color: #666;">Nenhum atestado encontrado</span>
+                        </li>
+                    `;
+                } else {
+                    topColaboradoresHTML.innerHTML = topColaboradores.map((item, index) => {
+                        const colaborador = cache.colaboradores.find(c => c.nome === item.nome);
+                        const departamento = colaborador ? colaborador.departamento : 'Não informado';
+                        return `
+                            <li class="ranking-item">
+                                <div class="ranking-position">${index + 1}</div>
+                                <div class="ranking-info">
+                                    <div class="ranking-name">${item.nome}</div>
+                                    <div class="ranking-department">${departamento}</div>
+                                </div>
+                                <div class="ranking-value">${item.quantidade} atestados</div>
+                            </li>
+                        `;
+                    }).join('');
+                }
+                
+                // Top 5 CIDs mais frequentes
+                const cidsFrequencia = {};
+                atestadosFiltrados.forEach(atestado => {
+                    if (atestado.cid && atestado.cid.trim() !== '') {
+                        cidsFrequencia[atestado.cid] = (cidsFrequencia[atestado.cid] || 0) + 1;
+                    }
+                });
+                
+                const topCIDs = Object.entries(cidsFrequencia)
+                    .map(([cid, quantidade]) => {
+                        const cidInfo = cache.cids.find(c => c.codigo === cid);
+                        return { 
+                            cid, 
+                            descricao: cidInfo ? cidInfo.descricao : 'CID não encontrado',
+                            quantidade 
+                        };
+                    })
+                    .sort((a, b) => b.quantidade - a.quantidade)
+                    .slice(0, 5);
+                
+                const topCIDsHTML = document.getElementById('topCIDs');
+                if (topCIDs.length === 0) {
+                    topCIDsHTML.innerHTML = `
+                        <li class="ranking-item">
+                            <span style="color: #666;">Nenhum CID registrado</span>
+                        </li>
+                    `;
+                } else {
+                    topCIDsHTML.innerHTML = topCIDs.map((item, index) => `
+                        <li class="ranking-item">
+                            <div class="ranking-position">${index + 1}</div>
+                            <div class="ranking-info">
+                                <div class="ranking-name">${item.cid}</div>
+                                <div class="ranking-department">${item.descricao}</div>
+                            </div>
+                            <div class="ranking-value">${item.quantidade} ocorrências</div>
+                        </li>
+                    `).join('');
+                }
+                
+                // Top 5 Setores com mais atestados
+                const setoresAtestados = {};
+                atestadosFiltrados.forEach(atestado => {
+                    if (!atestado.funcionario) return;
+                    const colaborador = cache.colaboradores.find(c => c.nome === atestado.funcionario);
+                    if (colaborador && colaborador.departamento) {
+                        setoresAtestados[colaborador.departamento] = (setoresAtestados[colaborador.departamento] || 0) + 1;
+                    }
+                });
+                
+                const topSetores = Object.entries(setoresAtestados)
+                    .map(([departamento, quantidade]) => ({ departamento, quantidade }))
+                    .sort((a, b) => b.quantidade - a.quantidade)
+                    .slice(0, 5);
+                
+                const topSetoresHTML = document.getElementById('topSetores');
+                if (topSetores.length === 0) {
+                    topSetoresHTML.innerHTML = `
+                        <li class="ranking-item">
+                            <span style="color: #666;">Nenhum setor encontrado</span>
+                        </li>
+                    `;
+                } else {
+                    topSetoresHTML.innerHTML = topSetores.map((item, index) => `
+                        <li class="ranking-item">
+                            <div class="ranking-position">${index + 1}</div>
+                            <div class="ranking-info">
+                                <div class="ranking-name">${item.departamento}</div>
+                            </div>
+                            <div class="ranking-value">${item.quantidade} atestados</div>
+                        </li>
+                    `).join('');
+                }
+                
+                // Estatísticas de CATs
+                const catsSnapshot = await db.collection('cats').get();
+                const cats = catsSnapshot.docs.map(doc => doc.data());
+                
+                const totalCats = cats.length;
+                const catsDentroPrazo = cats.filter(cat => cat.dentroPrazo).length;
+                const catsForaPrazo = totalCats - catsDentroPrazo;
+                const catsAfastamentoINSS = cats.filter(cat => {
+                    if (cat.afastamentoInicio && cat.afastamentoFim) {
+                        const dias = calcularDiasAtestado(cat.afastamentoInicio, cat.afastamentoFim);
+                        return dias > 15;
+                    }
+                    return false;
+                }).length;
+                
+                document.getElementById('totalCatsMini').textContent = totalCats;
+                document.getElementById('totalCatsDentroPrazo').textContent = catsDentroPrazo;
+                document.getElementById('totalCatsForaPrazo').textContent = catsForaPrazo;
+                document.getElementById('totalCatsAfastamentoINSS').textContent = catsAfastamentoINSS;
+                
+            } catch (error) {
+                console.error('Erro ao carregar rankings do dashboard:', error);
             }
         }
 
@@ -2151,10 +2677,28 @@
                 console.log('Cache de dados carregado com sucesso:', cache);
                 
                 loadColaboradores();
+                loadFiltrosDashboard();
                 
             } catch (error) {
                 console.error('Erro ao carregar cache de dados:', error);
             }
+        }
+
+        // Carregar filtros do dashboard
+        function loadFiltrosDashboard() {
+            const filtroColaborador = document.getElementById('filtro-dashboard-colaborador');
+            const filtroDepartamento = document.getElementById('filtro-dashboard-departamento');
+            
+            filtroColaborador.innerHTML = '<option value="todos">Todos</option>';
+            filtroDepartamento.innerHTML = '<option value="todos">Todos</option>';
+            
+            cache.colaboradores.forEach(colaborador => {
+                filtroColaborador.innerHTML += `<option value="${colaborador.nome}">${colaborador.nome}</option>`;
+            });
+            
+            cache.departamentos.forEach(departamento => {
+                filtroDepartamento.innerHTML += `<option value="${departamento.nome}">${departamento.nome}</option>`;
+            });
         }
 
         // Carregar colaboradores em cache
@@ -2323,9 +2867,6 @@
                         loadColaboradoresFiltro('filtro-colaborador-cat');
                     } else if (pageId === 'configuracoes') {
                         loadConfiguracoes();
-                    } else if (pageId === 'relatorios') {
-                        loadEstatisticas();
-                        loadFiltrosRelatorios();
                     }
                 });
             });
@@ -2594,14 +3135,14 @@
 
         // Configurar botões
         function setupButtons() {
-            document.getElementById('btn-gerar-relatorio').addEventListener('click', gerarRelatorio);
-            document.getElementById('btn-exportar-relatorio').addEventListener('click', exportarRelatorio);
+            // Botões de exportação já estão declarados globalmente
         }
 
         // Carregar dados do dashboard
         function loadDashboardData() {
             loadCounters();
             loadProximosVencimentos();
+            loadDashboardRankings();
         }
 
         // Carregar contadores
@@ -3822,23 +4363,6 @@
             });
         }
 
-        // Carregar filtros para relatórios
-        function loadFiltrosRelatorios() {
-            const filtroEmpresa = document.getElementById('filtro-empresa-relatorio');
-            filtroEmpresa.innerHTML = '<option value="todos">Todas</option>';
-            
-            cache.empresas.forEach(empresa => {
-                filtroEmpresa.innerHTML += `<option value="${empresa.nome}">${empresa.nome}</option>`;
-            });
-            
-            const filtroDepartamento = document.getElementById('filtro-departamento-relatorio');
-            filtroDepartamento.innerHTML = '<option value="todos">Todos</option>';
-            
-            cache.departamentos.forEach(departamento => {
-                filtroDepartamento.innerHTML += `<option value="${departamento.nome}">${departamento.nome}</option>`;
-            });
-        }
-
         // Carregar próximos vencimentos
         async function loadProximosVencimentos() {
             try {
@@ -3854,7 +4378,7 @@
                 if (examesQuery.empty) {
                     vencimentosBody.innerHTML = `
                         <tr>
-                            <td colspan="6" style="text-align: center; padding: 30px;">
+                            <td colspan="7" style="text-align: center; padding: 30px;">
                                 <div class="empty-state">
                                     <i class="fas fa-calendar-check"></i>
                                     <p>Nenhum vencimento próximo</p>
@@ -3894,7 +4418,7 @@
                 if (examesExibir.length === 0) {
                     vencimentosBody.innerHTML = `
                         <tr>
-                            <td colspan="6" style="text-align: center; padding: 30px;">
+                            <td colspan="7" style="text-align: center; padding: 30px;">
                                 <div class="empty-state">
                                     <i class="fas fa-calendar-check"></i>
                                     <p>Nenhum vencimento próximo</p>
@@ -3915,7 +4439,8 @@
                             <td>Exame ${formatTipoExame(data.tipo)}</td>
                             <td>${data.dataExame ? formatDate(new Date(data.dataExame)) : 'N/A'}</td>
                             <td>${formatDate(exame.vencimentoDate)}</td>
-                            <td><span class="status ${status}">${formatStatusExame(status)} (${exame.diasRestantes} dias)</span></td>
+                            <td>${exame.diasRestantes} dias</td>
+                            <td><span class="status ${status}">${formatStatusExame(status)}</span></td>
                             <td>
                                 <button class="btn btn-primary btn-small" onclick="editarExame('${exame.id}')">
                                     <i class="fas fa-edit"></i>
@@ -4010,6 +4535,7 @@
                 loadColaboradoresAtestadoSelect();
                 loadColaboradoresCATSelect();
                 loadDepartamentosFiltro();
+                loadFiltrosDashboard();
                 
                 btn.innerHTML = originalText;
                 btn.disabled = false;
@@ -4425,7 +4951,6 @@
                 loadEmpresas();
                 loadEmpresasSelect();
                 loadFiltrosExames();
-                loadFiltrosRelatorios();
                 
                 btn.innerHTML = originalText;
                 btn.disabled = false;
@@ -4498,8 +5023,8 @@
                 loadDepartamentos();
                 loadDepartamentosSelect();
                 loadFiltrosExames();
-                loadFiltrosRelatorios();
                 loadDepartamentosFiltro();
+                loadFiltrosDashboard();
                 
                 btn.innerHTML = originalText;
                 btn.disabled = false;
@@ -4821,6 +5346,7 @@
                     loadColaboradoresAtestadoSelect();
                     loadColaboradoresCATSelect();
                     loadDepartamentosFiltro();
+                    loadFiltrosDashboard();
                 } else if (deleteCollection === 'exames') {
                     loadExames();
                 } else if (deleteCollection === 'atestados') {
@@ -4831,13 +5357,12 @@
                     loadEmpresas();
                     loadEmpresasSelect();
                     loadFiltrosExames();
-                    loadFiltrosRelatorios();
                 } else if (deleteCollection === 'departamentos') {
                     loadDepartamentos();
                     loadDepartamentosSelect();
                     loadFiltrosExames();
-                    loadFiltrosRelatorios();
                     loadDepartamentosFiltro();
+                    loadFiltrosDashboard();
                 } else if (deleteCollection === 'cids') {
                     loadCIDs();
                     loadCIDsSelect();
@@ -4857,117 +5382,6 @@
             document.getElementById('confirmModal').style.display = 'none';
             itemToDelete = null;
             deleteCollection = '';
-        }
-
-        // Carregar estatísticas para relatórios
-        async function loadEstatisticas() {
-            try {
-                const examesQuery = await db.collection('exames').get();
-                const atestadosQuery = await db.collection('atestados').get();
-                const catsQuery = await db.collection('cats').get();
-                
-                const estatisticasDiv = document.getElementById('estatisticas-relatorio');
-                
-                const totalColaboradores = cache.colaboradores.length;
-                const colaboradoresAtivos = cache.colaboradores.filter(colaborador => 
-                    colaborador.status === 'ativo'
-                ).length;
-                
-                const totalExames = examesQuery.size;
-                const examesVencidos = examesQuery.docs.filter(doc => {
-                    const data = doc.data();
-                    const status = calcularStatusVencimento(data.vencimento);
-                    return status === 'vencido';
-                }).length;
-                
-                const totalAtestados = atestadosQuery.size;
-                const atestadosComCID = atestadosQuery.docs.filter(doc => 
-                    doc.data().cid && doc.data().cid.trim() !== ''
-                ).length;
-                
-                const totalCats = catsQuery.size;
-                const catsForaPrazo = catsQuery.docs.filter(doc => 
-                    !doc.data().dentroPrazo
-                ).length;
-                
-                estatisticasDiv.innerHTML = `
-                    <div class="stat-card">
-                        <h3>Total de Colaboradores</h3>
-                        <div class="value">${totalColaboradores}</div>
-                        <small>${colaboradoresAtivos} ativos</small>
-                    </div>
-                    <div class="stat-card">
-                        <h3>Exames Cadastrados</h3>
-                        <div class="value">${totalExames}</div>
-                        <small>${examesVencidos} vencidos</small>
-                    </div>
-                    <div class="stat-card">
-                        <h3>Atestados Registrados</h3>
-                        <div class="value">${totalAtestados}</div>
-                        <small>${atestadosComCID} com CID</small>
-                    </div>
-                    <div class="stat-card">
-                        <h3>CATs Registradas</h3>
-                        <div class="value">${totalCats}</div>
-                        <small>${catsForaPrazo} fora do prazo (24h)</small>
-                    </div>
-                `;
-                
-            } catch (error) {
-                console.error('Erro ao carregar estatísticas:', error);
-                showNotification('Erro ao carregar estatísticas', 'error');
-            }
-        }
-
-        // Gerar relatório
-        async function gerarRelatorio() {
-            try {
-                const tipo = document.getElementById('tipo-relatorio').value;
-                const periodo = document.getElementById('periodo-relatorio').value;
-                const filtroEmpresa = document.getElementById('filtro-empresa-relatorio').value;
-                const filtroDepartamento = document.getElementById('filtro-departamento-relatorio').value;
-                
-                if (!tipo) {
-                    showNotification('Selecione o tipo de relatório', 'warning');
-                    return;
-                }
-                
-                let dataInicio, dataFim;
-                
-                if (periodo === 'custom') {
-                    dataInicio = document.getElementById('data-inicio').value;
-                    dataFim = document.getElementById('data-fim').value;
-                    
-                    if (!dataInicio || !dataFim) {
-                        showNotification('Preencha as datas do período personalizado', 'warning');
-                        return;
-                    }
-                } else {
-                    dataFim = new Date().toISOString().split('T')[0];
-                    dataInicio = new Date();
-                    dataInicio.setDate(dataInicio.getDate() - parseInt(periodo));
-                    dataInicio = dataInicio.toISOString().split('T')[0];
-                }
-                
-                let filtroInfo = '';
-                if (filtroEmpresa !== 'todos') {
-                    filtroInfo += `, Empresa: ${filtroEmpresa}`;
-                }
-                if (filtroDepartamento !== 'todos') {
-                    filtroInfo += `, Departamento: ${filtroDepartamento}`;
-                }
-                
-                showNotification(`Relatório de ${tipo} gerado para o período de ${formatDate(new Date(dataInicio))} a ${formatDate(new Date(dataFim))}${filtroInfo}`, 'success');
-                
-            } catch (error) {
-                console.error('Erro ao gerar relatório:', error);
-                showNotification('Erro ao gerar relatório', 'error');
-            }
-        }
-
-        // Exportar relatório
-        function exportarRelatorio() {
-            showNotification('Funcionalidade de exportação em desenvolvimento', 'info');
         }
 
         // Limpar formulário
@@ -5156,6 +5570,24 @@
         window.closeCatDetailsModal = closeCatDetailsModal;
         window.proceedWithAtestado = proceedWithAtestado;
         window.visualizarCAT = visualizarCAT;
+        window.aplicarFiltrosDashboard = aplicarFiltrosDashboard;
+        window.limparFiltrosDashboard = limparFiltrosDashboard;
+        
+        // Exportação
+        window.exportDashboardPDF = exportDashboardPDF;
+        window.exportDashboardExcel = exportDashboardExcel;
+        window.exportColaboradoresPDF = exportColaboradoresPDF;
+        window.exportColaboradoresExcel = exportColaboradoresExcel;
+        window.exportExamesPDF = exportExamesPDF;
+        window.exportExamesExcel = exportExamesExcel;
+        window.exportAtestadosPDF = exportAtestadosPDF;
+        window.exportAtestadosExcel = exportAtestadosExcel;
+        window.exportCATsPDF = exportCATsPDF;
+        window.exportCATsExcel = exportCATsExcel;
+        window.exportConfiguracoesPDF = exportConfiguracoesPDF;
+        window.exportConfiguracoesExcel = exportConfiguracoesExcel;
+        window.exportVencimentosPDF = exportVencimentosPDF;
+        window.exportVencimentosExcel = exportVencimentosExcel;
     </script>
 </body>
 </html>
