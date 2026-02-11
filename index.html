@@ -1184,6 +1184,66 @@
             font-weight: bold;
             color: var(--primary);
         }
+        
+        /* Card de atestados com filtros */
+        .atestado-stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .atestado-stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border-bottom: 4px solid var(--accent);
+            transition: transform 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .atestado-stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .atestado-stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.8rem;
+        }
+
+        .atestado-stat-info {
+            flex: 1;
+        }
+
+        .atestado-stat-info h3 {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .atestado-stat-info .value {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .atestado-stat-info small {
+            color: #666;
+            font-size: 0.85rem;
+        }
     </style>
 </head>
 <body>
@@ -1767,6 +1827,20 @@
                     </div>
                 </div>
 
+                <!-- Cards de Atestados - Total com Filtros -->
+                <div class="atestado-stats-cards">
+                    <div class="atestado-stat-card">
+                        <div class="atestado-stat-icon">
+                            <i class="fas fa-file-medical-alt"></i>
+                        </div>
+                        <div class="atestado-stat-info">
+                            <h3>Total de Atestados</h3>
+                            <div class="value" id="totalAtestadosFiltrados">0</div>
+                            <small id="atestadosFiltradosInfo">com filtros aplicados</small>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Filtros de Atestados - Ocultos por padrão com botão para exibir -->
                 <div class="filter-container">
                     <div class="filter-header" onclick="toggleFilters('atestados-filters')">
@@ -1797,17 +1871,31 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label for="filtro-data-inicio-atestado">Data Início:</label>
-                                <input type="date" id="filtro-data-inicio-atestado" placeholder="dd/mm/aaaa">
+                                <label for="filtro-departamento-atestado">Departamento:</label>
+                                <select id="filtro-departamento-atestado">
+                                    <option value="todos">Todos</option>
+                                </select>
                             </div>
                             <div class="form-group">
-                                <label for="filtro-data-fim-atestado">Data Fim:</label>
-                                <input type="date" id="filtro-data-fim-atestado" placeholder="dd/mm/aaaa">
+                                <label for="filtro-empresa-atestado">Empresa:</label>
+                                <select id="filtro-empresa-atestado">
+                                    <option value="todos">Todas</option>
+                                </select>
                             </div>
-                            <div class="form-group clear-filters">
-                                <button class="btn btn-warning" onclick="limparFiltrosAtestados()">
-                                    <i class="fas fa-times"></i> Limpar Filtros
-                                </button>
+                            <div class="date-range">
+                                <div class="form-group">
+                                    <label for="filtro-data-inicio-atestado">Data Início:</label>
+                                    <input type="date" id="filtro-data-inicio-atestado" placeholder="dd/mm/aaaa">
+                                </div>
+                                <div class="form-group">
+                                    <label for="filtro-data-fim-atestado">Data Fim:</label>
+                                    <input type="date" id="filtro-data-fim-atestado" placeholder="dd/mm/aaaa">
+                                </div>
+                                <div class="form-group clear-filters">
+                                    <button class="btn btn-warning" onclick="limparFiltrosAtestados()">
+                                        <i class="fas fa-times"></i> Limpar Filtros
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -2267,6 +2355,17 @@
             dataFim: ''
         };
 
+        // Filtros de Atestados
+        let atestadosFiltros = {
+            nome: '',
+            tipo: 'todos',
+            unidade: 'todos',
+            departamento: 'todos',
+            empresa: 'todos',
+            dataInicio: '',
+            dataFim: ''
+        };
+
         // Limites de atestados
         const LIMITES_ATESTADOS = {
             odontologico: {
@@ -2301,8 +2400,20 @@
             document.getElementById('filtro-nome-atestado').value = '';
             document.getElementById('filtro-tipo-atestado').value = 'todos';
             document.getElementById('filtro-unidade-atestado').value = 'todos';
+            document.getElementById('filtro-departamento-atestado').value = 'todos';
+            document.getElementById('filtro-empresa-atestado').value = 'todos';
             document.getElementById('filtro-data-inicio-atestado').value = '';
             document.getElementById('filtro-data-fim-atestado').value = '';
+            
+            atestadosFiltros = {
+                nome: '',
+                tipo: 'todos',
+                unidade: 'todos',
+                departamento: 'todos',
+                empresa: 'todos',
+                dataInicio: '',
+                dataFim: ''
+            };
             
             filtrarAtestados();
             showNotification('Filtros de atestados limpos com sucesso!', 'info');
@@ -2665,6 +2776,7 @@
             
             document.getElementById('filtro-status-exame').addEventListener('change', function() {
                 filtrarExames();
+                atualizarCardsExames();
             });
             
             document.getElementById('filtro-tipo-exame').addEventListener('change', function() {
@@ -2693,23 +2805,45 @@
             
             // Filtros automáticos para atestados
             document.getElementById('filtro-nome-atestado').addEventListener('input', function() {
+                atestadosFiltros.nome = this.value.toLowerCase();
                 filtrarAtestados();
+                atualizarCardTotalAtestados();
             });
             
             document.getElementById('filtro-tipo-atestado').addEventListener('change', function() {
+                atestadosFiltros.tipo = this.value;
                 filtrarAtestados();
+                atualizarCardTotalAtestados();
             });
             
             document.getElementById('filtro-unidade-atestado').addEventListener('change', function() {
+                atestadosFiltros.unidade = this.value;
                 filtrarAtestados();
+                atualizarCardTotalAtestados();
+            });
+            
+            document.getElementById('filtro-departamento-atestado').addEventListener('change', function() {
+                atestadosFiltros.departamento = this.value;
+                filtrarAtestados();
+                atualizarCardTotalAtestados();
+            });
+            
+            document.getElementById('filtro-empresa-atestado').addEventListener('change', function() {
+                atestadosFiltros.empresa = this.value;
+                filtrarAtestados();
+                atualizarCardTotalAtestados();
             });
             
             document.getElementById('filtro-data-inicio-atestado').addEventListener('change', function() {
+                atestadosFiltros.dataInicio = this.value;
                 filtrarAtestados();
+                atualizarCardTotalAtestados();
             });
             
             document.getElementById('filtro-data-fim-atestado').addEventListener('change', function() {
+                atestadosFiltros.dataFim = this.value;
                 filtrarAtestados();
+                atualizarCardTotalAtestados();
             });
             
             // Filtros automáticos para CATs
@@ -2867,6 +3001,23 @@
             return true;
         }
 
+        // Função para verificar se atestado atende aos filtros de departamento e empresa
+        function atestadoAtendeFiltrosDepartamentoEmpresa(atestado) {
+            const colaborador = cache.colaboradores.find(c => c.nome === atestado.funcionario);
+            
+            if (!colaborador) return false;
+            
+            if (atestadosFiltros.departamento !== 'todos' && colaborador.departamento !== atestadosFiltros.departamento) {
+                return false;
+            }
+            
+            if (atestadosFiltros.empresa !== 'todos' && colaborador.empresa !== atestadosFiltros.empresa) {
+                return false;
+            }
+            
+            return true;
+        }
+
         // Carregar cache de dados sincronizados
         async function loadCacheData() {
             try {
@@ -2886,6 +3037,7 @@
                 loadFiltrosDashboard();
                 loadDepartamentosFiltro();
                 loadFiltrosExames();
+                loadFiltrosAtestados();
                 loadColaboradores();
                 loadExames();
                 loadAtestados();
@@ -2914,6 +3066,23 @@
             
             cache.departamentos.forEach(departamento => {
                 filtroDepartamento.innerHTML += `<option value="${departamento.nome}">${departamento.nome}</option>`;
+            });
+        }
+
+        // Carregar filtros de atestados
+        function loadFiltrosAtestados() {
+            const filtroDepartamento = document.getElementById('filtro-departamento-atestado');
+            const filtroEmpresa = document.getElementById('filtro-empresa-atestado');
+            
+            filtroDepartamento.innerHTML = '<option value="todos">Todos</option>';
+            filtroEmpresa.innerHTML = '<option value="todos">Todas</option>';
+            
+            cache.departamentos.forEach(departamento => {
+                filtroDepartamento.innerHTML += `<option value="${departamento.nome}">${departamento.nome}</option>`;
+            });
+            
+            cache.empresas.forEach(empresa => {
+                filtroEmpresa.innerHTML += `<option value="${empresa.nome}">${empresa.nome}</option>`;
             });
         }
 
@@ -3088,6 +3257,7 @@
                         document.getElementById('atestados').classList.add('active');
                         document.getElementById('atestado-cadastro').classList.remove('active');
                         document.getElementById('atestado-cadastro').classList.add('hidden');
+                        atualizarCardTotalAtestados();
                     } else if (pageId === 'cats') {
                         document.getElementById('cats').classList.add('active');
                         document.getElementById('cat-cadastro').classList.remove('active');
@@ -3874,6 +4044,12 @@
             document.getElementById('percentualEmDia').textContent = `${percentualEmDia}%`;
         }
 
+        // Atualizar card de total de atestados com filtros
+        function atualizarCardTotalAtestados() {
+            const atestadosFiltradosResultado = obterAtestadosFiltrados();
+            document.getElementById('totalAtestadosFiltrados').textContent = atestadosFiltradosResultado.length;
+        }
+
         // Filtrar exames
         function filtrarExames() {
             const filtroNome = document.getElementById('filtro-nome-exame').value.toLowerCase();
@@ -4007,6 +4183,7 @@
                             </td>
                         </tr>
                     `;
+                    atualizarCardTotalAtestados();
                     return;
                 }
                 
@@ -4031,6 +4208,7 @@
                 });
                 
                 filtrarAtestados();
+                atualizarCardTotalAtestados();
                 
             } catch (error) {
                 console.error('Erro ao carregar atestados:', error);
@@ -4038,47 +4216,38 @@
             }
         }
 
-        // Filtrar atestados
-        function filtrarAtestados() {
-            const filtroNome = document.getElementById('filtro-nome-atestado').value.toLowerCase();
-            const filtroTipo = document.getElementById('filtro-tipo-atestado').value;
-            const filtroUnidade = document.getElementById('filtro-unidade-atestado').value;
-            const filtroDataInicio = document.getElementById('filtro-data-inicio-atestado').value;
-            const filtroDataFim = document.getElementById('filtro-data-fim-atestado').value;
-            
-            const atestadosBody = document.getElementById('atestadosBody');
-            atestadosBody.innerHTML = '';
-            
-            if (atestadosFiltrados.length === 0) {
-                atestadosBody.innerHTML = `
-                    <tr>
-                        <td colspan="7" style="text-align: center; padding: 30px;">
-                            <div class="empty-state">
-                                <i class="fas fa-file-medical"></i>
-                                <p>Nenhum atestado cadastrado</p>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-                return;
+        // Obter atestados filtrados
+        function obterAtestadosFiltrados() {
+            if (!atestadosFiltrados || atestadosFiltrados.length === 0) {
+                return [];
             }
             
-            const atestadosFiltradosResultado = atestadosFiltrados.filter(atestado => {
-                const nomeMatch = !filtroNome || 
-                    (atestado.data.funcionario && atestado.data.funcionario.toLowerCase().includes(filtroNome));
+            return atestadosFiltrados.filter(atestado => {
+                const nomeMatch = !atestadosFiltros.nome || 
+                    (atestado.data.funcionario && atestado.data.funcionario.toLowerCase().includes(atestadosFiltros.nome));
                 
-                const tipoMatch = filtroTipo === 'todos' || atestado.data.tipo === filtroTipo;
+                const tipoMatch = atestadosFiltros.tipo === 'todos' || atestado.data.tipo === atestadosFiltros.tipo;
                 
-                const unidadeMatch = filtroUnidade === 'todos' || atestado.data.unidade === filtroUnidade;
+                const unidadeMatch = atestadosFiltros.unidade === 'todos' || atestado.data.unidade === atestadosFiltros.unidade;
                 
                 const periodoMatch = atestadoDentroPeriodoFiltro(
                     atestado.data.dataInicio, 
-                    filtroDataInicio, 
-                    filtroDataFim
+                    atestadosFiltros.dataInicio, 
+                    atestadosFiltros.dataFim
                 );
                 
-                return nomeMatch && tipoMatch && unidadeMatch && periodoMatch;
+                const departamentoEmpresaMatch = atestadoAtendeFiltrosDepartamentoEmpresa(atestado.data);
+                
+                return nomeMatch && tipoMatch && unidadeMatch && periodoMatch && departamentoEmpresaMatch;
             });
+        }
+
+        // Filtrar atestados
+        function filtrarAtestados() {
+            const atestadosFiltradosResultado = obterAtestadosFiltrados();
+            
+            const atestadosBody = document.getElementById('atestadosBody');
+            atestadosBody.innerHTML = '';
             
             if (atestadosFiltradosResultado.length === 0) {
                 atestadosBody.innerHTML = `
@@ -4940,6 +5109,7 @@
                 loadColaboradoresCATSelect();
                 loadDepartamentosFiltro();
                 loadFiltrosDashboard();
+                loadFiltrosAtestados();
                 
                 btn.innerHTML = originalText;
                 btn.disabled = false;
@@ -5375,6 +5545,7 @@
                 loadEmpresas();
                 loadEmpresasSelect();
                 loadFiltrosExames();
+                loadFiltrosAtestados();
                 
                 btn.innerHTML = originalText;
                 btn.disabled = false;
@@ -5449,6 +5620,7 @@
                 loadFiltrosExames();
                 loadDepartamentosFiltro();
                 loadFiltrosDashboard();
+                loadFiltrosAtestados();
                 
                 btn.innerHTML = originalText;
                 btn.disabled = false;
@@ -5772,6 +5944,7 @@
                     loadColaboradoresCATSelect();
                     loadDepartamentosFiltro();
                     loadFiltrosDashboard();
+                    loadFiltrosAtestados();
                 } else if (deleteCollection === 'exames') {
                     loadExames();
                 } else if (deleteCollection === 'atestados') {
@@ -5782,12 +5955,14 @@
                     loadEmpresas();
                     loadEmpresasSelect();
                     loadFiltrosExames();
+                    loadFiltrosAtestados();
                 } else if (deleteCollection === 'departamentos') {
                     loadDepartamentos();
                     loadDepartamentosSelect();
                     loadFiltrosExames();
                     loadDepartamentosFiltro();
                     loadFiltrosDashboard();
+                    loadFiltrosAtestados();
                 } else if (deleteCollection === 'cids') {
                     loadCIDs();
                     loadCIDsSelect();
