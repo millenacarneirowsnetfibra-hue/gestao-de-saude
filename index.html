@@ -1684,7 +1684,7 @@
                             </div>
                         </div>
                         
-                        <!-- Resultado do cálculo do prazo de 24h -->
+                        <!-- Resultado do cálculo do prazo de 48h -->
                         <div id="cat-prazo-resultado" class="calc-result hidden">
                             <h4><i class="fas fa-clock"></i> Verificação de Prazo</h4>
                             <p id="cat-prazo-text"></p>
@@ -3221,7 +3221,7 @@
                         diasAfastado = calcularDiasAtestado(data.afastamentoInicio, data.afastamentoFim);
                     }
                     
-                    // Verificar se foi aberto dentro do prazo de 24h
+                    // Verificar se foi aberto dentro do prazo de 48h
                     const dentroPrazo = verificarPrazoCAT(data.dataAcidente, data.dataRegistro);
                     
                     // Verificar se afastamento é superior a 15 dias
@@ -3251,7 +3251,7 @@
                             <td>${data.dataRegistro ? formatDate(new Date(data.dataRegistro)) : 'N/A'}</td>
                             <td>
                                 <span class="status ${dentroPrazo ? 'dentro-prazo' : 'fora-prazo'}">
-                                    ${dentroPrazo ? 'Dentro do prazo (24h)' : 'Fora do prazo (24h)'}
+                                    ${dentroPrazo ? 'Dentro do prazo (48h)' : 'Fora do prazo (48h)'}
                                 </span>
                             </td>
                             <td>
@@ -3357,7 +3357,7 @@
                         <td>${data.dataRegistro ? formatDate(new Date(data.dataRegistro)) : 'N/A'}</td>
                         <td>
                             <span class="status ${catInfo.dentroPrazo ? 'dentro-prazo' : 'fora-prazo'}">
-                                ${catInfo.dentroPrazo ? 'Dentro do prazo (24h)' : 'Fora do prazo (24h)'}
+                                ${catInfo.dentroPrazo ? 'Dentro do prazo (48h)' : 'Fora do prazo (48h)'}
                             </span>
                         </td>
                         <td>
@@ -3382,16 +3382,16 @@
             });
         }
 
-        // Verificar se CAT foi aberta dentro do prazo de 24h
+        // Verificar se CAT foi aberta dentro do prazo de 48h
         function verificarPrazoCAT(dataAcidente, dataRegistro) {
             if (!dataAcidente || !dataRegistro) return false;
             
             const acidente = new Date(dataAcidente);
             const registro = new Date(dataRegistro);
             
-            // Definir o prazo limite (24h = 1 dia)
+            // Definir o prazo limite (48h = 2 dias)
             const prazoLimite = new Date(acidente);
-            prazoLimite.setHours(prazoLimite.getHours() + 24);
+            prazoLimite.setHours(prazoLimite.getHours() + 48);
             
             return registro <= prazoLimite;
         }
@@ -3415,9 +3415,9 @@
                 
                 let prazoText = '';
                 if (dentroPrazo) {
-                    prazoText = '<span style="color: var(--success);"><i class="fas fa-check-circle"></i> CAT registrada DENTRO do prazo legal de 24h</span>';
+                    prazoText = '<span style="color: var(--success);"><i class="fas fa-check-circle"></i> CAT registrada DENTRO do prazo legal de 48h</span>';
                 } else {
-                    prazoText = '<span style="color: var(--danger);"><i class="fas fa-exclamation-circle"></i> ATENÇÃO: CAT registrada FORA do prazo legal de 24h</span>';
+                    prazoText = '<span style="color: var(--danger);"><i class="fas fa-exclamation-circle"></i> ATENÇÃO: CAT registrada FORA do prazo legal de 48h</span>';
                 }
                 
                 document.getElementById('cat-prazo-text').innerHTML = prazoText;
@@ -3534,8 +3534,8 @@
             const cidText = data.cid ? `${data.cid} - ${cidInfo ? cidInfo.descricao : 'Descrição não encontrada'}` : 'Não informado';
             
             const prazoStatus = dentroPrazo 
-                ? '<span class="status dentro-prazo">Dentro do prazo (24h)</span>' 
-                : '<span class="status fora-prazo">Fora do prazo (24h)</span>';
+                ? '<span class="status dentro-prazo">Dentro do prazo (48h)</span>' 
+                : '<span class="status fora-prazo">Fora do prazo (48h)</span>';
             
             const detailsHTML = `
                 <div style="margin-bottom: 25px;">
@@ -3555,7 +3555,7 @@
                         <p><strong>Tipo:</strong> ${formatTipoCAT(data.tipo)}</p>
                         <p><strong>Data do Acidente/Diagnóstico:</strong> ${formatDate(new Date(data.dataAcidente))}</p>
                         <p><strong>Data de Registro:</strong> ${formatDate(new Date(data.dataRegistro))}</p>
-                        <p><strong>Prazo de 24h:</strong> ${prazoStatus}</p>
+                        <p><strong>Prazo de 48h:</strong> ${prazoStatus}</p>
                         <p><strong>Local:</strong> ${data.local || 'Não informado'}</p>
                     </div>
                     
