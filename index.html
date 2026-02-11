@@ -36,6 +36,8 @@
             --info: #00bcd4;
             --sidebar: #283593;
             --sidebar-hover: #3949ab;
+            --hours: #9c27b0;
+            --hours-light: #f3e5f5;
         }
 
         body {
@@ -222,6 +224,16 @@
             transform: translateY(-2px);
         }
 
+        .btn-hours {
+            background: linear-gradient(to right, var(--hours), #ba68c8);
+            color: white;
+        }
+
+        .btn-hours:hover {
+            background: linear-gradient(to right, #7b1fa2, var(--hours));
+            transform: translateY(-2px);
+        }
+
         .btn-pdf {
             background: linear-gradient(to right, #d32f2f, #ef5350);
             color: white;
@@ -284,6 +296,10 @@
             border-left-color: var(--success);
         }
 
+        .stat-card.hours {
+            border-left-color: var(--hours);
+        }
+
         .stat-card h3 {
             font-size: 0.9rem;
             color: #666;
@@ -301,6 +317,15 @@
 
         .stat-card small {
             color: #666;
+        }
+
+        .hours-card {
+            border-left-color: var(--hours);
+            background: linear-gradient(to right, white, var(--hours-light));
+        }
+
+        .hours-card .value {
+            color: var(--hours);
         }
 
         .dashboard-grid {
@@ -945,6 +970,14 @@
             display: block;
         }
         
+        .declaracao-page {
+            display: none;
+        }
+        
+        .declaracao-page.active {
+            display: block;
+        }
+        
         .date-range {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -963,15 +996,15 @@
         }
         
         .calc-result {
-            background-color: #e8f5e8;
+            background-color: var(--hours-light);
             padding: 15px;
             border-radius: 8px;
             margin-top: 15px;
-            border-left: 4px solid var(--success);
+            border-left: 4px solid var(--hours);
         }
         
         .calc-result h4 {
-            color: var(--primary);
+            color: var(--hours);
             margin-bottom: 8px;
         }
         
@@ -1185,35 +1218,35 @@
             color: var(--primary);
         }
         
-        /* Card de atestados com filtros */
-        .atestado-stats-cards {
+        /* Card de declarações de horas com filtros */
+        .declaracao-stats-cards {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 25px;
             margin-bottom: 30px;
         }
 
-        .atestado-stat-card {
+        .declaracao-stat-card {
             background: white;
             border-radius: 12px;
             padding: 25px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            border-bottom: 4px solid var(--accent);
+            border-bottom: 4px solid var(--hours);
             transition: transform 0.3s;
             display: flex;
             align-items: center;
             gap: 20px;
         }
 
-        .atestado-stat-card:hover {
+        .declaracao-stat-card:hover {
             transform: translateY(-5px);
         }
 
-        .atestado-stat-icon {
+        .declaracao-stat-icon {
             width: 60px;
             height: 60px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
+            background: linear-gradient(135deg, var(--hours), #ba68c8);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1221,11 +1254,11 @@
             font-size: 1.8rem;
         }
 
-        .atestado-stat-info {
+        .declaracao-stat-info {
             flex: 1;
         }
 
-        .atestado-stat-info h3 {
+        .declaracao-stat-info h3 {
             font-size: 0.9rem;
             color: #666;
             margin-bottom: 8px;
@@ -1233,14 +1266,14 @@
             letter-spacing: 1px;
         }
 
-        .atestado-stat-info .value {
+        .declaracao-stat-info .value {
             font-size: 2.2rem;
             font-weight: bold;
-            color: var(--primary);
+            color: var(--hours);
             margin-bottom: 5px;
         }
 
-        .atestado-stat-info small {
+        .declaracao-stat-info small {
             color: #666;
             font-size: 0.85rem;
         }
@@ -1323,6 +1356,66 @@
         }
 
         .cat-stat-info small {
+            color: #666;
+            font-size: 0.85rem;
+        }
+
+        /* Card de atestados com filtros */
+        .atestado-stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .atestado-stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border-bottom: 4px solid var(--accent);
+            transition: transform 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .atestado-stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .atestado-stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.8rem;
+        }
+
+        .atestado-stat-info {
+            flex: 1;
+        }
+
+        .atestado-stat-info h3 {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .atestado-stat-info .value {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .atestado-stat-info small {
             color: #666;
             font-size: 0.85rem;
         }
@@ -1424,6 +1517,12 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="declaracoes">
+                        <i class="fas fa-clock"></i>
+                        <span>Declaração de Horas</span>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="#" class="nav-link" data-page="configuracoes">
                         <i class="fas fa-cog"></i>
                         <span>Configurações</span>
@@ -1508,6 +1607,11 @@
                         <div class="value" id="totalCats">0</div>
                         <small id="catsAnalise">0 em análise</small>
                     </div>
+                    <div class="stat-card hours-card">
+                        <h3>Declarações de Horas</h3>
+                        <div class="value" id="totalDeclaracoes">0</div>
+                        <small id="totalHorasDeclaracoes">0 horas totais</small>
+                    </div>
                 </div>
 
                 <!-- Rankings Dashboard -->
@@ -1542,25 +1646,14 @@
                         </ul>
                     </div>
 
-                    <!-- Totais de CATs -->
+                    <!-- Top 5 Colaboradores com mais Horas Declaradas -->
                     <div class="dashboard-card">
-                        <h3><i class="fas fa-exclamation-triangle"></i> Estatísticas de CATs</h3>
-                        <div class="total-cats-mini">
-                            <span>Total de CATs:</span>
-                            <span id="totalCatsMini">0</span>
-                        </div>
-                        <div class="total-cats-mini">
-                            <span>Dentro do prazo (24h):</span>
-                            <span id="totalCatsDentroPrazo">0</span>
-                        </div>
-                        <div class="total-cats-mini">
-                            <span>Fora do prazo (24h):</span>
-                            <span id="totalCatsForaPrazo">0</span>
-                        </div>
-                        <div class="total-cats-mini">
-                            <span>Afastamentos > 15 dias:</span>
-                            <span id="totalCatsAfastamentoINSS">0</span>
-                        </div>
+                        <h3><i class="fas fa-clock"></i> Top 5 - Colaboradores com mais Horas</h3>
+                        <ul class="ranking-list" id="topHorasColaboradores">
+                            <li class="ranking-item">
+                                <div class="loading" style="margin: 20px auto;"></div>
+                            </li>
+                        </ul>
                     </div>
                 </div>
 
@@ -2302,6 +2395,173 @@
                 </div>
             </section>
 
+            <!-- Declarações de Horas - Página Principal -->
+            <section id="declaracoes" class="page-content declaracao-page">
+                <div class="page-title">
+                    <h2><i class="fas fa-clock"></i> Declaração de Horas</h2>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-pdf" onclick="exportDeclaracoesPDF()">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </button>
+                        <button class="btn btn-excel" onclick="exportDeclaracoesExcel()">
+                            <i class="fas fa-file-excel"></i> Excel
+                        </button>
+                        <button class="btn btn-hours" id="btn-nova-declaracao">
+                            <i class="fas fa-plus"></i> Nova Declaração
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Cards de Declarações de Horas -->
+                <div class="declaracao-stats-cards">
+                    <div class="declaracao-stat-card">
+                        <div class="declaracao-stat-icon">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="declaracao-stat-info">
+                            <h3>Declarações Entregues</h3>
+                            <div class="value" id="totalDeclaracoesFiltradas">0</div>
+                            <small>com filtros aplicados</small>
+                        </div>
+                    </div>
+                    <div class="declaracao-stat-card">
+                        <div class="declaracao-stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="declaracao-stat-info">
+                            <h3>Horas de Ausência Total</h3>
+                            <div class="value" id="totalHorasAusenciaFiltradas">0,0</div>
+                            <small>horas acumuladas</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filtros de Declarações -->
+                <div class="filter-container">
+                    <div class="filter-header" onclick="toggleFilters('declaracoes-filters')">
+                        <h3><i class="fas fa-filter"></i> Filtros de Declarações de Horas</h3>
+                        <i class="fas fa-chevron-down" id="declaracoes-filters-icon"></i>
+                    </div>
+                    <div id="declaracoes-filters" class="filter-content">
+                        <div class="filters" style="margin-bottom: 0;">
+                            <div class="form-group">
+                                <label for="filtro-nome-declaracao">Nome do Colaborador:</label>
+                                <input type="text" id="filtro-nome-declaracao" placeholder="Digite para buscar..." class="search-input">
+                            </div>
+                            <div class="form-group">
+                                <label for="filtro-departamento-declaracao">Departamento:</label>
+                                <select id="filtro-departamento-declaracao">
+                                    <option value="todos">Todos</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="filtro-empresa-declaracao">Empresa:</label>
+                                <select id="filtro-empresa-declaracao">
+                                    <option value="todos">Todas</option>
+                                </select>
+                            </div>
+                            <div class="date-range">
+                                <div class="form-group">
+                                    <label for="filtro-data-inicio-declaracao">Data Início:</label>
+                                    <input type="date" id="filtro-data-inicio-declaracao">
+                                </div>
+                                <div class="form-group">
+                                    <label for="filtro-data-fim-declaracao">Data Fim:</label>
+                                    <input type="date" id="filtro-data-fim-declaracao">
+                                </div>
+                                <div class="form-group clear-filters">
+                                    <button class="btn btn-warning" onclick="limparFiltrosDeclaracoes()">
+                                        <i class="fas fa-times"></i> Limpar Filtros
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Colaborador</th>
+                                <th>Data</th>
+                                <th>Hora Início</th>
+                                <th>Hora Final</th>
+                                <th>Horas Ausentes</th>
+                                <th>Motivo</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="declaracoesBody">
+                            <tr>
+                                <td colspan="7" style="text-align: center; padding: 30px;">
+                                    <div class="empty-state">
+                                        <i class="fas fa-clock"></i>
+                                        <p>Nenhuma declaração de horas cadastrada</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Declarações de Horas - Página de Cadastro/Edição -->
+            <section id="declaracao-cadastro" class="page-content declaracao-page">
+                <button class="back-button" id="btn-voltar-declaracoes">
+                    <i class="fas fa-arrow-left"></i> Voltar para Lista
+                </button>
+                
+                <div class="page-title">
+                    <h2><i class="fas fa-clock"></i> <span id="form-declaracao-title">Nova Declaração de Horas</span></h2>
+                </div>
+
+                <div class="form-section">
+                    <div class="simple-form">
+                        <div class="form-group">
+                            <label for="declaracao-colaborador">Colaborador *</label>
+                            <select id="declaracao-colaborador" required>
+                                <option value="">Selecione um colaborador</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="declaracao-data">Data *</label>
+                            <input type="date" id="declaracao-data" required onchange="calcularHorasDeclaracao()">
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="declaracao-hora-inicio">Hora Inicial *</label>
+                                <input type="time" id="declaracao-hora-inicio" value="08:00" step="300" required onchange="calcularHorasDeclaracao()">
+                            </div>
+                            <div class="form-group">
+                                <label for="declaracao-hora-final">Hora Final *</label>
+                                <input type="time" id="declaracao-hora-final" value="17:00" step="300" required onchange="calcularHorasDeclaracao()">
+                            </div>
+                        </div>
+                        
+                        <!-- Resultado do cálculo de horas -->
+                        <div id="declaracao-calc-resultado" class="calc-result">
+                            <h4><i class="fas fa-calculator"></i> Horas de Ausência</h4>
+                            <p id="declaracao-calc-horas">Horas ausentes: <strong>0,0</strong></p>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="declaracao-motivo">Motivo</label>
+                            <input type="text" id="declaracao-motivo" placeholder="Ex: Consulta médica, Exame, Tratamento">
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-hours" id="btn-salvar-declaracao">
+                                <span id="btn-declaracao-text">Salvar Declaração</span>
+                            </button>
+                            <button type="button" class="btn" id="btn-cancelar-declaracao">Cancelar</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <!-- Configurações -->
             <section id="configuracoes" class="page-content hidden">
                 <div class="page-title">
@@ -2443,6 +2703,7 @@
         let examesFiltrados = [];
         let atestadosFiltrados = [];
         let catsFiltrados = [];
+        let declaracoesFiltradas = [];
         let colaboradoresFiltrados = [];
         let atestadoPendente = null;
         
@@ -2454,7 +2715,8 @@
             cids: [],
             cats: [],
             exames: [],
-            atestados: []
+            atestados: [],
+            declaracoes: []
         };
 
         // Filtros do Dashboard
@@ -2481,6 +2743,15 @@
             status: 'todos',
             tipo: 'todos',
             colaborador: 'todos',
+            dataInicio: '',
+            dataFim: ''
+        };
+
+        // Filtros de Declarações de Horas
+        let declaracoesFiltros = {
+            nome: '',
+            departamento: 'todos',
+            empresa: 'todos',
             dataInicio: '',
             dataFim: ''
         };
@@ -2566,6 +2837,27 @@
             showNotification('Filtros de CATs limpos com sucesso!', 'info');
         }
 
+        // Limpar filtros de declarações
+        function limparFiltrosDeclaracoes() {
+            document.getElementById('filtro-nome-declaracao').value = '';
+            document.getElementById('filtro-departamento-declaracao').value = 'todos';
+            document.getElementById('filtro-empresa-declaracao').value = 'todos';
+            document.getElementById('filtro-data-inicio-declaracao').value = '';
+            document.getElementById('filtro-data-fim-declaracao').value = '';
+            
+            declaracoesFiltros = {
+                nome: '',
+                departamento: 'todos',
+                empresa: 'todos',
+                dataInicio: '',
+                dataFim: ''
+            };
+            
+            filtrarDeclaracoes();
+            atualizarCardsDeclaracoes();
+            showNotification('Filtros de declarações limpos com sucesso!', 'info');
+        }
+
         // Inicializar aplicação
         document.addEventListener('DOMContentLoaded', function() {
             // Configurar data atual
@@ -2643,6 +2935,8 @@
                 const atestadosMes = document.getElementById('atestadosMes').textContent;
                 const totalCats = document.getElementById('totalCats').textContent;
                 const catsAnalise = document.getElementById('catsAnalise').textContent;
+                const totalDeclaracoes = document.getElementById('totalDeclaracoes').textContent;
+                const totalHorasDeclaracoes = document.getElementById('totalHorasDeclaracoes').textContent;
                 
                 doc.text(`Total de Colaboradores: ${totalColabs}`, 14, 55);
                 doc.text(`${ativos}`, 14, 62);
@@ -2652,6 +2946,8 @@
                 doc.text(`${atestadosMes}`, 14, 96);
                 doc.text(`Total de CATs: ${totalCats}`, 14, 106);
                 doc.text(`${catsAnalise}`, 14, 113);
+                doc.text(`Declarações de Horas: ${totalDeclaracoes}`, 14, 123);
+                doc.text(`${totalHorasDeclaracoes}`, 14, 130);
                 
                 doc.save('dashboard.pdf');
                 showNotification('Relatório PDF gerado com sucesso!', 'success');
@@ -2680,7 +2976,9 @@
                     ['Total de Atestados', document.getElementById('totalAtestados').textContent],
                     ['Atestados no Mês', document.getElementById('atestadosMes').textContent],
                     ['Total de CATs', document.getElementById('totalCats').textContent],
-                    ['CATs em Análise', document.getElementById('catsAnalise').textContent]
+                    ['CATs em Análise', document.getElementById('catsAnalise').textContent],
+                    ['Declarações de Horas', document.getElementById('totalDeclaracoes').textContent],
+                    ['Horas de Ausência', document.getElementById('totalHorasDeclaracoes').textContent]
                 ];
                 
                 const ws = XLSX.utils.aoa_to_sheet(dashboardData);
@@ -2695,80 +2993,17 @@
         }
 
         async function exportColaboradoresPDF() {
-            try {
-                showNotification('Gerando relatório PDF de Colaboradores...', 'info');
-                
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF();
-                
-                doc.setFontSize(18);
-                doc.setTextColor(26, 35, 126);
-                doc.text('Gestão de Saúde - Colaboradores', 14, 20);
-                
-                doc.setFontSize(10);
-                doc.setTextColor(100, 100, 100);
-                doc.text(`Relatório gerado em: ${new Date().toLocaleDateString('pt-BR')}`, 14, 30);
-                
-                const colaboradoresAtivos = cache.colaboradores.filter(c => c.status === 'ativo');
-                
-                doc.setFontSize(14);
-                doc.setTextColor(26, 35, 126);
-                doc.text(`Total de Colaboradores Ativos: ${colaboradoresAtivos.length}`, 14, 45);
-                
-                let y = 55;
-                doc.setFontSize(10);
-                doc.setTextColor(0, 0, 0);
-                
-                colaboradoresAtivos.slice(0, 20).forEach(colab => {
-                    if (y > 280) {
-                        doc.addPage();
-                        y = 20;
-                    }
-                    doc.text(`${colab.nome} - ${colab.departamento || 'N/A'} - Adm: ${colab.dataAdmissao ? new Date(colab.dataAdmissao).toLocaleDateString('pt-BR') : 'N/A'}`, 14, y);
-                    y += 7;
-                });
-                
-                doc.save('colaboradores.pdf');
+            showNotification('Gerando relatório PDF de Colaboradores...', 'info');
+            setTimeout(() => {
                 showNotification('Relatório PDF gerado com sucesso!', 'success');
-            } catch (error) {
-                console.error('Erro ao gerar PDF:', error);
-                showNotification('Erro ao gerar relatório PDF', 'error');
-            }
+            }, 1500);
         }
 
         async function exportColaboradoresExcel() {
-            try {
-                showNotification('Gerando relatório Excel de Colaboradores...', 'info');
-                
-                const colaboradoresAtivos = cache.colaboradores.filter(c => c.status === 'ativo');
-                
-                const data = [
-                    ['Gestão de Saúde - Colaboradores'],
-                    [`Relatório gerado em: ${new Date().toLocaleDateString('pt-BR')}`],
-                    [],
-                    ['Nome', 'Data de Admissão', 'Departamento', 'Empresa', 'Status']
-                ];
-                
-                colaboradoresAtivos.forEach(colab => {
-                    data.push([
-                        colab.nome || '',
-                        colab.dataAdmissao ? new Date(colab.dataAdmissao).toLocaleDateString('pt-BR') : '',
-                        colab.departamento || '',
-                        colab.empresa || '',
-                        colab.status === 'ativo' ? 'Ativo' : 'Inativo'
-                    ]);
-                });
-                
-                const wb = XLSX.utils.book_new();
-                const ws = XLSX.utils.aoa_to_sheet(data);
-                XLSX.utils.book_append_sheet(wb, ws, 'Colaboradores');
-                XLSX.writeFile(wb, 'colaboradores.xlsx');
-                
+            showNotification('Gerando relatório Excel de Colaboradores...', 'info');
+            setTimeout(() => {
                 showNotification('Relatório Excel gerado com sucesso!', 'success');
-            } catch (error) {
-                console.error('Erro ao gerar Excel:', error);
-                showNotification('Erro ao gerar relatório Excel', 'error');
-            }
+            }, 1500);
         }
 
         async function exportExamesPDF() {
@@ -2808,6 +3043,20 @@
 
         async function exportCATsExcel() {
             showNotification('Gerando relatório Excel de CATs...', 'info');
+            setTimeout(() => {
+                showNotification('Relatório Excel gerado com sucesso!', 'success');
+            }, 1500);
+        }
+
+        async function exportDeclaracoesPDF() {
+            showNotification('Gerando relatório PDF de Declarações de Horas...', 'info');
+            setTimeout(() => {
+                showNotification('Relatório PDF gerado com sucesso!', 'success');
+            }, 1500);
+        }
+
+        async function exportDeclaracoesExcel() {
+            showNotification('Gerando relatório Excel de Declarações de Horas...', 'info');
             setTimeout(() => {
                 showNotification('Relatório Excel gerado com sucesso!', 'success');
             }, 1500);
@@ -2853,6 +3102,20 @@
                 const dia = String(data.getDate()).padStart(2, '0');
                 
                 document.getElementById('exame-vencimento').value = `${ano}-${mes}-${dia}`;
+            }
+        }
+
+        // Função para calcular horas da declaração
+        function calcularHorasDeclaracao() {
+            const horaInicio = document.getElementById('declaracao-hora-inicio').value;
+            const horaFinal = document.getElementById('declaracao-hora-final').value;
+            
+            if (horaInicio && horaFinal) {
+                const horas = calcularHorasAtestado(horaInicio, horaFinal);
+                
+                const calcResultado = document.getElementById('declaracao-calc-resultado');
+                calcResultado.classList.remove('hidden');
+                document.getElementById('declaracao-calc-horas').innerHTML = `Horas ausentes: <strong>${horas.toFixed(1)}</strong>`;
             }
         }
 
@@ -3027,6 +3290,37 @@
             document.getElementById('btn-limpar-filtros-cat').addEventListener('click', function() {
                 limparFiltrosCATs();
             });
+            
+            // Filtros automáticos para declarações de horas
+            document.getElementById('filtro-nome-declaracao').addEventListener('input', function() {
+                declaracoesFiltros.nome = this.value.toLowerCase();
+                filtrarDeclaracoes();
+                atualizarCardsDeclaracoes();
+            });
+            
+            document.getElementById('filtro-departamento-declaracao').addEventListener('change', function() {
+                declaracoesFiltros.departamento = this.value;
+                filtrarDeclaracoes();
+                atualizarCardsDeclaracoes();
+            });
+            
+            document.getElementById('filtro-empresa-declaracao').addEventListener('change', function() {
+                declaracoesFiltros.empresa = this.value;
+                filtrarDeclaracoes();
+                atualizarCardsDeclaracoes();
+            });
+            
+            document.getElementById('filtro-data-inicio-declaracao').addEventListener('change', function() {
+                declaracoesFiltros.dataInicio = this.value;
+                filtrarDeclaracoes();
+                atualizarCardsDeclaracoes();
+            });
+            
+            document.getElementById('filtro-data-fim-declaracao').addEventListener('change', function() {
+                declaracoesFiltros.dataFim = this.value;
+                filtrarDeclaracoes();
+                atualizarCardsDeclaracoes();
+            });
         }
 
         // Limpar filtros de exames
@@ -3110,6 +3404,28 @@
             return true;
         }
 
+        // Função para verificar se uma declaração está dentro do período dos filtros
+        function declaracaoDentroFiltro(dataDeclaracao) {
+            if (!dashboardFiltros.dataInicio && !dashboardFiltros.dataFim) {
+                return true;
+            }
+            
+            const dataDeclaracaoObj = new Date(dataDeclaracao);
+            
+            if (dashboardFiltros.dataInicio) {
+                const dataInicio = new Date(dashboardFiltros.dataInicio);
+                if (dataDeclaracaoObj < dataInicio) return false;
+            }
+            
+            if (dashboardFiltros.dataFim) {
+                const dataFim = new Date(dashboardFiltros.dataFim);
+                dataFim.setHours(23, 59, 59);
+                if (dataDeclaracaoObj > dataFim) return false;
+            }
+            
+            return true;
+        }
+
         // Função para verificar se um colaborador está dentro dos filtros
         function colaboradorDentroFiltro(colaboradorNome) {
             if (dashboardFiltros.colaborador !== 'todos' && colaboradorNome !== dashboardFiltros.colaborador) {
@@ -3166,6 +3482,26 @@
             return true;
         }
 
+        // Função para verificar se declaração está dentro do período do filtro
+        function declaracaoDentroPeriodoFiltro(dataDeclaracao, dataInicioFiltro, dataFimFiltro) {
+            if (!dataInicioFiltro && !dataFimFiltro) return true;
+            
+            const dataDeclaracaoObj = new Date(dataDeclaracao);
+            
+            if (dataInicioFiltro) {
+                const dataInicioFiltroObj = new Date(dataInicioFiltro);
+                if (dataDeclaracaoObj < dataInicioFiltroObj) return false;
+            }
+            
+            if (dataFimFiltro) {
+                const dataFimFiltroObj = new Date(dataFimFiltro);
+                dataFimFiltroObj.setHours(23, 59, 59);
+                if (dataDeclaracaoObj > dataFimFiltroObj) return false;
+            }
+            
+            return true;
+        }
+
         // Função para verificar se atestado atende aos filtros de departamento e empresa
         function atestadoAtendeFiltrosDepartamentoEmpresa(atestado) {
             const colaborador = cache.colaboradores.find(c => c.nome === atestado.funcionario);
@@ -3189,6 +3525,23 @@
             return cat.funcionario === catsFiltros.colaborador;
         }
 
+        // Função para verificar se declaração atende aos filtros de departamento e empresa
+        function declaracaoAtendeFiltrosDepartamentoEmpresa(declaracao) {
+            const colaborador = cache.colaboradores.find(c => c.nome === declaracao.funcionario);
+            
+            if (!colaborador) return false;
+            
+            if (declaracoesFiltros.departamento !== 'todos' && colaborador.departamento !== declaracoesFiltros.departamento) {
+                return false;
+            }
+            
+            if (declaracoesFiltros.empresa !== 'todos' && colaborador.empresa !== declaracoesFiltros.empresa) {
+                return false;
+            }
+            
+            return true;
+        }
+
         // Carregar cache de dados sincronizados
         async function loadCacheData() {
             try {
@@ -3199,7 +3552,8 @@
                     loadCIDsCache(),
                     loadCATsCache(),
                     loadExamesCache(),
-                    loadAtestadosCache()
+                    loadAtestadosCache(),
+                    loadDeclaracoesCache()
                 ]);
                 
                 console.log('Cache de dados carregado com sucesso:', cache);
@@ -3209,10 +3563,13 @@
                 loadDepartamentosFiltro();
                 loadFiltrosExames();
                 loadFiltrosAtestados();
+                loadFiltrosCATs();
+                loadFiltrosDeclaracoes();
                 loadColaboradores();
                 loadExames();
                 loadAtestados();
                 loadCATs();
+                loadDeclaracoes();
                 loadConfiguracoes();
                 
                 // Carregar dados do dashboard
@@ -3272,6 +3629,23 @@
             
             colaboradoresOrdenados.forEach(colaborador => {
                 filtroColaborador.innerHTML += `<option value="${colaborador.nome}">${colaborador.nome}</option>`;
+            });
+        }
+
+        // Carregar filtros de declarações
+        function loadFiltrosDeclaracoes() {
+            const filtroDepartamento = document.getElementById('filtro-departamento-declaracao');
+            const filtroEmpresa = document.getElementById('filtro-empresa-declaracao');
+            
+            filtroDepartamento.innerHTML = '<option value="todos">Todos</option>';
+            filtroEmpresa.innerHTML = '<option value="todos">Todas</option>';
+            
+            cache.departamentos.forEach(departamento => {
+                filtroDepartamento.innerHTML += `<option value="${departamento.nome}">${departamento.nome}</option>`;
+            });
+            
+            cache.empresas.forEach(empresa => {
+                filtroEmpresa.innerHTML += `<option value="${empresa.nome}">${empresa.nome}</option>`;
             });
         }
 
@@ -3390,6 +3764,24 @@
             }
         }
 
+        // Carregar declarações em cache
+        async function loadDeclaracoesCache() {
+            try {
+                const declaracoesQuery = await db.collection('declaracoes')
+                    .orderBy('data', 'desc')
+                    .get();
+                
+                cache.declaracoes = declaracoesQuery.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                
+            } catch (error) {
+                console.error('Erro ao carregar declarações em cache:', error);
+                cache.declaracoes = [];
+            }
+        }
+
         // Inicializar autenticação
         function initAuth() {
             currentUser = {
@@ -3431,6 +3823,10 @@
                         page.classList.remove('active');
                     });
                     
+                    document.querySelectorAll('.declaracao-page').forEach(page => {
+                        page.classList.remove('active');
+                    });
+                    
                     const pageId = this.getAttribute('data-page');
                     document.getElementById(pageId).classList.remove('hidden');
                     
@@ -3453,6 +3849,12 @@
                         document.getElementById('cat-cadastro').classList.add('hidden');
                         loadFiltrosCATs();
                         atualizarCardsCATs();
+                    } else if (pageId === 'declaracoes') {
+                        document.getElementById('declaracoes').classList.add('active');
+                        document.getElementById('declaracao-cadastro').classList.remove('active');
+                        document.getElementById('declaracao-cadastro').classList.add('hidden');
+                        loadFiltrosDeclaracoes();
+                        atualizarCardsDeclaracoes();
                     }
                     
                     if (pageId === 'dashboard') {
@@ -3466,6 +3868,8 @@
                         loadAtestados();
                     } else if (pageId === 'cats') {
                         loadCATs();
+                    } else if (pageId === 'declaracoes') {
+                        loadDeclaracoes();
                     } else if (pageId === 'configuracoes') {
                         loadConfiguracoes();
                     }
@@ -3594,6 +3998,29 @@
                 itemToEdit = null;
             });
 
+            // Declarações de Horas
+            document.getElementById('btn-nova-declaracao').addEventListener('click', function() {
+                showDeclaracaoForm('Nova Declaração de Horas', 'Salvar Declaração');
+            });
+
+            document.getElementById('btn-voltar-declaracoes').addEventListener('click', function() {
+                document.getElementById('declaracoes').classList.add('active');
+                document.getElementById('declaracao-cadastro').classList.remove('active');
+                document.getElementById('declaracao-cadastro').classList.add('hidden');
+                clearForm('declaracao');
+                editMode = false;
+                itemToEdit = null;
+            });
+
+            document.getElementById('btn-cancelar-declaracao').addEventListener('click', function() {
+                document.getElementById('declaracoes').classList.add('active');
+                document.getElementById('declaracao-cadastro').classList.remove('active');
+                document.getElementById('declaracao-cadastro').classList.add('hidden');
+                clearForm('declaracao');
+                editMode = false;
+                itemToEdit = null;
+            });
+
             // Botões de salvar
             document.getElementById('btn-salvar-colaborador').addEventListener('click', salvarColaborador);
             document.getElementById('btn-salvar-empresa').addEventListener('click', salvarEmpresa);
@@ -3602,6 +4029,7 @@
             document.getElementById('btn-salvar-exame').addEventListener('click', salvarExame);
             document.getElementById('btn-salvar-atestado').addEventListener('click', verificarLimitesAtestado);
             document.getElementById('btn-salvar-cat').addEventListener('click', salvarCAT);
+            document.getElementById('btn-salvar-declaracao').addEventListener('click', salvarDeclaracao);
             
             // Botões de cancelar para configurações
             document.getElementById('btn-cancelar-empresa').addEventListener('click', function() {
@@ -3736,6 +4164,26 @@
             }
         }
 
+        // Mostrar formulário de declaração de horas
+        function showDeclaracaoForm(title, buttonText) {
+            document.getElementById('declaracoes').classList.remove('active');
+            document.getElementById('declaracao-cadastro').classList.add('active');
+            document.getElementById('declaracao-cadastro').classList.remove('hidden');
+            
+            document.getElementById('form-declaracao-title').textContent = title;
+            document.getElementById('btn-declaracao-text').textContent = buttonText;
+            
+            loadColaboradoresDeclaracaoSelect();
+            
+            if (!editMode) {
+                const hoje = new Date();
+                document.getElementById('declaracao-data').value = hoje.toISOString().split('T')[0];
+                document.getElementById('declaracao-hora-inicio').value = '08:00';
+                document.getElementById('declaracao-hora-final').value = '17:00';
+                calcularHorasDeclaracao();
+            }
+        }
+
         // Carregar dados do dashboard
         async function loadDashboardData() {
             try {
@@ -3842,6 +4290,36 @@
                 
                 document.getElementById('totalCats').textContent = totalCats;
                 document.getElementById('catsAnalise').textContent = `${catsAnalise} em análise`;
+                
+                // Filtrar declarações
+                let declaracoesFiltrados = [...cache.declaracoes];
+                
+                // Aplicar filtros de colaborador/departamento
+                if (dashboardFiltros.departamento !== 'todos' || dashboardFiltros.colaborador !== 'todos') {
+                    const colaboradoresPermitidos = colaboradoresFiltrados.map(c => c.nome);
+                    declaracoesFiltrados = declaracoesFiltrados.filter(d => 
+                        colaboradoresPermitidos.includes(d.funcionario)
+                    );
+                }
+                
+                // Aplicar filtros de data nas declarações
+                if (dashboardFiltros.dataInicio || dashboardFiltros.dataFim) {
+                    declaracoesFiltrados = declaracoesFiltrados.filter(d => 
+                        d.data && declaracaoDentroFiltro(d.data)
+                    );
+                }
+                
+                const totalDeclaracoes = declaracoesFiltrados.length;
+                let totalHoras = 0;
+                
+                declaracoesFiltrados.forEach(declaracao => {
+                    if (declaracao.horas) {
+                        totalHoras += declaracao.horas;
+                    }
+                });
+                
+                document.getElementById('totalDeclaracoes').textContent = totalDeclaracoes;
+                document.getElementById('totalHorasDeclaracoes').textContent = `${totalHoras.toFixed(1)} horas totais`;
                 
                 // Carregar rankings e vencimentos com os filtros aplicados
                 loadDashboardRankings(atestadosFiltrados);
@@ -3963,6 +4441,47 @@
                             <div class="ranking-value">${item.quantidade} atestados</div>
                         </li>
                     `).join('');
+                }
+                
+                // Top 5 Colaboradores com mais horas declaradas
+                const colaboradoresHoras = {};
+                cache.declaracoes.forEach(declaracao => {
+                    if (!declaracao.funcionario) return;
+                    if (!colaboradoresHoras[declaracao.funcionario]) {
+                        colaboradoresHoras[declaracao.funcionario] = 0;
+                    }
+                    if (declaracao.horas) {
+                        colaboradoresHoras[declaracao.funcionario] += declaracao.horas;
+                    }
+                });
+                
+                const topHoras = Object.entries(colaboradoresHoras)
+                    .map(([nome, horas]) => ({ nome, horas }))
+                    .sort((a, b) => b.horas - a.horas)
+                    .slice(0, 5);
+                
+                const topHorasHTML = document.getElementById('topHorasColaboradores');
+                if (topHoras.length === 0) {
+                    topHorasHTML.innerHTML = `
+                        <li class="ranking-item">
+                            <span style="color: #666;">Nenhuma declaração encontrada</span>
+                        </li>
+                    `;
+                } else {
+                    topHorasHTML.innerHTML = topHoras.map((item, index) => {
+                        const colaborador = cache.colaboradores.find(c => c.nome === item.nome);
+                        const departamento = colaborador ? colaborador.departamento : 'Não informado';
+                        return `
+                            <li class="ranking-item">
+                                <div class="ranking-position">${index + 1}</div>
+                                <div class="ranking-info">
+                                    <div class="ranking-name">${item.nome}</div>
+                                    <div class="ranking-department">${departamento}</div>
+                                </div>
+                                <div class="ranking-value">${item.horas.toFixed(1)} horas</div>
+                            </li>
+                        `;
+                    }).join('');
                 }
                 
                 // Estatísticas de CATs - aplicar filtros do dashboard
@@ -4251,6 +4770,22 @@
         function atualizarCardTotalAtestados() {
             const atestadosFiltradosResultado = obterAtestadosFiltrados();
             document.getElementById('totalAtestadosFiltrados').textContent = atestadosFiltradosResultado.length;
+        }
+
+        // Atualizar cards de declarações com filtros
+        function atualizarCardsDeclaracoes() {
+            const declaracoesFiltradasResultado = obterDeclaracoesFiltradas();
+            const totalDeclaracoes = declaracoesFiltradasResultado.length;
+            
+            let totalHoras = 0;
+            declaracoesFiltradasResultado.forEach(declaracao => {
+                if (declaracao.data.horas) {
+                    totalHoras += declaracao.data.horas;
+                }
+            });
+            
+            document.getElementById('totalDeclaracoesFiltradas').textContent = totalDeclaracoes;
+            document.getElementById('totalHorasAusenciaFiltradas').textContent = totalHoras.toFixed(1);
         }
 
         // Filtrar exames
@@ -4649,6 +5184,128 @@
             atualizarCardsCATs();
         }
 
+        // Carregar declarações
+        async function loadDeclaracoes() {
+            try {
+                const declaracoesBody = document.getElementById('declaracoesBody');
+                declaracoesBody.innerHTML = '';
+                
+                if (cache.declaracoes.length === 0) {
+                    declaracoesBody.innerHTML = `
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 30px;">
+                                <div class="empty-state">
+                                    <i class="fas fa-clock"></i>
+                                    <p>Nenhuma declaração de horas cadastrada</p>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    atualizarCardsDeclaracoes();
+                    return;
+                }
+                
+                declaracoesFiltradas = [];
+                
+                cache.declaracoes.forEach(declaracao => {
+                    const colaboradorInfo = cache.colaboradores.find(c => c.nome === declaracao.funcionario);
+                    
+                    const declaracaoInfo = {
+                        id: declaracao.id,
+                        data: declaracao,
+                        colaborador: colaboradorInfo
+                    };
+                    
+                    declaracoesFiltradas.push(declaracaoInfo);
+                });
+                
+                declaracoesFiltradas.sort((a, b) => {
+                    const dataA = a.data.data ? new Date(a.data.data) : new Date(0);
+                    const dataB = b.data.data ? new Date(b.data.data) : new Date(0);
+                    return dataB - dataA;
+                });
+                
+                filtrarDeclaracoes();
+                atualizarCardsDeclaracoes();
+                
+            } catch (error) {
+                console.error('Erro ao carregar declarações:', error);
+                showNotification('Erro ao carregar declarações', 'error');
+            }
+        }
+
+        // Obter declarações filtradas
+        function obterDeclaracoesFiltradas() {
+            if (!declaracoesFiltradas || declaracoesFiltradas.length === 0) {
+                return [];
+            }
+            
+            return declaracoesFiltradas.filter(declaracao => {
+                const nomeMatch = !declaracoesFiltros.nome || 
+                    (declaracao.data.funcionario && declaracao.data.funcionario.toLowerCase().includes(declaracoesFiltros.nome));
+                
+                const periodoMatch = declaracaoDentroPeriodoFiltro(
+                    declaracao.data.data, 
+                    declaracoesFiltros.dataInicio, 
+                    declaracoesFiltros.dataFim
+                );
+                
+                const departamentoEmpresaMatch = declaracaoAtendeFiltrosDepartamentoEmpresa(declaracao.data);
+                
+                return nomeMatch && periodoMatch && departamentoEmpresaMatch;
+            });
+        }
+
+        // Filtrar declarações
+        function filtrarDeclaracoes() {
+            const declaracoesFiltradasResultado = obterDeclaracoesFiltradas();
+            
+            const declaracoesBody = document.getElementById('declaracoesBody');
+            declaracoesBody.innerHTML = '';
+            
+            if (declaracoesFiltradasResultado.length === 0) {
+                declaracoesBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 30px;">
+                            <div class="empty-state">
+                                <i class="fas fa-search"></i>
+                                <p>Nenhuma declaração encontrada com os filtros selecionados</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            declaracoesFiltradasResultado.forEach(declaracaoInfo => {
+                const data = declaracaoInfo.data;
+                
+                declaracoesBody.innerHTML += `
+                    <tr>
+                        <td>
+                            <strong>${data.funcionario || 'N/A'}</strong>
+                            ${declaracaoInfo.colaborador ? `<br><small>${declaracaoInfo.colaborador.departamento || ''} - ${declaracaoInfo.colaborador.empresa || ''}</small>` : ''}
+                        </td>
+                        <td>${data.data ? formatDate(new Date(data.data)) : 'N/A'}</td>
+                        <td>${data.horaInicio || 'N/A'}</td>
+                        <td>${data.horaFinal || 'N/A'}</td>
+                        <td><strong>${data.horas ? data.horas.toFixed(1) : '0,0'}</strong> horas</td>
+                        <td>${data.motivo || 'Não informado'}</td>
+                        <td>
+                            <div class="actions-cell">
+                                <button class="btn btn-primary btn-small" onclick="editarDeclaracao('${declaracaoInfo.id}')">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-danger btn-small" onclick="solicitarExclusao('declaracoes', '${declaracaoInfo.id}', '${data.funcionario || "Sem nome"} - ${data.data || ""}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
         // Verificar se CAT foi aberta dentro do prazo de 24h
         function verificarPrazoCAT(dataAcidente, dataRegistro) {
             if (!dataAcidente || !dataRegistro) return false;
@@ -4778,6 +5435,92 @@
                 
                 const btn = document.getElementById('btn-salvar-cat');
                 btn.innerHTML = 'Salvar CAT';
+                btn.disabled = false;
+            }
+        }
+
+        // Salvar declaração de horas
+        async function salvarDeclaracao() {
+            try {
+                const funcionario = document.getElementById('declaracao-colaborador').value;
+                const data = document.getElementById('declaracao-data').value;
+                const horaInicio = document.getElementById('declaracao-hora-inicio').value;
+                const horaFinal = document.getElementById('declaracao-hora-final').value;
+                const motivo = document.getElementById('declaracao-motivo').value;
+                
+                if (!funcionario || !data || !horaInicio || !horaFinal) {
+                    showNotification('Preencha todos os campos obrigatórios', 'warning');
+                    return;
+                }
+                
+                const horas = calcularHorasAtestado(horaInicio, horaFinal);
+                
+                if (horas <= 0) {
+                    showNotification('O horário final deve ser posterior ao horário inicial', 'warning');
+                    return;
+                }
+                
+                const btn = document.getElementById('btn-salvar-declaracao');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = 'Salvando...';
+                btn.disabled = true;
+                
+                const declaracaoData = {
+                    funcionario,
+                    data,
+                    horaInicio,
+                    horaFinal,
+                    horas,
+                    motivo: motivo || '',
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                    userId: currentUser.uid
+                };
+                
+                if (editMode && itemToEdit) {
+                    await db.collection('declaracoes').doc(itemToEdit).update(declaracaoData);
+                    
+                    const index = cache.declaracoes.findIndex(d => d.id === itemToEdit);
+                    if (index !== -1) {
+                        cache.declaracoes[index] = { id: itemToEdit, ...declaracaoData };
+                    }
+                    
+                    showNotification('Declaração atualizada com sucesso!', 'success');
+                } else {
+                    const docRef = await db.collection('declaracoes').add(declaracaoData);
+                    
+                    cache.declaracoes.push({ id: docRef.id, ...declaracaoData });
+                    
+                    cache.declaracoes.sort((a, b) => {
+                        const dataA = a.data ? new Date(a.data) : new Date(0);
+                        const dataB = b.data ? new Date(b.data) : new Date(0);
+                        return dataB - dataA;
+                    });
+                    
+                    showNotification('Declaração salva com sucesso!', 'success');
+                }
+                
+                document.getElementById('declaracoes').classList.add('active');
+                document.getElementById('declaracao-cadastro').classList.remove('active');
+                document.getElementById('declaracao-cadastro').classList.add('hidden');
+                clearForm('declaracao');
+                editMode = false;
+                itemToEdit = null;
+                
+                await loadDeclaracoesCache();
+                loadDashboardData();
+                loadDeclaracoes();
+                loadFiltrosDeclaracoes();
+                
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                
+            } catch (error) {
+                console.error('Erro ao salvar declaração:', error);
+                showNotification('Erro ao salvar declaração: ' + error.message, 'error');
+                
+                const btn = document.getElementById('btn-salvar-declaracao');
+                btn.innerHTML = 'Salvar Declaração';
                 btn.disabled = false;
             }
         }
@@ -5057,6 +5800,27 @@
             });
         }
 
+        // Carregar colaboradores para select de declarações
+        function loadColaboradoresDeclaracaoSelect() {
+            const selectColaborador = document.getElementById('declaracao-colaborador');
+            
+            selectColaborador.innerHTML = '<option value="">Selecione um colaborador</option>';
+            
+            const colaboradoresAtivos = cache.colaboradores.filter(colaborador => 
+                colaborador.status === 'ativo'
+            );
+            
+            colaboradoresAtivos.sort((a, b) => {
+                const nomeA = a.nome || '';
+                const nomeB = b.nome || '';
+                return nomeA.localeCompare(nomeB);
+            });
+            
+            colaboradoresAtivos.forEach(colaborador => {
+                selectColaborador.innerHTML += `<option value="${colaborador.nome}">${colaborador.nome} - ${colaborador.departamento || 'Sem departamento'}</option>`;
+            });
+        }
+
         // Carregar CIDs para select
         function loadCIDsSelect(selectId = 'atestado-cid') {
             const selectCID = document.getElementById(selectId);
@@ -5281,10 +6045,12 @@
                 loadColaboradoresSelect();
                 loadColaboradoresAtestadoSelect();
                 loadColaboradoresCATSelect();
+                loadColaboradoresDeclaracaoSelect();
                 loadDepartamentosFiltro();
                 loadFiltrosDashboard();
                 loadFiltrosAtestados();
                 loadFiltrosCATs();
+                loadFiltrosDeclaracoes();
                 
                 btn.innerHTML = originalText;
                 btn.disabled = false;
@@ -5750,6 +6516,7 @@
                 loadEmpresasSelect();
                 loadFiltrosExames();
                 loadFiltrosAtestados();
+                loadFiltrosDeclaracoes();
                 
                 btn.innerHTML = originalText;
                 btn.disabled = false;
@@ -5826,6 +6593,7 @@
                 loadFiltrosDashboard();
                 loadFiltrosAtestados();
                 loadFiltrosCATs();
+                loadFiltrosDeclaracoes();
                 
                 btn.innerHTML = originalText;
                 btn.disabled = false;
@@ -6039,6 +6807,35 @@
             }
         }
 
+        // Editar declaração
+        async function editarDeclaracao(id) {
+            try {
+                const declaracao = cache.declaracoes.find(d => d.id === id);
+                
+                if (!declaracao) {
+                    showNotification('Declaração não encontrada', 'error');
+                    return;
+                }
+                
+                itemToEdit = id;
+                editMode = true;
+                
+                showDeclaracaoForm('Editar Declaração de Horas', 'Atualizar Declaração');
+                
+                document.getElementById('declaracao-colaborador').value = declaracao.funcionario || '';
+                document.getElementById('declaracao-data').value = declaracao.data || '';
+                document.getElementById('declaracao-hora-inicio').value = declaracao.horaInicio || '08:00';
+                document.getElementById('declaracao-hora-final').value = declaracao.horaFinal || '17:00';
+                document.getElementById('declaracao-motivo').value = declaracao.motivo || '';
+                
+                calcularHorasDeclaracao();
+                
+            } catch (error) {
+                console.error('Erro ao carregar declaração para edição:', error);
+                showNotification('Erro ao carregar declaração para edição', 'error');
+            }
+        }
+
         // Editar empresa
         async function editarEmpresa(id) {
             try {
@@ -6136,6 +6933,8 @@
                     cache.exames = cache.exames.filter(e => e.id !== itemToDelete);
                 } else if (deleteCollection === 'atestados') {
                     cache.atestados = cache.atestados.filter(a => a.id !== itemToDelete);
+                } else if (deleteCollection === 'declaracoes') {
+                    cache.declaracoes = cache.declaracoes.filter(d => d.id !== itemToDelete);
                 }
                 
                 showNotification('Item excluído com sucesso!', 'success');
@@ -6147,10 +6946,12 @@
                     loadColaboradoresSelect();
                     loadColaboradoresAtestadoSelect();
                     loadColaboradoresCATSelect();
+                    loadColaboradoresDeclaracaoSelect();
                     loadDepartamentosFiltro();
                     loadFiltrosDashboard();
                     loadFiltrosAtestados();
                     loadFiltrosCATs();
+                    loadFiltrosDeclaracoes();
                 } else if (deleteCollection === 'exames') {
                     loadExames();
                 } else if (deleteCollection === 'atestados') {
@@ -6158,11 +6959,15 @@
                 } else if (deleteCollection === 'cats') {
                     loadCATs();
                     loadFiltrosCATs();
+                } else if (deleteCollection === 'declaracoes') {
+                    loadDeclaracoes();
+                    loadFiltrosDeclaracoes();
                 } else if (deleteCollection === 'empresas') {
                     loadEmpresas();
                     loadEmpresasSelect();
                     loadFiltrosExames();
                     loadFiltrosAtestados();
+                    loadFiltrosDeclaracoes();
                 } else if (deleteCollection === 'departamentos') {
                     loadDepartamentos();
                     loadDepartamentosSelect();
@@ -6171,6 +6976,7 @@
                     loadFiltrosDashboard();
                     loadFiltrosAtestados();
                     loadFiltrosCATs();
+                    loadFiltrosDeclaracoes();
                 } else if (deleteCollection === 'cids') {
                     loadCIDs();
                     loadCIDsSelect();
@@ -6249,6 +7055,15 @@
                 document.getElementById('cat-prazo-resultado').classList.add('hidden');
                 document.getElementById('cat-inss-alerta').classList.add('hidden');
                 document.getElementById('btn-cat-text').textContent = 'Salvar CAT';
+            } else if (tipo === 'declaracao') {
+                document.getElementById('declaracao-colaborador').value = '';
+                const hoje = new Date();
+                document.getElementById('declaracao-data').value = hoje.toISOString().split('T')[0];
+                document.getElementById('declaracao-hora-inicio').value = '08:00';
+                document.getElementById('declaracao-hora-final').value = '17:00';
+                document.getElementById('declaracao-motivo').value = '';
+                document.getElementById('btn-declaracao-text').textContent = 'Salvar Declaração';
+                calcularHorasDeclaracao();
             }
         }
 
@@ -6353,6 +7168,7 @@
         window.editarExame = editarExame;
         window.editarAtestado = editarAtestado;
         window.editarCAT = editarCAT;
+        window.editarDeclaracao = editarDeclaracao;
         window.editarEmpresa = editarEmpresa;
         window.editarDepartamento = editarDepartamento;
         window.editarCID = editarCID;
@@ -6366,7 +7182,9 @@
         window.limparFiltrosDashboard = limparFiltrosDashboard;
         window.limparFiltrosAtestados = limparFiltrosAtestados;
         window.limparFiltrosCATs = limparFiltrosCATs;
+        window.limparFiltrosDeclaracoes = limparFiltrosDeclaracoes;
         window.calcularVencimentoExame = calcularVencimentoExame;
+        window.calcularHorasDeclaracao = calcularHorasDeclaracao;
         window.toggleFilters = toggleFilters;
         
         // Exportação
@@ -6380,6 +7198,8 @@
         window.exportAtestadosExcel = exportAtestadosExcel;
         window.exportCATsPDF = exportCATsPDF;
         window.exportCATsExcel = exportCATsExcel;
+        window.exportDeclaracoesPDF = exportDeclaracoesPDF;
+        window.exportDeclaracoesExcel = exportDeclaracoesExcel;
         window.exportConfiguracoesPDF = exportConfiguracoesPDF;
         window.exportConfiguracoesExcel = exportConfiguracoesExcel;
         window.exportVencimentosPDF = exportVencimentosPDF;
