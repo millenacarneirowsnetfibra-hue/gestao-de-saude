@@ -79,10 +79,6 @@
             font-size: 2rem;
         }
 
-        .user-info {
-            display: none;
-        }
-
         .sidebar {
             width: 250px;
             background-color: var(--sidebar);
@@ -276,20 +272,16 @@
             transform: translateY(-5px);
         }
 
-        .stat-card.exames {
-            border-left-color: var(--accent);
+        .stat-card.vencidos {
+            border-left-color: var(--danger);
         }
 
-        .stat-card.atestados {
-            border-left-color: var(--success);
-        }
-
-        .stat-card.cats {
+        .stat-card.proximo-vencer {
             border-left-color: var(--warning);
         }
 
-        .stat-card.colaboradores {
-            border-left-color: var(--info);
+        .stat-card.em-dia {
+            border-left-color: var(--success);
         }
 
         .stat-card h3 {
@@ -305,6 +297,10 @@
             font-weight: bold;
             color: var(--primary);
             margin: 10px 0;
+        }
+
+        .stat-card small {
+            color: #666;
         }
 
         .dashboard-grid {
@@ -1113,6 +1109,81 @@
             color: var(--primary);
             font-size: 1.2rem;
         }
+
+        .exame-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .exame-stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s;
+            border-bottom: 4px solid transparent;
+        }
+
+        .exame-stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .exame-stat-card.vencidos {
+            border-bottom-color: var(--danger);
+            background: linear-gradient(to bottom, white, #fff8f8);
+        }
+
+        .exame-stat-card.proximo-vencer {
+            border-bottom-color: var(--warning);
+            background: linear-gradient(to bottom, white, #fffaf0);
+        }
+
+        .exame-stat-card.em-dia {
+            border-bottom-color: var(--success);
+            background: linear-gradient(to bottom, white, #f0faf0);
+        }
+
+        .exame-stat-card h4 {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .exame-stat-card .exame-value {
+            font-size: 2.2rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .exame-stat-card.vencidos .exame-value {
+            color: var(--danger);
+        }
+
+        .exame-stat-card.proximo-vencer .exame-value {
+            color: var(--warning);
+        }
+
+        .exame-stat-card.em-dia .exame-value {
+            color: var(--success);
+        }
+
+        .exame-stat-card .exame-percentual {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .exame-stat-card .exame-percentual span {
+            font-weight: bold;
+            color: var(--primary);
+        }
     </style>
 </head>
 <body>
@@ -1517,6 +1588,31 @@
                         <button class="btn btn-primary" id="btn-novo-exame">
                             <i class="fas fa-plus"></i> Novo Exame
                         </button>
+                    </div>
+                </div>
+
+                <!-- Cards de Status de Exames -->
+                <div class="exame-cards">
+                    <div class="exame-stat-card vencidos">
+                        <h4><i class="fas fa-exclamation-circle"></i> Exames Vencidos</h4>
+                        <div class="exame-value" id="totalExamesVencidos">0</div>
+                        <div class="exame-percentual">
+                            <span id="percentualVencidos">0%</span> do total
+                        </div>
+                    </div>
+                    <div class="exame-stat-card proximo-vencer">
+                        <h4><i class="fas fa-clock"></i> Próximo a Vencer</h4>
+                        <div class="exame-value" id="totalExamesProximoVencer">0</div>
+                        <div class="exame-percentual">
+                            <span id="percentualProximoVencer">0%</span> do total
+                        </div>
+                    </div>
+                    <div class="exame-stat-card em-dia">
+                        <h4><i class="fas fa-check-circle"></i> Em Dia</h4>
+                        <div class="exame-value" id="totalExamesEmDia">0</div>
+                        <div class="exame-percentual">
+                            <span id="percentualEmDia">0%</span> do total
+                        </div>
                     </div>
                 </div>
 
@@ -2559,10 +2655,12 @@
             // Filtros automáticos para exames
             document.getElementById('filtro-nome-exame').addEventListener('input', function() {
                 filtrarExames();
+                atualizarCardsExames();
             });
             
             document.getElementById('filtro-departamento-exame').addEventListener('change', function() {
                 filtrarExames();
+                atualizarCardsExames();
             });
             
             document.getElementById('filtro-status-exame').addEventListener('change', function() {
@@ -2571,18 +2669,22 @@
             
             document.getElementById('filtro-tipo-exame').addEventListener('change', function() {
                 filtrarExames();
+                atualizarCardsExames();
             });
             
             document.getElementById('filtro-empresa-exame').addEventListener('change', function() {
                 filtrarExames();
+                atualizarCardsExames();
             });
             
             document.getElementById('filtro-periodo-inicio-exame').addEventListener('change', function() {
                 filtrarExames();
+                atualizarCardsExames();
             });
             
             document.getElementById('filtro-periodo-fim-exame').addEventListener('change', function() {
                 filtrarExames();
+                atualizarCardsExames();
             });
             
             document.getElementById('btn-limpar-filtros-exame').addEventListener('click', function() {
@@ -2647,6 +2749,7 @@
             document.getElementById('filtro-periodo-fim-exame').value = '';
             
             filtrarExames();
+            atualizarCardsExames();
             showNotification('Filtros de exames limpos com sucesso!', 'info');
         }
 
@@ -2997,6 +3100,7 @@
                         loadColaboradores();
                     } else if (pageId === 'exames') {
                         loadExames();
+                        atualizarCardsExames();
                     } else if (pageId === 'atestados') {
                         loadAtestados();
                     } else if (pageId === 'cats') {
@@ -3731,6 +3835,7 @@
                 });
                 
                 filtrarExames();
+                atualizarCardsExames();
                 
             } catch (error) {
                 console.error('Erro ao carregar exames:', error);
@@ -3746,6 +3851,27 @@
             cache.empresas.forEach(empresa => {
                 filtroEmpresa.innerHTML += `<option value="${empresa.nome}">${empresa.nome}</option>`;
             });
+        }
+
+        // Atualizar cards de exames com os totais
+        function atualizarCardsExames() {
+            const totalExames = examesFiltrados.length;
+            
+            const examesVencidos = examesFiltrados.filter(e => e.status === 'vencido').length;
+            const examesProximoVencer = examesFiltrados.filter(e => e.status === 'proximo-vencer').length;
+            const examesEmDia = examesFiltrados.filter(e => e.status === 'em-dia').length;
+            
+            document.getElementById('totalExamesVencidos').textContent = examesVencidos;
+            document.getElementById('totalExamesProximoVencer').textContent = examesProximoVencer;
+            document.getElementById('totalExamesEmDia').textContent = examesEmDia;
+            
+            const percentualVencidos = totalExames > 0 ? ((examesVencidos / totalExames) * 100).toFixed(1) : 0;
+            const percentualProximoVencer = totalExames > 0 ? ((examesProximoVencer / totalExames) * 100).toFixed(1) : 0;
+            const percentualEmDia = totalExames > 0 ? ((examesEmDia / totalExames) * 100).toFixed(1) : 0;
+            
+            document.getElementById('percentualVencidos').textContent = `${percentualVencidos}%`;
+            document.getElementById('percentualProximoVencer').textContent = `${percentualProximoVencer}%`;
+            document.getElementById('percentualEmDia').textContent = `${percentualEmDia}%`;
         }
 
         // Filtrar exames
