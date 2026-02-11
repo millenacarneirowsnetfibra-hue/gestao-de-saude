@@ -246,6 +246,16 @@
             transform: translateY(-2px);
         }
 
+        .btn-filter {
+            background: linear-gradient(to right, var(--info), #26c6da);
+            color: white;
+        }
+
+        .btn-filter:hover {
+            background: linear-gradient(to right, #00acc1, var(--info));
+            transform: translateY(-2px);
+        }
+
         .stats-cards {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -481,6 +491,61 @@
             font-weight: 600;
         }
 
+        .filter-container {
+            margin-bottom: 25px;
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+        }
+
+        .filter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            padding: 10px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .filter-header h3 {
+            color: var(--primary);
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0;
+        }
+
+        .filter-header i {
+            color: var(--accent);
+        }
+
+        .filter-content {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+        }
+
+        .filter-content.show {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         .form-section {
             background-color: #f8f9fa;
             padding: 30px;
@@ -532,11 +597,7 @@
         }
 
         .hidden {
-            display: none;
-        }
-
-        footer {
-            display: none;
+            display: none !important;
         }
 
         .loading {
@@ -758,6 +819,10 @@
                 width: 100%;
                 justify-content: center;
             }
+            
+            .filter-content {
+                padding: 15px;
+            }
         }
 
         .tab-navigation {
@@ -819,24 +884,6 @@
             font-size: 0.8rem;
         }
         
-        .filters {
-            background-color: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-        
-        .filters .form-group {
-            margin-bottom: 0;
-        }
-        
-        .filters select {
-            min-width: 200px;
-        }
-        
         .colaborador-page {
             display: none;
         }
@@ -864,7 +911,6 @@
         
         .search-input {
             width: 100%;
-            max-width: 300px;
         }
         
         .empty-state {
@@ -904,17 +950,14 @@
         }
         
         .date-range {
-            display: flex;
-            gap: 10px;
-            align-items: flex-end;
-        }
-        
-        .date-range .form-group {
-            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
         }
         
         .clear-filters {
-            align-self: flex-end;
+            display: flex;
+            align-items: flex-end;
         }
         
         .hora-fields {
@@ -1194,32 +1237,40 @@
                     </div>
                 </div>
 
-                <!-- Filtros do Dashboard -->
-                <div class="filters">
-                    <div class="form-group">
-                        <label for="filtro-dashboard-colaborador">Colaborador:</label>
-                        <select id="filtro-dashboard-colaborador">
-                            <option value="todos">Todos</option>
-                        </select>
+                <!-- Filtros do Dashboard - Ocultos por padrão com botão para exibir -->
+                <div class="filter-container">
+                    <div class="filter-header" onclick="toggleFilters('dashboard-filters')">
+                        <h3><i class="fas fa-filter"></i> Filtros do Dashboard</h3>
+                        <i class="fas fa-chevron-down" id="dashboard-filters-icon"></i>
                     </div>
-                    <div class="form-group">
-                        <label for="filtro-dashboard-departamento">Departamento:</label>
-                        <select id="filtro-dashboard-departamento">
-                            <option value="todos">Todos</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="filtro-dashboard-data-inicio">Data Início:</label>
-                        <input type="date" id="filtro-dashboard-data-inicio">
-                    </div>
-                    <div class="form-group">
-                        <label for="filtro-dashboard-data-fim">Data Fim:</label>
-                        <input type="date" id="filtro-dashboard-data-fim">
-                    </div>
-                    <div class="form-group clear-filters">
-                        <button class="btn btn-danger btn-small" onclick="limparFiltrosDashboard()">
-                            <i class="fas fa-times"></i> Limpar Filtros
-                        </button>
+                    <div id="dashboard-filters" class="filter-content">
+                        <div class="filters" style="margin-bottom: 0;">
+                            <div class="form-group">
+                                <label for="filtro-dashboard-colaborador">Colaborador:</label>
+                                <select id="filtro-dashboard-colaborador">
+                                    <option value="todos">Todos</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="filtro-dashboard-departamento">Departamento:</label>
+                                <select id="filtro-dashboard-departamento">
+                                    <option value="todos">Todos</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="filtro-dashboard-data-inicio">Data Início:</label>
+                                <input type="date" id="filtro-dashboard-data-inicio">
+                            </div>
+                            <div class="form-group">
+                                <label for="filtro-dashboard-data-fim">Data Fim:</label>
+                                <input type="date" id="filtro-dashboard-data-fim">
+                            </div>
+                            <div class="form-group clear-filters">
+                                <button class="btn btn-danger btn-small" onclick="limparFiltrosDashboard()">
+                                    <i class="fas fa-times"></i> Limpar Filtros
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -1352,24 +1403,33 @@
                     </div>
                 </div>
 
-                <div class="filters">
-                    <div class="form-group">
-                        <label for="filtro-nome-colaborador">Nome:</label>
-                        <input type="text" id="filtro-nome-colaborador" placeholder="Digite para buscar..." class="search-input">
+                <!-- Filtros de Colaboradores - Ocultos por padrão com botão para exibir -->
+                <div class="filter-container">
+                    <div class="filter-header" onclick="toggleFilters('colaboradores-filters')">
+                        <h3><i class="fas fa-filter"></i> Filtros de Colaboradores</h3>
+                        <i class="fas fa-chevron-down" id="colaboradores-filters-icon"></i>
                     </div>
-                    <div class="form-group">
-                        <label for="filtro-departamento-colaborador">Departamento:</label>
-                        <select id="filtro-departamento-colaborador">
-                            <option value="todos">Todos</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="filtro-status-colaborador">Status:</label>
-                        <select id="filtro-status-colaborador">
-                            <option value="todos">Todos</option>
-                            <option value="ativo">Ativos</option>
-                            <option value="inativo">Inativos</option>
-                        </select>
+                    <div id="colaboradores-filters" class="filter-content">
+                        <div class="filters" style="margin-bottom: 0;">
+                            <div class="form-group">
+                                <label for="filtro-nome-colaborador">Nome:</label>
+                                <input type="text" id="filtro-nome-colaborador" placeholder="Digite para buscar..." class="search-input">
+                            </div>
+                            <div class="form-group">
+                                <label for="filtro-departamento-colaborador">Departamento:</label>
+                                <select id="filtro-departamento-colaborador">
+                                    <option value="todos">Todos</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="filtro-status-colaborador">Status:</label>
+                                <select id="filtro-status-colaborador">
+                                    <option value="todos">Todos</option>
+                                    <option value="ativo">Ativos</option>
+                                    <option value="inativo">Inativos</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -1460,56 +1520,65 @@
                     </div>
                 </div>
 
-                <div class="filters">
-                    <div class="form-group">
-                        <label for="filtro-nome-exame">Nome do Colaborador:</label>
-                        <input type="text" id="filtro-nome-exame" placeholder="Digite para buscar..." class="search-input">
+                <!-- Filtros de Exames - Ocultos por padrão com botão para exibir -->
+                <div class="filter-container">
+                    <div class="filter-header" onclick="toggleFilters('exames-filters')">
+                        <h3><i class="fas fa-filter"></i> Filtros de Exames</h3>
+                        <i class="fas fa-chevron-down" id="exames-filters-icon"></i>
                     </div>
-                    <div class="form-group">
-                        <label for="filtro-departamento-exame">Departamento:</label>
-                        <select id="filtro-departamento-exame">
-                            <option value="todos">Todos</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="filtro-status-exame">Status:</label>
-                        <select id="filtro-status-exame">
-                            <option value="todos">Todos</option>
-                            <option value="em-dia">Em Dia</option>
-                            <option value="proximo-vencer">Próximo de Vencer</option>
-                            <option value="vencido">Vencido</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="filtro-tipo-exame">Tipo de Exame:</label>
-                        <select id="filtro-tipo-exame">
-                            <option value="todos">Todos</option>
-                            <option value="admissional">Admissional</option>
-                            <option value="periodico">Periódico</option>
-                            <option value="demissional">Demissional</option>
-                            <option value="retorno">Retorno</option>
-                            <option value="mudanca">Mudança</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="filtro-empresa-exame">Empresa:</label>
-                        <select id="filtro-empresa-exame">
-                            <option value="todos">Todas</option>
-                        </select>
-                    </div>
-                    <div class="date-range">
-                        <div class="form-group">
-                            <label for="filtro-periodo-inicio-exame">Período (Início):</label>
-                            <input type="date" id="filtro-periodo-inicio-exame">
-                        </div>
-                        <div class="form-group">
-                            <label for="filtro-periodo-fim-exame">Período (Fim):</label>
-                            <input type="date" id="filtro-periodo-fim-exame">
-                        </div>
-                        <div class="form-group clear-filters">
-                            <button class="btn btn-warning" id="btn-limpar-filtros-exame">
-                                <i class="fas fa-times"></i> Limpar Filtros
-                            </button>
+                    <div id="exames-filters" class="filter-content">
+                        <div class="filters" style="margin-bottom: 0;">
+                            <div class="form-group">
+                                <label for="filtro-nome-exame">Nome do Colaborador:</label>
+                                <input type="text" id="filtro-nome-exame" placeholder="Digite para buscar..." class="search-input">
+                            </div>
+                            <div class="form-group">
+                                <label for="filtro-departamento-exame">Departamento:</label>
+                                <select id="filtro-departamento-exame">
+                                    <option value="todos">Todos</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="filtro-status-exame">Status:</label>
+                                <select id="filtro-status-exame">
+                                    <option value="todos">Todos</option>
+                                    <option value="em-dia">Em Dia</option>
+                                    <option value="proximo-vencer">Próximo de Vencer</option>
+                                    <option value="vencido">Vencido</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="filtro-tipo-exame">Tipo de Exame:</label>
+                                <select id="filtro-tipo-exame">
+                                    <option value="todos">Todos</option>
+                                    <option value="admissional">Admissional</option>
+                                    <option value="periodico">Periódico</option>
+                                    <option value="demissional">Demissional</option>
+                                    <option value="retorno">Retorno</option>
+                                    <option value="mudanca">Mudança</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="filtro-empresa-exame">Empresa:</label>
+                                <select id="filtro-empresa-exame">
+                                    <option value="todos">Todas</option>
+                                </select>
+                            </div>
+                            <div class="date-range">
+                                <div class="form-group">
+                                    <label for="filtro-periodo-inicio-exame">Período (Início):</label>
+                                    <input type="date" id="filtro-periodo-inicio-exame">
+                                </div>
+                                <div class="form-group">
+                                    <label for="filtro-periodo-fim-exame">Período (Fim):</label>
+                                    <input type="date" id="filtro-periodo-fim-exame">
+                                </div>
+                                <div class="form-group clear-filters">
+                                    <button class="btn btn-warning" id="btn-limpar-filtros-exame">
+                                        <i class="fas fa-times"></i> Limpar Filtros
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1602,51 +1671,49 @@
                     </div>
                 </div>
 
-                <div class="filters">
-                    <div class="form-group">
-                        <label for="filtro-nome-atestado">Nome do Colaborador:</label>
-                        <input type="text" id="filtro-nome-atestado" placeholder="Digite para buscar..." class="search-input">
+                <!-- Filtros de Atestados - Ocultos por padrão com botão para exibir -->
+                <div class="filter-container">
+                    <div class="filter-header" onclick="toggleFilters('atestados-filters')">
+                        <h3><i class="fas fa-filter"></i> Filtros de Atestados</h3>
+                        <i class="fas fa-chevron-down" id="atestados-filters-icon"></i>
                     </div>
-                    <div class="form-group">
-                        <label for="filtro-tipo-atestado">Tipo de Atestado:</label>
-                        <select id="filtro-tipo-atestado">
-                            <option value="todos">Todos</option>
-                            <option value="medico">Médico</option>
-                            <option value="odontologico">Odontológico</option>
-                            <option value="acompanhamento-filho">Acompanhamento Filho</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="filtro-unidade-atestado">Unidade:</label>
-                        <select id="filtro-unidade-atestado">
-                            <option value="todos">Todas</option>
-                            <option value="dias">Dias</option>
-                            <option value="horas">Horas</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="filtro-mes-atestado">Mês:</label>
-                        <select id="filtro-mes-atestado">
-                            <option value="todos">Todos os meses</option>
-                            <option value="1">Janeiro</option>
-                            <option value="2">Fevereiro</option>
-                            <option value="3">Março</option>
-                            <option value="4">Abril</option>
-                            <option value="5">Maio</option>
-                            <option value="6">Junho</option>
-                            <option value="7">Julho</option>
-                            <option value="8">Agosto</option>
-                            <option value="9">Setembro</option>
-                            <option value="10">Outubro</option>
-                            <option value="11">Novembro</option>
-                            <option value="12">Dezembro</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="filtro-ano-atestado">Ano:</label>
-                        <select id="filtro-ano-atestado">
-                            <option value="todos">Todos os anos</option>
-                        </select>
+                    <div id="atestados-filters" class="filter-content">
+                        <div class="filters" style="margin-bottom: 0;">
+                            <div class="form-group">
+                                <label for="filtro-nome-atestado">Nome do Colaborador:</label>
+                                <input type="text" id="filtro-nome-atestado" placeholder="Digite para buscar..." class="search-input">
+                            </div>
+                            <div class="form-group">
+                                <label for="filtro-tipo-atestado">Tipo de Atestado:</label>
+                                <select id="filtro-tipo-atestado">
+                                    <option value="todos">Todos</option>
+                                    <option value="medico">Médico</option>
+                                    <option value="odontologico">Odontológico</option>
+                                    <option value="acompanhamento-filho">Acompanhamento Filho</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="filtro-unidade-atestado">Unidade:</label>
+                                <select id="filtro-unidade-atestado">
+                                    <option value="todos">Todas</option>
+                                    <option value="dias">Dias</option>
+                                    <option value="horas">Horas</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="filtro-data-inicio-atestado">Data Início:</label>
+                                <input type="date" id="filtro-data-inicio-atestado" placeholder="dd/mm/aaaa">
+                            </div>
+                            <div class="form-group">
+                                <label for="filtro-data-fim-atestado">Data Fim:</label>
+                                <input type="date" id="filtro-data-fim-atestado" placeholder="dd/mm/aaaa">
+                            </div>
+                            <div class="form-group clear-filters">
+                                <button class="btn btn-warning" onclick="limparFiltrosAtestados()">
+                                    <i class="fas fa-times"></i> Limpar Filtros
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -1777,43 +1844,52 @@
                     </div>
                 </div>
 
-                <div class="filters">
-                    <div class="form-group">
-                        <label for="filtro-status-cat">Status:</label>
-                        <select id="filtro-status-cat">
-                            <option value="todos">Todos</option>
-                            <option value="registrada">Registrada</option>
-                            <option value="em_analise">Em Análise</option>
-                            <option value="concluida">Concluída</option>
-                        </select>
+                <!-- Filtros de CATs - Ocultos por padrão com botão para exibir -->
+                <div class="filter-container">
+                    <div class="filter-header" onclick="toggleFilters('cats-filters')">
+                        <h3><i class="fas fa-filter"></i> Filtros de CATs</h3>
+                        <i class="fas fa-chevron-down" id="cats-filters-icon"></i>
                     </div>
-                    <div class="form-group">
-                        <label for="filtro-tipo-cat">Tipo:</label>
-                        <select id="filtro-tipo-cat">
-                            <option value="todos">Todos</option>
-                            <option value="acidente">Acidente de Trabalho</option>
-                            <option value="doenca">Doença Ocupacional</option>
-                            <option value="acidente-trajeto">Acidente de Trajeto</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="filtro-colaborador-cat">Colaborador:</label>
-                        <select id="filtro-colaborador-cat">
-                            <option value="todos">Todos</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="filtro-periodo-inicio-cat">Data Início:</label>
-                        <input type="date" id="filtro-periodo-inicio-cat">
-                    </div>
-                    <div class="form-group">
-                        <label for="filtro-periodo-fim-cat">Data Fim:</label>
-                        <input type="date" id="filtro-periodo-fim-cat">
-                    </div>
-                    <div class="form-group clear-filters">
-                        <button class="btn btn-warning" id="btn-limpar-filtros-cat">
-                            <i class="fas fa-times"></i> Limpar Filtros
-                        </button>
+                    <div id="cats-filters" class="filter-content">
+                        <div class="filters" style="margin-bottom: 0;">
+                            <div class="form-group">
+                                <label for="filtro-status-cat">Status:</label>
+                                <select id="filtro-status-cat">
+                                    <option value="todos">Todos</option>
+                                    <option value="registrada">Registrada</option>
+                                    <option value="em_analise">Em Análise</option>
+                                    <option value="concluida">Concluída</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="filtro-tipo-cat">Tipo:</label>
+                                <select id="filtro-tipo-cat">
+                                    <option value="todos">Todos</option>
+                                    <option value="acidente">Acidente de Trabalho</option>
+                                    <option value="doenca">Doença Ocupacional</option>
+                                    <option value="acidente-trajeto">Acidente de Trajeto</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="filtro-colaborador-cat">Colaborador:</label>
+                                <select id="filtro-colaborador-cat">
+                                    <option value="todos">Todos</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="filtro-periodo-inicio-cat">Data Início:</label>
+                                <input type="date" id="filtro-periodo-inicio-cat">
+                            </div>
+                            <div class="form-group">
+                                <label for="filtro-periodo-fim-cat">Data Fim:</label>
+                                <input type="date" id="filtro-periodo-fim-cat">
+                            </div>
+                            <div class="form-group clear-filters">
+                                <button class="btn btn-warning" id="btn-limpar-filtros-cat">
+                                    <i class="fas fa-times"></i> Limpar Filtros
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -2107,6 +2183,35 @@
             }
         };
 
+        // Função para alternar visibilidade dos filtros
+        function toggleFilters(filterId) {
+            const filterContent = document.getElementById(filterId);
+            const icon = document.getElementById(`${filterId}-icon`);
+            
+            if (filterContent) {
+                filterContent.classList.toggle('show');
+                if (icon) {
+                    if (filterContent.classList.contains('show')) {
+                        icon.className = 'fas fa-chevron-up';
+                    } else {
+                        icon.className = 'fas fa-chevron-down';
+                    }
+                }
+            }
+        }
+
+        // Limpar filtros de atestados
+        function limparFiltrosAtestados() {
+            document.getElementById('filtro-nome-atestado').value = '';
+            document.getElementById('filtro-tipo-atestado').value = 'todos';
+            document.getElementById('filtro-unidade-atestado').value = 'todos';
+            document.getElementById('filtro-data-inicio-atestado').value = '';
+            document.getElementById('filtro-data-fim-atestado').value = '';
+            
+            filtrarAtestados();
+            showNotification('Filtros de atestados limpos com sucesso!', 'info');
+        }
+
         // Inicializar aplicação
         document.addEventListener('DOMContentLoaded', function() {
             // Configurar data atual
@@ -2135,8 +2240,18 @@
             // Carregar dados iniciais
             loadCacheData();
             
-            // Carregar anos para filtro
-            carregarAnosFiltro();
+            // Inicializar todos os filtros como ocultos
+            setTimeout(() => {
+                const filterContents = document.querySelectorAll('.filter-content');
+                filterContents.forEach(content => {
+                    content.classList.remove('show');
+                });
+                
+                const icons = document.querySelectorAll('[id$="-icon"]');
+                icons.forEach(icon => {
+                    icon.className = 'fas fa-chevron-down';
+                });
+            }, 100);
         });
 
         // Funções de Exportação PDF e Excel
@@ -2387,16 +2502,6 @@
             }
         }
 
-        // Carregar anos para filtro de atestados
-        function carregarAnosFiltro() {
-            const selectAno = document.getElementById('filtro-ano-atestado');
-            const currentYear = new Date().getFullYear();
-            
-            for (let year = currentYear; year >= currentYear - 5; year--) {
-                selectAno.innerHTML += `<option value="${year}">${year}</option>`;
-            }
-        }
-
         // Limpar filtros do Dashboard
         function limparFiltrosDashboard() {
             document.getElementById('filtro-dashboard-colaborador').value = 'todos';
@@ -2497,11 +2602,11 @@
                 filtrarAtestados();
             });
             
-            document.getElementById('filtro-mes-atestado').addEventListener('change', function() {
+            document.getElementById('filtro-data-inicio-atestado').addEventListener('change', function() {
                 filtrarAtestados();
             });
             
-            document.getElementById('filtro-ano-atestado').addEventListener('change', function() {
+            document.getElementById('filtro-data-fim-atestado').addEventListener('change', function() {
                 filtrarAtestados();
             });
             
@@ -2634,6 +2739,26 @@
                 if (!colaborador || colaborador.departamento !== dashboardFiltros.departamento) {
                     return false;
                 }
+            }
+            
+            return true;
+        }
+
+        // Função para verificar se atestado está dentro do período do filtro de atestados
+        function atestadoDentroPeriodoFiltro(dataInicio, dataInicioFiltro, dataFimFiltro) {
+            if (!dataInicioFiltro && !dataFimFiltro) return true;
+            
+            const dataInicioAtestado = new Date(dataInicio);
+            
+            if (dataInicioFiltro) {
+                const dataInicioFiltroObj = new Date(dataInicioFiltro);
+                if (dataInicioAtestado < dataInicioFiltroObj) return false;
+            }
+            
+            if (dataFimFiltro) {
+                const dataFimFiltroObj = new Date(dataFimFiltro);
+                dataFimFiltroObj.setHours(23, 59, 59);
+                if (dataInicioAtestado > dataFimFiltroObj) return false;
             }
             
             return true;
@@ -3792,8 +3917,8 @@
             const filtroNome = document.getElementById('filtro-nome-atestado').value.toLowerCase();
             const filtroTipo = document.getElementById('filtro-tipo-atestado').value;
             const filtroUnidade = document.getElementById('filtro-unidade-atestado').value;
-            const filtroMes = document.getElementById('filtro-mes-atestado').value;
-            const filtroAno = document.getElementById('filtro-ano-atestado').value;
+            const filtroDataInicio = document.getElementById('filtro-data-inicio-atestado').value;
+            const filtroDataFim = document.getElementById('filtro-data-fim-atestado').value;
             
             const atestadosBody = document.getElementById('atestadosBody');
             atestadosBody.innerHTML = '';
@@ -3820,21 +3945,13 @@
                 
                 const unidadeMatch = filtroUnidade === 'todos' || atestado.data.unidade === filtroUnidade;
                 
-                let mesMatch = true;
-                if (filtroMes !== 'todos' && atestado.data.dataInicio) {
-                    const dataInicio = new Date(atestado.data.dataInicio);
-                    const mes = dataInicio.getMonth() + 1;
-                    mesMatch = mes == filtroMes;
-                }
+                const periodoMatch = atestadoDentroPeriodoFiltro(
+                    atestado.data.dataInicio, 
+                    filtroDataInicio, 
+                    filtroDataFim
+                );
                 
-                let anoMatch = true;
-                if (filtroAno !== 'todos' && atestado.data.dataInicio) {
-                    const dataInicio = new Date(atestado.data.dataInicio);
-                    const ano = dataInicio.getFullYear();
-                    anoMatch = ano == filtroAno;
-                }
-                
-                return nomeMatch && tipoMatch && unidadeMatch && mesMatch && anoMatch;
+                return nomeMatch && tipoMatch && unidadeMatch && periodoMatch;
             });
             
             if (atestadosFiltradosResultado.length === 0) {
@@ -5736,7 +5853,9 @@
         window.proceedWithAtestado = proceedWithAtestado;
         window.visualizarCAT = visualizarCAT;
         window.limparFiltrosDashboard = limparFiltrosDashboard;
+        window.limparFiltrosAtestados = limparFiltrosAtestados;
         window.calcularVencimentoExame = calcularVencimentoExame;
+        window.toggleFilters = toggleFilters;
         
         // Exportação
         window.exportDashboardPDF = exportDashboardPDF;
