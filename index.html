@@ -389,6 +389,22 @@
             color: #856404;
         }
 
+        .status.dentro-prazo {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status.fora-prazo {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .status.inss {
+            background-color: #fff3cd;
+            color: #856404;
+            font-weight: 600;
+        }
+
         /* Formulários */
         .form-section {
             background-color: #f8f9fa;
@@ -867,6 +883,15 @@
             margin: 5px 0;
             font-weight: 500;
         }
+
+        .calc-result.warning {
+            background-color: #fff3cd;
+            border-left-color: var(--warning);
+        }
+
+        .calc-result.warning h4 {
+            color: #856404;
+        }
         
         /* Modal de confirmação de limite */
         .limit-warning {
@@ -949,6 +974,26 @@
         .timeline-text {
             color: #333;
             font-size: 0.95rem;
+        }
+
+        /* Badge para prazo */
+        .prazo-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .prazo-badge.dentro {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .prazo-badge.fora {
+            background-color: #f8d7da;
+            color: #721c24;
         }
     </style>
 </head>
@@ -1585,8 +1630,8 @@
                                 <th>Tipo</th>
                                 <th>Data do Acidente</th>
                                 <th>Data de Registro</th>
-                                <th>Status</th>
-                                <th>Dias Afastado</th>
+                                <th>Prazo (48h)</th>
+                                <th>Afastamento</th>
                                 <th>Ações</th>
                             </tr>
                         </thead>
@@ -1639,6 +1684,12 @@
                             </div>
                         </div>
                         
+                        <!-- Resultado do cálculo do prazo de 48h -->
+                        <div id="cat-prazo-resultado" class="calc-result hidden">
+                            <h4><i class="fas fa-clock"></i> Verificação de Prazo</h4>
+                            <p id="cat-prazo-text"></p>
+                        </div>
+                        
                         <div class="form-group">
                             <label for="cat-descricao">Descrição do Acidente/Doença *</label>
                             <textarea id="cat-descricao" placeholder="Descreva detalhadamente o acidente ou doença ocupacional" rows="4" required></textarea>
@@ -1660,9 +1711,13 @@
                             </div>
                         </div>
                         
+                        <!-- Resultado do cálculo do afastamento -->
                         <div id="cat-dias-afastamento" class="calc-result" style="display: none;">
                             <h4><i class="fas fa-calendar-alt"></i> Período de Afastamento</h4>
                             <p id="cat-dias-afastamento-text">Dias afastado: <strong>0 dias</strong></p>
+                            <p id="cat-inss-alerta" class="hidden" style="margin-top: 10px; padding: 8px; background-color: #fff3cd; border-radius: 4px; color: #856404;">
+                                <i class="fas fa-exclamation-triangle"></i> <strong>Afastamento superior a 15 dias - necessário encaminhamento ao INSS</strong>
+                            </p>
                         </div>
                         
                         <div class="form-group">
@@ -1670,20 +1725,6 @@
                             <select id="cat-cid">
                                 <option value="">Selecione um CID (Opcional)</option>
                             </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="cat-status">Status *</label>
-                            <select id="cat-status" required>
-                                <option value="registrada">Registrada</option>
-                                <option value="em_analise">Em Análise</option>
-                                <option value="concluida">Concluída</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="cat-observacoes">Observações</label>
-                            <textarea id="cat-observacoes" placeholder="Observações adicionais" rows="3"></textarea>
                         </div>
                         
                         <div class="form-actions">
@@ -2461,6 +2502,8 @@
             });
             
             // Eventos para cálculo automático no formulário de CAT
+            document.getElementById('cat-data-acidente').addEventListener('change', calcularPrazoCAT);
+            document.getElementById('cat-data-registro').addEventListener('change', calcularPrazoCAT);
             document.getElementById('cat-afastamento-inicio').addEventListener('change', calcularDiasAfastamento);
             document.getElementById('cat-afastamento-fim').addEventListener('change', calcularDiasAfastamento);
         }
@@ -2544,9 +2587,9 @@
                 const hoje = new Date();
                 document.getElementById('cat-data-acidente').value = hoje.toISOString().split('T')[0];
                 document.getElementById('cat-data-registro').value = hoje.toISOString().split('T')[0];
-                document.getElementById('cat-status').value = 'registrada';
                 
                 document.getElementById('cat-dias-afastamento').style.display = 'none';
+                calcularPrazoCAT();
             }
         }
 
@@ -3178,12 +3221,20 @@
                         diasAfastado = calcularDiasAtestado(data.afastamentoInicio, data.afastamentoFim);
                     }
                     
+                    // Verificar se foi aberto dentro do prazo de 48h
+                    const dentroPrazo = verificarPrazoCAT(data.dataAcidente, data.dataRegistro);
+                    
+                    // Verificar se afastamento é superior a 15 dias
+                    const afastamentoINSS = diasAfastado > 15;
+                    
                     const catInfo = {
                         id: doc.id,
                         data: data,
                         numero: numeroCAT,
                         colaborador: colaboradorInfo,
-                        diasAfastado: diasAfastado
+                        diasAfastado: diasAfastado,
+                        dentroPrazo: dentroPrazo,
+                        afastamentoINSS: afastamentoINSS
                     };
                     
                     catsFiltrados.push(catInfo);
@@ -3198,8 +3249,15 @@
                             <td>${formatTipoCAT(data.tipo)}</td>
                             <td>${data.dataAcidente ? formatDate(new Date(data.dataAcidente)) : 'N/A'}</td>
                             <td>${data.dataRegistro ? formatDate(new Date(data.dataRegistro)) : 'N/A'}</td>
-                            <td><span class="status ${data.status || 'registrada'}">${formatStatus(data.status || 'registrada')}</span></td>
-                            <td>${diasAfastado > 0 ? `${diasAfastado} ${diasAfastado === 1 ? 'dia' : 'dias'}` : 'N/A'}</td>
+                            <td>
+                                <span class="status ${dentroPrazo ? 'dentro-prazo' : 'fora-prazo'}">
+                                    ${dentroPrazo ? 'Dentro do prazo (48h)' : 'Fora do prazo (48h)'}
+                                </span>
+                            </td>
+                            <td>
+                                ${diasAfastado > 0 ? `${diasAfastado} ${diasAfastado === 1 ? 'dia' : 'dias'}` : 'N/A'}
+                                ${afastamentoINSS ? '<br><span class="status inss">Afastamento INSS</span>' : ''}
+                            </td>
                             <td>
                                 <div class="actions-cell">
                                     <button class="btn btn-primary btn-small" onclick="editarCAT('${doc.id}')">
@@ -3297,8 +3355,15 @@
                         <td>${formatTipoCAT(data.tipo)}</td>
                         <td>${data.dataAcidente ? formatDate(new Date(data.dataAcidente)) : 'N/A'}</td>
                         <td>${data.dataRegistro ? formatDate(new Date(data.dataRegistro)) : 'N/A'}</td>
-                        <td><span class="status ${data.status || 'registrada'}">${formatStatus(data.status || 'registrada')}</span></td>
-                        <td>${catInfo.diasAfastado > 0 ? `${catInfo.diasAfastado} ${catInfo.diasAfastado === 1 ? 'dia' : 'dias'}` : 'N/A'}</td>
+                        <td>
+                            <span class="status ${catInfo.dentroPrazo ? 'dentro-prazo' : 'fora-prazo'}">
+                                ${catInfo.dentroPrazo ? 'Dentro do prazo (48h)' : 'Fora do prazo (48h)'}
+                            </span>
+                        </td>
+                        <td>
+                            ${catInfo.diasAfastado > 0 ? `${catInfo.diasAfastado} ${catInfo.diasAfastado === 1 ? 'dia' : 'dias'}` : 'N/A'}
+                            ${catInfo.afastamentoINSS ? '<br><span class="status inss">Afastamento INSS</span>' : ''}
+                        </td>
                         <td>
                             <div class="actions-cell">
                                 <button class="btn btn-primary btn-small" onclick="editarCAT('${catInfo.id}')">
@@ -3317,6 +3382,50 @@
             });
         }
 
+        // Verificar se CAT foi aberta dentro do prazo de 48h
+        function verificarPrazoCAT(dataAcidente, dataRegistro) {
+            if (!dataAcidente || !dataRegistro) return false;
+            
+            const acidente = new Date(dataAcidente);
+            const registro = new Date(dataRegistro);
+            
+            // Definir o prazo limite (48h = 2 dias)
+            const prazoLimite = new Date(acidente);
+            prazoLimite.setHours(prazoLimite.getHours() + 48);
+            
+            return registro <= prazoLimite;
+        }
+
+        // Calcular prazo da CAT
+        function calcularPrazoCAT() {
+            const dataAcidente = document.getElementById('cat-data-acidente').value;
+            const dataRegistro = document.getElementById('cat-data-registro').value;
+            
+            if (dataAcidente && dataRegistro) {
+                const dentroPrazo = verificarPrazoCAT(dataAcidente, dataRegistro);
+                
+                const prazoResultado = document.getElementById('cat-prazo-resultado');
+                prazoResultado.classList.remove('hidden');
+                
+                if (!dentroPrazo) {
+                    prazoResultado.classList.add('warning');
+                } else {
+                    prazoResultado.classList.remove('warning');
+                }
+                
+                let prazoText = '';
+                if (dentroPrazo) {
+                    prazoText = '<span style="color: var(--success);"><i class="fas fa-check-circle"></i> CAT registrada DENTRO do prazo legal de 48h</span>';
+                } else {
+                    prazoText = '<span style="color: var(--danger);"><i class="fas fa-exclamation-circle"></i> ATENÇÃO: CAT registrada FORA do prazo legal de 48h</span>';
+                }
+                
+                document.getElementById('cat-prazo-text').innerHTML = prazoText;
+            } else {
+                document.getElementById('cat-prazo-resultado').classList.add('hidden');
+            }
+        }
+
         // Salvar CAT
         async function salvarCAT() {
             try {
@@ -3329,10 +3438,8 @@
                 const afastamentoInicio = document.getElementById('cat-afastamento-inicio').value;
                 const afastamentoFim = document.getElementById('cat-afastamento-fim').value;
                 const cid = document.getElementById('cat-cid').value;
-                const status = document.getElementById('cat-status').value;
-                const observacoes = document.getElementById('cat-observacoes').value;
                 
-                if (!funcionario || !tipo || !dataAcidente || !dataRegistro || !descricao || !status) {
+                if (!funcionario || !tipo || !dataAcidente || !dataRegistro || !descricao) {
                     showNotification('Preencha todos os campos obrigatórios', 'warning');
                     return;
                 }
@@ -3341,6 +3448,8 @@
                 const originalText = btn.innerHTML;
                 btn.innerHTML = 'Salvando...';
                 btn.disabled = true;
+                
+                const dentroPrazo = verificarPrazoCAT(dataAcidente, dataRegistro);
                 
                 const catData = {
                     funcionario,
@@ -3352,9 +3461,8 @@
                     afastamentoInicio: afastamentoInicio || '',
                     afastamentoFim: afastamentoFim || '',
                     cid: cid || '',
-                    status,
-                    observacoes: observacoes || '',
                     numero: `CAT-${Date.now().toString().slice(-8)}`,
+                    dentroPrazo: dentroPrazo,
                     createdAt: new Date(),
                     updatedAt: new Date(),
                     userId: currentUser.uid
@@ -3409,16 +3517,25 @@
             const empresa = colaboradorInfo ? colaboradorInfo.empresa : 'N/A';
             
             const diasAfastado = cat.diasAfastado;
+            const dentroPrazo = cat.dentroPrazo;
+            const afastamentoINSS = cat.afastamentoINSS;
             
             let afastamentoText = 'Não houve afastamento';
             if (data.afastamentoInicio && data.afastamentoFim) {
                 afastamentoText = `${formatDate(new Date(data.afastamentoInicio))} a ${formatDate(new Date(data.afastamentoFim))} (${diasAfastado} ${diasAfastado === 1 ? 'dia' : 'dias'})`;
+                if (afastamentoINSS) {
+                    afastamentoText += '<br><span class="status inss">Afastamento superior a 15 dias - encaminhado ao INSS</span>';
+                }
             } else if (data.afastamentoInicio) {
                 afastamentoText = `A partir de ${formatDate(new Date(data.afastamentoInicio))} (em andamento)`;
             }
             
             const cidInfo = cache.cids.find(c => c.codigo === data.cid);
             const cidText = data.cid ? `${data.cid} - ${cidInfo ? cidInfo.descricao : 'Descrição não encontrada'}` : 'Não informado';
+            
+            const prazoStatus = dentroPrazo 
+                ? '<span class="status dentro-prazo">Dentro do prazo (48h)</span>' 
+                : '<span class="status fora-prazo">Fora do prazo (48h)</span>';
             
             const detailsHTML = `
                 <div style="margin-bottom: 25px;">
@@ -3438,8 +3555,8 @@
                         <p><strong>Tipo:</strong> ${formatTipoCAT(data.tipo)}</p>
                         <p><strong>Data do Acidente/Diagnóstico:</strong> ${formatDate(new Date(data.dataAcidente))}</p>
                         <p><strong>Data de Registro:</strong> ${formatDate(new Date(data.dataRegistro))}</p>
+                        <p><strong>Prazo de 48h:</strong> ${prazoStatus}</p>
                         <p><strong>Local:</strong> ${data.local || 'Não informado'}</p>
-                        <p><strong>Status:</strong> <span class="status ${data.status || 'registrada'}">${formatStatus(data.status || 'registrada')}</span></p>
                     </div>
                     
                     <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 15px;">
@@ -3452,13 +3569,6 @@
                         <p><strong>CID:</strong> ${cidText}</p>
                         <p><strong>Afastamento:</strong> ${afastamentoText}</p>
                     </div>
-                    
-                    ${data.observacoes ? `
-                    <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 15px;">
-                        <h5 style="color: var(--primary); margin-bottom: 15px;">Observações</h5>
-                        <p style="white-space: pre-line;">${data.observacoes}</p>
-                    </div>
-                    ` : ''}
                     
                     <div style="margin-top: 20px; color: #666; font-size: 0.85rem;">
                         <p>Registrado em: ${data.createdAt ? formatDate(new Date(data.createdAt)) : 'N/A'}</p>
@@ -3487,6 +3597,14 @@
                 const diasAfastamentoDiv = document.getElementById('cat-dias-afastamento');
                 diasAfastamentoDiv.style.display = 'block';
                 document.getElementById('cat-dias-afastamento-text').innerHTML = `Dias afastado: <strong>${dias} ${dias === 1 ? 'dia' : 'dias'}</strong>`;
+                
+                // Verificar se afastamento é superior a 15 dias
+                const alertaINSS = document.getElementById('cat-inss-alerta');
+                if (dias > 15) {
+                    alertaINSS.classList.remove('hidden');
+                } else {
+                    alertaINSS.classList.add('hidden');
+                }
             } else {
                 document.getElementById('cat-dias-afastamento').style.display = 'none';
             }
@@ -4594,9 +4712,8 @@
                 document.getElementById('cat-afastamento-inicio').value = data.afastamentoInicio || '';
                 document.getElementById('cat-afastamento-fim').value = data.afastamentoFim || '';
                 document.getElementById('cat-cid').value = data.cid || '';
-                document.getElementById('cat-status').value = data.status || 'registrada';
-                document.getElementById('cat-observacoes').value = data.observacoes || '';
                 
+                calcularPrazoCAT();
                 calcularDiasAfastamento();
                 
             } catch (error) {
@@ -4775,8 +4892,8 @@
                 ).length;
                 
                 const totalCats = catsQuery.size;
-                const catsAnalise = catsQuery.docs.filter(doc => 
-                    doc.data().status === 'em_analise'
+                const catsForaPrazo = catsQuery.docs.filter(doc => 
+                    !doc.data().dentroPrazo
                 ).length;
                 
                 estatisticasDiv.innerHTML = `
@@ -4798,7 +4915,7 @@
                     <div class="stat-card">
                         <h3>CATs Registradas</h3>
                         <div class="value">${totalCats}</div>
-                        <small>${catsAnalise} em análise</small>
+                        <small>${catsForaPrazo} fora do prazo</small>
                     </div>
                 `;
                 
@@ -4912,9 +5029,9 @@
                 document.getElementById('cat-afastamento-inicio').value = '';
                 document.getElementById('cat-afastamento-fim').value = '';
                 document.getElementById('cat-cid').value = '';
-                document.getElementById('cat-status').value = 'registrada';
-                document.getElementById('cat-observacoes').value = '';
                 document.getElementById('cat-dias-afastamento').style.display = 'none';
+                document.getElementById('cat-prazo-resultado').classList.add('hidden');
+                document.getElementById('cat-inss-alerta').classList.add('hidden');
                 document.getElementById('btn-cat-text').textContent = 'Salvar CAT';
             }
         }
@@ -5029,6 +5146,22 @@
             };
             return statusMap[status] || status;
         }
+
+        // Tornar funções globais
+        window.editarColaborador = editarColaborador;
+        window.editarExame = editarExame;
+        window.editarAtestado = editarAtestado;
+        window.editarCAT = editarCAT;
+        window.editarEmpresa = editarEmpresa;
+        window.editarDepartamento = editarDepartamento;
+        window.editarCID = editarCID;
+        window.solicitarExclusao = solicitarExclusao;
+        window.confirmDelete = confirmDelete;
+        window.closeModal = closeModal;
+        window.closeLimitModal = closeLimitModal;
+        window.closeCatDetailsModal = closeCatDetailsModal;
+        window.proceedWithAtestado = proceedWithAtestado;
+        window.visualizarCAT = visualizarCAT;
     </script>
 </body>
 </html>
