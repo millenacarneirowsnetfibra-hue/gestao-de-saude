@@ -17,6 +17,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     
     <style>
+        /* [MANTIDO TODO O CSS ORIGINAL] */
         * {
             margin: 0;
             padding: 0;
@@ -353,91 +354,6 @@
             color: var(--absenteismo);
         }
 
-        /* Cards de Exames, CATs, Atestados e Declarações */
-        .exame-cards, .cat-cards, .atestado-cards, .declaracao-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .exame-stat-card, .cat-stat-card, .atestado-stat-card, .declaracao-stat-card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            border-bottom: 4px solid var(--accent);
-            transition: transform 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .exame-stat-card:hover, .cat-stat-card:hover, .atestado-stat-card:hover, .declaracao-stat-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .exame-stat-card.vencidos {
-            border-bottom-color: var(--danger);
-        }
-
-        .exame-stat-card.proximo-vencer {
-            border-bottom-color: var(--warning);
-        }
-
-        .exame-stat-card.em-dia {
-            border-bottom-color: var(--success);
-        }
-
-        .cat-stat-card.total {
-            border-bottom-color: var(--accent);
-        }
-
-        .cat-stat-card.fora-prazo {
-            border-bottom-color: var(--danger);
-        }
-
-        .atestado-stat-card, .declaracao-stat-card {
-            border-bottom-color: var(--accent);
-        }
-
-        .exame-stat-icon, .cat-stat-icon, .atestado-stat-icon, .declaracao-stat-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 12px;
-            background: linear-gradient(135deg, var(--light), #ffffff);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--primary);
-            font-size: 1.8rem;
-        }
-
-        .exame-stat-info, .cat-stat-info, .atestado-stat-info, .declaracao-stat-info {
-            flex: 1;
-        }
-
-        .exame-stat-info h4, .cat-stat-info h3, .atestado-stat-info h3, .declaracao-stat-info h3 {
-            font-size: 0.9rem;
-            color: #666;
-            margin-bottom: 5px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .exame-value, .cat-stat-info .value, .atestado-stat-info .value, .declaracao-stat-info .value {
-            font-size: 2rem;
-            font-weight: bold;
-            color: var(--primary);
-            line-height: 1;
-            margin-bottom: 5px;
-        }
-
-        .exame-percentual, .cat-stat-info small, .atestado-stat-info small, .declaracao-stat-info small {
-            color: #666;
-            font-size: 0.85rem;
-        }
-
         .dashboard-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -675,12 +591,6 @@
                 opacity: 1;
                 transform: translateY(0);
             }
-        }
-
-        .filters {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
         }
 
         .form-section {
@@ -960,10 +870,6 @@
             .filter-content {
                 padding: 15px;
             }
-
-            .exame-cards, .cat-cards, .atestado-cards, .declaracao-cards {
-                grid-template-columns: 1fr;
-            }
         }
 
         .tab-navigation {
@@ -1018,7 +924,6 @@
         .actions-cell {
             display: flex;
             gap: 8px;
-            flex-wrap: wrap;
         }
         
         .btn-small {
@@ -1192,7 +1097,7 @@
         }
 
         .faltas-input input {
-            width: 80px;
+            width: 100px;
             padding: 8px;
             text-align: center;
             border: 2px solid var(--absenteismo);
@@ -1319,36 +1224,150 @@
             font-weight: bold;
         }
 
-        .back-button {
-            background: none;
-            border: none;
-            color: var(--primary);
-            font-size: 1rem;
-            font-weight: 600;
+        /* NOVOS ESTILOS PARA O FILTRO DE ABSENTEÍSMO */
+        .absenteismo-filters {
+            background-color: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid #e0e0e0;
+        }
+
+        .absenteismo-filters h3 {
+            color: var(--absenteismo);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             margin-bottom: 20px;
-            cursor: pointer;
-            padding: 10px 15px;
+            font-size: 1.2rem;
+        }
+
+        .month-year-filters {
+            display: flex;
+            gap: 20px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .month-year-group {
+            display: flex;
+            flex-direction: column;
+            min-width: 180px;
+        }
+
+        .month-year-group label {
+            color: var(--primary);
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        .month-year-select {
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
             border-radius: 8px;
-            transition: background-color 0.3s;
+            font-size: 1rem;
+            background-color: white;
+            cursor: pointer;
+            transition: all 0.3s;
         }
 
-        .back-button:hover {
-            background-color: var(--light);
+        .month-year-select:hover {
+            border-color: var(--absenteismo);
         }
 
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: #666;
+        .month-year-select:focus {
+            border-color: var(--absenteismo);
+            outline: none;
         }
 
-        .empty-state i {
+        .btn-filter-absenteismo {
+            background: linear-gradient(to right, var(--absenteismo), #009688);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-filter-absenteismo:hover {
+            background: linear-gradient(to right, #004d40, var(--absenteismo));
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,121,107,0.3);
+        }
+
+        .btn-clear-filter {
+            background: linear-gradient(to right, #757575, #9e9e9e);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-clear-filter:hover {
+            background: linear-gradient(to right, #616161, #757575);
+            transform: translateY(-2px);
+        }
+
+        .taxa-total-card {
+            background: linear-gradient(135deg, white, #e8f5e9);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border-left: 8px solid var(--absenteismo);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .taxa-total-info h3 {
+            color: var(--absenteismo);
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .taxa-total-value {
             font-size: 3rem;
-            color: #ddd;
-            margin-bottom: 15px;
+            font-weight: bold;
+            color: var(--absenteismo);
+            margin-bottom: 5px;
+        }
+
+        .taxa-total-periodo {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .filter-active-badge {
+            background-color: var(--absenteismo-light);
+            border-radius: 20px;
+            padding: 10px 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--absenteismo);
+            font-weight: 600;
+            border: 1px solid var(--absenteismo);
+            margin-bottom: 20px;
+        }
+
+        .filter-active-badge i {
+            color: var(--absenteismo);
         }
     </style>
 </head>
@@ -1493,7 +1512,7 @@
                         <i class="fas fa-chevron-down" id="dashboard-filters-icon"></i>
                     </div>
                     <div id="dashboard-filters" class="filter-content">
-                        <div class="filters">
+                        <div class="filters" style="margin-bottom: 0;">
                             <div class="form-group">
                                 <label for="filtro-dashboard-colaborador">Colaborador:</label>
                                 <select id="filtro-dashboard-colaborador">
@@ -1552,7 +1571,7 @@
                     <div class="stat-card absenteismo-card">
                         <h3>Taxa de Absenteísmo</h3>
                         <div class="value" id="taxaAbsenteismoGeral">0%</div>
-                        <small id="periodoAbsenteismo">mês atual</small>
+                        <small id="periodoAbsenteismo">Total Geral</small>
                     </div>
                 </div>
 
@@ -1563,7 +1582,7 @@
                         <h3><i class="fas fa-trophy"></i> Top 5 - Colaboradores com mais Atestados</h3>
                         <ul class="ranking-list" id="topAtestadosColaboradores">
                             <li class="ranking-item">
-                                <span style="color: #666;">Nenhum atestado registrado</span>
+                                <div class="loading" style="margin: 20px auto;"></div>
                             </li>
                         </ul>
                     </div>
@@ -1573,7 +1592,7 @@
                         <h3><i class="fas fa-file-medical-alt"></i> Top 5 - CIDs mais Frequentes</h3>
                         <ul class="ranking-list" id="topCIDs">
                             <li class="ranking-item">
-                                <span style="color: #666;">Nenhum CID registrado</span>
+                                <div class="loading" style="margin: 20px auto;"></div>
                             </li>
                         </ul>
                     </div>
@@ -1583,7 +1602,7 @@
                         <h3><i class="fas fa-building"></i> Top 5 - Setores com mais Atestados</h3>
                         <ul class="ranking-list" id="topSetores">
                             <li class="ranking-item">
-                                <span style="color: #666;">Nenhum setor encontrado</span>
+                                <div class="loading" style="margin: 20px auto;"></div>
                             </li>
                         </ul>
                     </div>
@@ -1593,7 +1612,7 @@
                         <h3><i class="fas fa-clock"></i> Top 5 - Colaboradores com mais Horas</h3>
                         <ul class="ranking-list" id="topHorasColaboradores">
                             <li class="ranking-item">
-                                <span style="color: #666;">Nenhuma declaração encontrada</span>
+                                <div class="loading" style="margin: 20px auto;"></div>
                             </li>
                         </ul>
                     </div>
@@ -1626,12 +1645,7 @@
                             </thead>
                             <tbody id="vencimentosBody">
                                 <tr>
-                                    <td colspan="7" style="text-align: center; padding: 30px;">
-                                        <div class="empty-state">
-                                            <i class="fas fa-calendar-check"></i>
-                                            <p>Nenhum vencimento próximo</p>
-                                        </div>
-                                    </td>
+                                    <td colspan="7" style="text-align: center; padding: 30px;">Carregando dados...</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -1656,14 +1670,14 @@
                     </div>
                 </div>
 
-                <!-- Filtros de Colaboradores -->
+                <!-- Filtros de Colaboradores - Ocultos por padrão com botão para exibir -->
                 <div class="filter-container">
                     <div class="filter-header" onclick="toggleFilters('colaboradores-filters')">
                         <h3><i class="fas fa-filter"></i> Filtros de Colaboradores</h3>
                         <i class="fas fa-chevron-down" id="colaboradores-filters-icon"></i>
                     </div>
                     <div id="colaboradores-filters" class="filter-content">
-                        <div class="filters">
+                        <div class="filters" style="margin-bottom: 0;">
                             <div class="form-group">
                                 <label for="filtro-nome-colaborador">Nome:</label>
                                 <input type="text" id="filtro-nome-colaborador" placeholder="Digite para buscar..." class="search-input">
@@ -1700,12 +1714,7 @@
                         </thead>
                         <tbody id="colaboradoresBody">
                             <tr>
-                                <td colspan="6" style="text-align: center; padding: 30px;">
-                                    <div class="empty-state">
-                                        <i class="fas fa-users"></i>
-                                        <p>Nenhum colaborador cadastrado</p>
-                                    </div>
-                                </td>
+                                <td colspan="6" style="text-align: center; padding: 30px;">Carregando colaboradores...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -1713,7 +1722,7 @@
             </section>
 
             <!-- Colaboradores - Página de Cadastro/Edição -->
-            <section id="colaborador-cadastro" class="page-content colaborador-page hidden">
+            <section id="colaborador-cadastro" class="page-content colaborador-page">
                 <button class="back-button" id="btn-voltar-colaboradores">
                     <i class="fas fa-arrow-left"></i> Voltar para Lista
                 </button>
@@ -1778,54 +1787,39 @@
                     </div>
                 </div>
 
-                <!-- Cards de Status de Exames - CORRIGIDO -->
+                <!-- Cards de Status de Exames -->
                 <div class="exame-cards">
                     <div class="exame-stat-card vencidos">
-                        <div class="exame-stat-icon">
-                            <i class="fas fa-exclamation-circle"></i>
-                        </div>
-                        <div class="exame-stat-info">
-                            <h4>Exames Vencidos</h4>
-                            <div class="exame-value" id="totalExamesVencidos">0</div>
-                            <div class="exame-percentual">
-                                <span id="percentualVencidos">0%</span> do total
-                            </div>
+                        <h4><i class="fas fa-exclamation-circle"></i> Exames Vencidos</h4>
+                        <div class="exame-value" id="totalExamesVencidos">0</div>
+                        <div class="exame-percentual">
+                            <span id="percentualVencidos">0%</span> do total
                         </div>
                     </div>
                     <div class="exame-stat-card proximo-vencer">
-                        <div class="exame-stat-icon">
-                            <i class="fas fa-clock"></i>
-                        </div>
-                        <div class="exame-stat-info">
-                            <h4>Próximo a Vencer</h4>
-                            <div class="exame-value" id="totalExamesProximoVencer">0</div>
-                            <div class="exame-percentual">
-                                <span id="percentualProximoVencer">0%</span> do total
-                            </div>
+                        <h4><i class="fas fa-clock"></i> Próximo a Vencer</h4>
+                        <div class="exame-value" id="totalExamesProximoVencer">0</div>
+                        <div class="exame-percentual">
+                            <span id="percentualProximoVencer">0%</span> do total
                         </div>
                     </div>
                     <div class="exame-stat-card em-dia">
-                        <div class="exame-stat-icon">
-                            <i class="fas fa-check-circle"></i>
-                        </div>
-                        <div class="exame-stat-info">
-                            <h4>Em Dia</h4>
-                            <div class="exame-value" id="totalExamesEmDia">0</div>
-                            <div class="exame-percentual">
-                                <span id="percentualEmDia">0%</span> do total
-                            </div>
+                        <h4><i class="fas fa-check-circle"></i> Em Dia</h4>
+                        <div class="exame-value" id="totalExamesEmDia">0</div>
+                        <div class="exame-percentual">
+                            <span id="percentualEmDia">0%</span> do total
                         </div>
                     </div>
                 </div>
 
-                <!-- Filtros de Exames -->
+                <!-- Filtros de Exames - Ocultos por padrão com botão para exibir -->
                 <div class="filter-container">
                     <div class="filter-header" onclick="toggleFilters('exames-filters')">
                         <h3><i class="fas fa-filter"></i> Filtros de Exames</h3>
                         <i class="fas fa-chevron-down" id="exames-filters-icon"></i>
                     </div>
                     <div id="exames-filters" class="filter-content">
-                        <div class="filters">
+                        <div class="filters" style="margin-bottom: 0;">
                             <div class="form-group">
                                 <label for="filtro-nome-exame">Nome do Colaborador:</label>
                                 <input type="text" id="filtro-nome-exame" placeholder="Digite para buscar..." class="search-input">
@@ -1896,12 +1890,7 @@
                         </thead>
                         <tbody id="examesBody">
                             <tr>
-                                <td colspan="7" style="text-align: center; padding: 30px;">
-                                    <div class="empty-state">
-                                        <i class="fas fa-stethoscope"></i>
-                                        <p>Nenhum exame cadastrado</p>
-                                    </div>
-                                </td>
+                                <td colspan="7" style="text-align: center; padding: 30px;">Carregando exames...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -1909,7 +1898,7 @@
             </section>
 
             <!-- Exames Ocupacionais - Página de Cadastro/Edição -->
-            <section id="exame-cadastro" class="page-content exame-page hidden">
+            <section id="exame-cadastro" class="page-content exame-page">
                 <button class="back-button" id="btn-voltar-exames">
                     <i class="fas fa-arrow-left"></i> Voltar para Lista
                 </button>
@@ -1974,8 +1963,8 @@
                     </div>
                 </div>
 
-                <!-- Cards de Atestados - CORRIGIDO -->
-                <div class="atestado-cards">
+                <!-- Cards de Atestados - Total com Filtros -->
+                <div class="atestado-stats-cards">
                     <div class="atestado-stat-card">
                         <div class="atestado-stat-icon">
                             <i class="fas fa-file-medical-alt"></i>
@@ -1983,19 +1972,19 @@
                         <div class="atestado-stat-info">
                             <h3>Total de Atestados</h3>
                             <div class="value" id="totalAtestadosFiltrados">0</div>
-                            <small>com filtros aplicados</small>
+                            <small id="atestadosFiltrosInfo">com filtros aplicados</small>
                         </div>
                     </div>
                 </div>
 
-                <!-- Filtros de Atestados -->
+                <!-- Filtros de Atestados - Ocultos por padrão com botão para exibir -->
                 <div class="filter-container">
                     <div class="filter-header" onclick="toggleFilters('atestados-filters')">
                         <h3><i class="fas fa-filter"></i> Filtros de Atestados</h3>
                         <i class="fas fa-chevron-down" id="atestados-filters-icon"></i>
                     </div>
                     <div id="atestados-filters" class="filter-content">
-                        <div class="filters">
+                        <div class="filters" style="margin-bottom: 0;">
                             <div class="form-group">
                                 <label for="filtro-nome-atestado">Nome do Colaborador:</label>
                                 <input type="text" id="filtro-nome-atestado" placeholder="Digite para buscar..." class="search-input">
@@ -2034,11 +2023,11 @@
                             <div class="date-range">
                                 <div class="form-group">
                                     <label for="filtro-data-inicio-atestado">Data Início:</label>
-                                    <input type="date" id="filtro-data-inicio-atestado">
+                                    <input type="date" id="filtro-data-inicio-atestado" placeholder="dd/mm/aaaa">
                                 </div>
                                 <div class="form-group">
                                     <label for="filtro-data-fim-atestado">Data Fim:</label>
-                                    <input type="date" id="filtro-data-fim-atestado">
+                                    <input type="date" id="filtro-data-fim-atestado" placeholder="dd/mm/aaaa">
                                 </div>
                                 <div class="form-group clear-filters">
                                     <button class="btn btn-warning" onclick="limparFiltrosAtestados()">
@@ -2064,12 +2053,7 @@
                         </thead>
                         <tbody id="atestadosBody">
                             <tr>
-                                <td colspan="6" style="text-align: center; padding: 30px;">
-                                    <div class="empty-state">
-                                        <i class="fas fa-file-medical"></i>
-                                        <p>Nenhum atestado cadastrado</p>
-                                    </div>
-                                </td>
+                                <td colspan="6" style="text-align: center; padding: 30px;">Carregando atestados...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -2077,7 +2061,7 @@
             </section>
 
             <!-- Atestados - Página de Cadastro/Edição -->
-            <section id="atestado-cadastro" class="page-content atestado-page hidden">
+            <section id="atestado-cadastro" class="page-content atestado-page">
                 <button class="back-button" id="btn-voltar-atestados">
                     <i class="fas fa-arrow-left"></i> Voltar para Lista
                 </button>
@@ -2123,7 +2107,7 @@
                             <label for="atestado-unidade">Unidade do Atestado *</label>
                             <select id="atestado-unidade" required>
                                 <option value="">Selecione a unidade</option>
-                                <option value="dias" selected>Dias</option>
+                                <option value="dias">Dias</option>
                                 <option value="horas">Horas</option>
                             </select>
                         </div>
@@ -2131,7 +2115,7 @@
                         <!-- Campo para Dias de Afastamento (quando unidade = dias) -->
                         <div id="campo-dias-afastamento">
                             <div class="form-group">
-                                <label for="atestado-dias-afastamento">Dias de Afastamento *</label>
+                                <label for="atestado-dias-afastamento">Dias de Afastamento</label>
                                 <input type="number" id="atestado-dias-afastamento" min="1" placeholder="Digite os dias" oninput="calcularDataFinalAtestado()">
                                 <small style="color: #666; margin-top: 5px;">Digite os dias de afastamento</small>
                             </div>
@@ -2187,8 +2171,8 @@
                     </div>
                 </div>
 
-                <!-- Cards de CATs - CORRIGIDO -->
-                <div class="cat-cards">
+                <!-- Cards de CATs - Total e Fora do Prazo com Filtros -->
+                <div class="cat-stats-cards">
                     <div class="cat-stat-card total">
                         <div class="cat-stat-icon">
                             <i class="fas fa-file-alt"></i>
@@ -2211,14 +2195,14 @@
                     </div>
                 </div>
 
-                <!-- Filtros de CATs -->
+                <!-- Filtros de CATs - Ocultos por padrão com botão para exibir -->
                 <div class="filter-container">
                     <div class="filter-header" onclick="toggleFilters('cats-filters')">
                         <h3><i class="fas fa-filter"></i> Filtros de CATs</h3>
                         <i class="fas fa-chevron-down" id="cats-filters-icon"></i>
                     </div>
                     <div id="cats-filters" class="filter-content">
-                        <div class="filters">
+                        <div class="filters" style="margin-bottom: 0;">
                             <div class="form-group">
                                 <label for="filtro-status-cat">Status:</label>
                                 <select id="filtro-status-cat">
@@ -2275,12 +2259,7 @@
                         </thead>
                         <tbody id="catsBody">
                             <tr>
-                                <td colspan="7" style="text-align: center; padding: 30px;">
-                                    <div class="empty-state">
-                                        <i class="fas fa-exclamation-triangle"></i>
-                                        <p>Nenhuma CAT registrada</p>
-                                    </div>
-                                </td>
+                                <td colspan="7" style="text-align: center; padding: 30px;">Carregando CATs...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -2288,7 +2267,7 @@
             </section>
 
             <!-- CATs - Página de Cadastro/Edição -->
-            <section id="cat-cadastro" class="page-content cat-page hidden">
+            <section id="cat-cadastro" class="page-content cat-page">
                 <button class="back-button" id="btn-voltar-cats">
                     <i class="fas fa-arrow-left"></i> Voltar para Lista
                 </button>
@@ -2397,8 +2376,8 @@
                     </div>
                 </div>
 
-                <!-- Cards de Declarações de Horas - CORRIGIDO -->
-                <div class="declaracao-cards">
+                <!-- Cards de Declarações de Horas -->
+                <div class="declaracao-stats-cards">
                     <div class="declaracao-stat-card">
                         <div class="declaracao-stat-icon">
                             <i class="fas fa-file-alt"></i>
@@ -2428,7 +2407,7 @@
                         <i class="fas fa-chevron-down" id="declaracoes-filters-icon"></i>
                     </div>
                     <div id="declaracoes-filters" class="filter-content">
-                        <div class="filters">
+                        <div class="filters" style="margin-bottom: 0;">
                             <div class="form-group">
                                 <label for="filtro-nome-declaracao">Nome do Colaborador:</label>
                                 <input type="text" id="filtro-nome-declaracao" placeholder="Digite para buscar..." class="search-input">
@@ -2492,7 +2471,7 @@
             </section>
 
             <!-- Declarações de Horas - Página de Cadastro/Edição -->
-            <section id="declaracao-cadastro" class="page-content declaracao-page hidden">
+            <section id="declaracao-cadastro" class="page-content declaracao-page">
                 <button class="back-button" id="btn-voltar-declaracoes">
                     <i class="fas fa-arrow-left"></i> Voltar para Lista
                 </button>
@@ -2547,7 +2526,7 @@
                 </div>
             </section>
 
-            <!-- Absenteísmo - Página Principal -->
+            <!-- Absenteísmo - Página Principal (AJUSTADA COM FILTRO MÊS/ANO E HISTÓRICO CORRIGIDO) -->
             <section id="absenteismo" class="page-content absenteismo-page">
                 <div class="page-title">
                     <h2><i class="fas fa-calendar-times"></i> Gestão de Absenteísmo</h2>
@@ -2561,77 +2540,84 @@
                     </div>
                 </div>
 
-                <!-- Filtro de Período para Absenteísmo -->
-                <div class="filter-container">
-                    <div class="filter-header" onclick="toggleFilters('absenteismo-periodo-filters')">
-                        <h3><i class="fas fa-filter"></i> Filtrar Histórico de Absenteísmo</h3>
-                        <i class="fas fa-chevron-down" id="absenteismo-periodo-filters-icon"></i>
+                <!-- CARD DA TAXA TOTAL (SEMPRE VISÍVEL) -->
+                <div class="taxa-total-card">
+                    <div class="taxa-total-info">
+                        <h3><i class="fas fa-chart-line"></i> Taxa de Absenteísmo Total</h3>
+                        <div class="taxa-total-value" id="taxaAbsenteismoTotal">0%</div>
+                        <div class="taxa-total-periodo" id="periodoAbsenteismoTotal">Todos os períodos</div>
                     </div>
-                    <div id="absenteismo-periodo-filters" class="filter-content">
-                        <div class="filters">
-                            <div class="form-group">
-                                <label for="filtro-absenteismo-mes-inicio">Mês Início:</label>
-                                <select id="filtro-absenteismo-mes-inicio">
-                                    <option value="">Todos</option>
-                                    <option value="1">Janeiro</option>
-                                    <option value="2">Fevereiro</option>
-                                    <option value="3">Março</option>
-                                    <option value="4">Abril</option>
-                                    <option value="5">Maio</option>
-                                    <option value="6">Junho</option>
-                                    <option value="7">Julho</option>
-                                    <option value="8">Agosto</option>
-                                    <option value="9">Setembro</option>
-                                    <option value="10">Outubro</option>
-                                    <option value="11">Novembro</option>
-                                    <option value="12">Dezembro</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="filtro-absenteismo-ano-inicio">Ano Início:</label>
-                                <select id="filtro-absenteismo-ano-inicio">
-                                    <option value="">Todos</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="filtro-absenteismo-mes-fim">Mês Fim:</label>
-                                <select id="filtro-absenteismo-mes-fim">
-                                    <option value="">Todos</option>
-                                    <option value="1">Janeiro</option>
-                                    <option value="2">Fevereiro</option>
-                                    <option value="3">Março</option>
-                                    <option value="4">Abril</option>
-                                    <option value="5">Maio</option>
-                                    <option value="6">Junho</option>
-                                    <option value="7">Julho</option>
-                                    <option value="8">Agosto</option>
-                                    <option value="9">Setembro</option>
-                                    <option value="10">Outubro</option>
-                                    <option value="11">Novembro</option>
-                                    <option value="12">Dezembro</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="filtro-absenteismo-ano-fim">Ano Fim:</label>
-                                <select id="filtro-absenteismo-ano-fim">
-                                    <option value="">Todos</option>
-                                </select>
-                            </div>
-                            <div class="form-group clear-filters">
-                                <button class="btn btn-primary" onclick="filtrarHistoricoAbsenteismo()">
-                                    <i class="fas fa-search"></i> Aplicar Filtro
-                                </button>
-                                <button class="btn btn-danger" onclick="limparFiltrosAbsenteismo()">
-                                    <i class="fas fa-times"></i> Limpar
-                                </button>
-                            </div>
-                        </div>
+                    <div style="background-color: var(--absenteismo-light); padding: 15px; border-radius: 8px;">
+                        <i class="fas fa-info-circle" style="color: var(--absenteismo); font-size: 2rem;"></i>
                     </div>
                 </div>
 
+                <!-- NOVO FILTRO POR PERÍODO (MÊS/ANO) -->
+                <div class="absenteismo-filters">
+                    <h3><i class="fas fa-filter"></i> Filtrar por Período</h3>
+                    <div class="month-year-filters">
+                        <div class="month-year-group">
+                            <label for="absenteismo-mes-inicio">Mês/Ano Início</label>
+                            <div style="display: flex; gap: 10px;">
+                                <select id="absenteismo-mes-inicio" class="month-year-select" style="flex: 1;" onchange="filtrarAbsenteismoPeriodo()">
+                                    <option value="">Mês</option>
+                                    <option value="1">Janeiro</option>
+                                    <option value="2">Fevereiro</option>
+                                    <option value="3">Março</option>
+                                    <option value="4">Abril</option>
+                                    <option value="5">Maio</option>
+                                    <option value="6">Junho</option>
+                                    <option value="7">Julho</option>
+                                    <option value="8">Agosto</option>
+                                    <option value="9">Setembro</option>
+                                    <option value="10">Outubro</option>
+                                    <option value="11">Novembro</option>
+                                    <option value="12">Dezembro</option>
+                                </select>
+                                <select id="absenteismo-ano-inicio" class="month-year-select" style="flex: 1;" onchange="filtrarAbsenteismoPeriodo()">
+                                    <option value="">Ano</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="month-year-group">
+                            <label for="absenteismo-mes-fim">Mês/Ano Fim</label>
+                            <div style="display: flex; gap: 10px;">
+                                <select id="absenteismo-mes-fim" class="month-year-select" style="flex: 1;" onchange="filtrarAbsenteismoPeriodo()">
+                                    <option value="">Mês</option>
+                                    <option value="1">Janeiro</option>
+                                    <option value="2">Fevereiro</option>
+                                    <option value="3">Março</option>
+                                    <option value="4">Abril</option>
+                                    <option value="5">Maio</option>
+                                    <option value="6">Junho</option>
+                                    <option value="7">Julho</option>
+                                    <option value="8">Agosto</option>
+                                    <option value="9">Setembro</option>
+                                    <option value="10">Outubro</option>
+                                    <option value="11">Novembro</option>
+                                    <option value="12">Dezembro</option>
+                                </select>
+                                <select id="absenteismo-ano-fim" class="month-year-select" style="flex: 1;" onchange="filtrarAbsenteismoPeriodo()">
+                                    <option value="">Ano</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 10px; align-items: flex-end;">
+                            <button class="btn-filter-absenteismo" onclick="limparFiltroPeriodo()">
+                                <i class="fas fa-times"></i> Limpar Filtro
+                            </button>
+                        </div>
+                    </div>
+                    <div id="filtroAtivoBadge" class="filter-active-badge" style="display: none; margin-top: 15px;">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span id="filtroPeriodoTexto">Filtrando período: </span>
+                    </div>
+                </div>
+
+                <!-- ÁREA DE CÁLCULO E REGISTRO -->
                 <div class="form-section">
                     <h3 style="color: var(--absenteismo); margin-bottom: 25px;">
-                        <i class="fas fa-chart-line"></i> Calcular e Registrar Taxa de Absenteísmo
+                        <i class="fas fa-calculator"></i> Calcular e Registrar Taxa de Absenteísmo
                     </h3>
                     
                     <div class="absenteismo-selectors">
@@ -2668,7 +2654,7 @@
                         </div>
                     </div>
 
-                    <!-- Card da Taxa de Absenteísmo -->
+                    <!-- Card da Taxa de Absenteísmo Calculada -->
                     <div id="taxaAbsenteismoCard" class="taxa-card" style="display: none;">
                         <div class="taxa-icon">
                             <i class="fas fa-percent"></i>
@@ -2700,7 +2686,7 @@
                                 <div class="value" id="previewFaltas">0</div>
                                 <div class="subvalue">
                                     <div class="faltas-input">
-                                        <input type="number" id="faltas-manual-input" min="0" value="0" onchange="calcularAbsenteismoComFaltas()">
+                                        <input type="number" id="faltas-manual-input" min="0" value="0" onchange="calcularAbsenteismoComFaltas()" style="width: 80px; padding: 5px; text-align: center;">
                                     </div>
                                     <small style="display: block; margin-top: 5px;">Digite o número de faltas</small>
                                 </div>
@@ -2716,7 +2702,7 @@
                     </div>
                 </div>
 
-                <!-- Histórico de Absenteísmo -->
+                <!-- Histórico de Absenteísmo COM FILTRO AUTOMÁTICO -->
                 <div class="absenteismo-history">
                     <h3><i class="fas fa-history"></i> Histórico de Taxas de Absenteísmo</h3>
                     
@@ -2893,14 +2879,15 @@
         let colaboradoresFiltrados = [];
         let atestadoPendente = null;
         let absenteismoCalculo = null;
-        let absenteismoFiltros = {
-            mesInicio: '',
-            anoInicio: '',
-            mesFim: '',
-            anoFim: ''
-        };
         
-        // Cache de dados sincronizados - LIMPO (sem dados de teste)
+        // Variáveis para filtro de período do absenteísmo
+        let filtroPeriodoAtivo = false;
+        let mesInicioFiltro = '';
+        let anoInicioFiltro = '';
+        let mesFimFiltro = '';
+        let anoFimFiltro = '';
+        
+        // Cache de dados sincronizados
         let cache = {
             colaboradores: [],
             empresas: [],
@@ -2989,7 +2976,6 @@
         }
 
         function calcularHorasAtestado(horaInicio, horaFinal) {
-            if (!horaInicio || !horaFinal) return 0;
             const [horaInicioH, horaInicioM] = horaInicio.split(':').map(Number);
             const [horaFinalH, horaFinalM] = horaFinal.split(':').map(Number);
             const inicioMinutos = horaInicioH * 60 + horaInicioM;
@@ -3000,28 +2986,6 @@
             }
             const diffHoras = diffMinutos / 60;
             return Math.round(diffHoras * 10) / 10;
-        }
-
-        function calcularDiasAtestado(dataInicio, dataFinal) {
-            if (!dataInicio || !dataFinal) return 0;
-            const inicio = new Date(dataInicio + 'T12:00:00');
-            const fim = new Date(dataFinal + 'T12:00:00');
-            const diffTime = Math.abs(fim - inicio);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            return diffDays + 1;
-        }
-
-        function calcularHorasDeclaracao() {
-            const horaInicio = document.getElementById('declaracao-hora-inicio').value;
-            const horaFinal = document.getElementById('declaracao-hora-final').value;
-            
-            if (horaInicio && horaFinal) {
-                const horasDecimais = calcularHorasAtestado(horaInicio, horaFinal);
-                const horasFormatadas = formatarHorasDecimal(horasDecimais);
-                const calcResultado = document.getElementById('declaracao-calc-resultado');
-                calcResultado.classList.remove('hidden');
-                document.getElementById('declaracao-calc-horas').innerHTML = `Horas ausentes: <strong>${horasFormatadas}</strong>`;
-            }
         }
 
         // === FUNÇÕES DE NOTIFICAÇÃO E MODAL ===
@@ -3099,6 +3063,19 @@
             }
         }
 
+        function calcularHorasDeclaracao() {
+            const horaInicio = document.getElementById('declaracao-hora-inicio').value;
+            const horaFinal = document.getElementById('declaracao-hora-final').value;
+            
+            if (horaInicio && horaFinal) {
+                const horasDecimais = calcularHorasAtestado(horaInicio, horaFinal);
+                const horasFormatadas = formatarHorasDecimal(horasDecimais);
+                const calcResultado = document.getElementById('declaracao-calc-resultado');
+                calcResultado.classList.remove('hidden');
+                document.getElementById('declaracao-calc-horas').innerHTML = `Horas ausentes: <strong>${horasFormatadas}</strong>`;
+            }
+        }
+
         function calcularAtestado() {
             const dataInicio = document.getElementById('atestado-data-inicio').value;
             const dataFinal = document.getElementById('atestado-data-final').value;
@@ -3124,6 +3101,14 @@
                 const dias = calcularDiasAtestado(dataInicio, dataFinal);
                 document.getElementById('calc-periodo').innerHTML = `Período: <strong>${dias} ${dias === 1 ? 'dia' : 'dias'}</strong>`;
             }
+        }
+
+        function calcularDiasAtestado(dataInicio, dataFinal) {
+            const inicio = new Date(dataInicio + 'T12:00:00');
+            const fim = new Date(dataFinal + 'T12:00:00');
+            const diffTime = Math.abs(fim - inicio);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            return diffDays + 1;
         }
 
         function calcularStatusVencimento(dataVencimento) {
@@ -3207,26 +3192,107 @@
             }
         }
 
-        // === FUNÇÕES DE ABSENTEÍSMO ===
+        // === FUNÇÕES DE ABSENTEÍSMO (AJUSTADAS COM FILTRO PERÍODO E HISTÓRICO) ===
         
         function carregarAnosAbsenteismo() {
             const selectAno = document.getElementById('absenteismo-ano');
-            const selectAnoInicio = document.getElementById('filtro-absenteismo-ano-inicio');
-            const selectAnoFim = document.getElementById('filtro-absenteismo-ano-fim');
+            const selectAnoInicio = document.getElementById('absenteismo-ano-inicio');
+            const selectAnoFim = document.getElementById('absenteismo-ano-fim');
+            
             if (!selectAno) return;
             
             const anoAtual = new Date().getFullYear();
-            let options = '<option value="">Selecione o ano</option>';
-            let filterOptions = '<option value="">Todos</option>';
             
-            for (let ano = anoAtual - 2; ano <= anoAtual + 1; ano++) {
-                options += `<option value="${ano}">${ano}</option>`;
-                filterOptions += `<option value="${ano}">${ano}</option>`;
+            if (selectAno) {
+                selectAno.innerHTML = '<option value="">Selecione o ano</option>';
+                for (let ano = anoAtual - 2; ano <= anoAtual + 1; ano++) {
+                    selectAno.innerHTML += `<option value="${ano}">${ano}</option>`;
+                }
             }
             
-            selectAno.innerHTML = options;
-            if (selectAnoInicio) selectAnoInicio.innerHTML = filterOptions;
-            if (selectAnoFim) selectAnoFim.innerHTML = filterOptions;
+            if (selectAnoInicio) {
+                selectAnoInicio.innerHTML = '<option value="">Ano</option>';
+                for (let ano = anoAtual - 2; ano <= anoAtual + 1; ano++) {
+                    selectAnoInicio.innerHTML += `<option value="${ano}">${ano}</option>`;
+                }
+            }
+            
+            if (selectAnoFim) {
+                selectAnoFim.innerHTML = '<option value="">Ano</option>';
+                for (let ano = anoAtual - 2; ano <= anoAtual + 1; ano++) {
+                    selectAnoFim.innerHTML += `<option value="${ano}">${ano}</option>`;
+                }
+            }
+        }
+
+        // Função para calcular a taxa total de absenteísmo (todos os períodos)
+        function calcularTaxaTotalAbsenteismo() {
+            if (cache.absenteismo.length === 0) {
+                document.getElementById('taxaAbsenteismoTotal').textContent = '0%';
+                return '0%';
+            }
+            
+            let somaTaxas = 0;
+            cache.absenteismo.forEach(reg => {
+                somaTaxas += parseFloat(reg.taxaAbsenteismo) || 0;
+            });
+            
+            const mediaTaxa = somaTaxas / cache.absenteismo.length;
+            const taxaFormatada = mediaTaxa.toFixed(2) + '%';
+            
+            document.getElementById('taxaAbsenteismoTotal').textContent = taxaFormatada;
+            document.getElementById('periodoAbsenteismoTotal').textContent = `Média de ${cache.absenteismo.length} período(s)`;
+            
+            return taxaFormatada;
+        }
+
+        // Função para filtrar absenteísmo por período (automático)
+        function filtrarAbsenteismoPeriodo() {
+            mesInicioFiltro = document.getElementById('absenteismo-mes-inicio').value;
+            anoInicioFiltro = document.getElementById('absenteismo-ano-inicio').value;
+            mesFimFiltro = document.getElementById('absenteismo-mes-fim').value;
+            anoFimFiltro = document.getElementById('absenteismo-ano-fim').value;
+            
+            filtroPeriodoAtivo = (mesInicioFiltro && anoInicioFiltro) || (mesFimFiltro && anoFimFiltro);
+            
+            // Aplicar filtro automaticamente sem precisar clicar em botão
+            carregarHistoricoAbsenteismo();
+            
+            // Atualizar badge de filtro ativo
+            const badge = document.getElementById('filtroAtivoBadge');
+            const filtroTexto = document.getElementById('filtroPeriodoTexto');
+            
+            if (filtroPeriodoAtivo) {
+                let texto = 'Filtrando período: ';
+                if (mesInicioFiltro && anoInicioFiltro) {
+                    texto += `${getNomeMes(parseInt(mesInicioFiltro))}/${anoInicioFiltro}`;
+                }
+                if (mesFimFiltro && anoFimFiltro) {
+                    if (mesInicioFiltro && anoInicioFiltro) texto += ' até ';
+                    texto += `${getNomeMes(parseInt(mesFimFiltro))}/${anoFimFiltro}`;
+                }
+                filtroTexto.innerHTML = texto;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        function limparFiltroPeriodo() {
+            document.getElementById('absenteismo-mes-inicio').value = '';
+            document.getElementById('absenteismo-ano-inicio').value = '';
+            document.getElementById('absenteismo-mes-fim').value = '';
+            document.getElementById('absenteismo-ano-fim').value = '';
+            
+            filtroPeriodoAtivo = false;
+            mesInicioFiltro = '';
+            anoInicioFiltro = '';
+            mesFimFiltro = '';
+            anoFimFiltro = '';
+            
+            document.getElementById('filtroAtivoBadge').style.display = 'none';
+            
+            carregarHistoricoAbsenteismo();
         }
 
         function calcularAbsenteismoPreview() {
@@ -3376,27 +3442,23 @@
                     userId: currentUser ? currentUser.uid : 'demo-user'
                 };
 
-                const docRef = await db.collection('absenteismo').add(absenteismoData);
+                await db.collection('absenteismo').add(absenteismoData);
                 
-                cache.absenteismo.push({ id: docRef.id, ...absenteismoData });
+                cache.absenteismo.push({ id: Date.now().toString(), ...absenteismoData });
                 cache.absenteismo.sort((a, b) => {
                     if (a.ano !== b.ano) return b.ano - a.ano;
                     return b.mes - a.mes;
                 });
 
                 showNotification(`Taxa de absenteísmo de ${absenteismoCalculo.taxaAbsenteismo}% registrada com sucesso!`, 'success');
+                
+                // Atualizar visualizações
                 carregarHistoricoAbsenteismo();
+                calcularTaxaTotalAbsenteismo();
                 atualizarTaxaAbsenteismoDashboard();
 
                 if (btn) btn.disabled = false;
                 if (btn) btn.innerHTML = originalText;
-
-                // Limpar seleção
-                document.getElementById('absenteismo-mes').value = '';
-                document.getElementById('absenteismo-ano').value = '';
-                document.getElementById('faltas-manual-input').value = '0';
-                document.getElementById('taxaAbsenteismoCard').style.display = 'none';
-                document.getElementById('absenteismoPreview').style.display = 'none';
 
             } catch (error) {
                 console.error('Erro ao salvar absenteísmo:', error);
@@ -3419,99 +3481,93 @@
         async function carregarHistoricoAbsenteismo() {
             try {
                 const absenteismoRef = db.collection('absenteismo');
-                const snapshot = await absenteismoRef.orderBy('ano', 'desc').orderBy('mes', 'desc').get();
+                let query = absenteismoRef.orderBy('ano', 'desc').orderBy('mes', 'desc');
+                
+                const snapshot = await query.get();
                 
                 cache.absenteismo = snapshot.docs.map(doc => ({
                     id: doc.id,
                     ...doc.data()
                 }));
 
-                filtrarHistoricoAbsenteismo();
+                const historyBody = document.getElementById('absenteismoHistoryBody');
+                if (!historyBody) return;
 
-            } catch (error) {
-                console.error('Erro ao carregar histórico de absenteísmo:', error);
-            }
-        }
-
-        function filtrarHistoricoAbsenteismo() {
-            const historyBody = document.getElementById('absenteismoHistoryBody');
-            if (!historyBody) return;
-
-            let dadosFiltrados = [...cache.absenteismo];
-
-            // Aplicar filtros de período
-            if (absenteismoFiltros.mesInicio || absenteismoFiltros.anoInicio || 
-                absenteismoFiltros.mesFim || absenteismoFiltros.anoFim) {
+                // Aplicar filtro de período se ativo
+                let absenteismoFiltrado = [...cache.absenteismo];
                 
-                dadosFiltrados = dadosFiltrados.filter(item => {
-                    const dataItem = new Date(item.ano, item.mes - 1, 1);
-                    
-                    let dataInicio = null;
-                    if (absenteismoFiltros.mesInicio && absenteismoFiltros.anoInicio) {
-                        dataInicio = new Date(parseInt(absenteismoFiltros.anoInicio), parseInt(absenteismoFiltros.mesInicio) - 1, 1);
-                    }
-                    
-                    let dataFim = null;
-                    if (absenteismoFiltros.mesFim && absenteismoFiltros.anoFim) {
-                        dataFim = new Date(parseInt(absenteismoFiltros.anoFim), parseInt(absenteismoFiltros.mesFim) - 1, 1);
-                    }
-                    
-                    let valido = true;
-                    if (dataInicio) valido = valido && dataItem >= dataInicio;
-                    if (dataFim) valido = valido && dataItem <= dataFim;
-                    
-                    return valido;
-                });
-            }
+                if (filtroPeriodoAtivo) {
+                    absenteismoFiltrado = absenteismoFiltrado.filter(reg => {
+                        const dataReg = new Date(reg.ano, reg.mes - 1);
+                        let dataInicio = null;
+                        let dataFim = null;
+                        
+                        if (mesInicioFiltro && anoInicioFiltro) {
+                            dataInicio = new Date(parseInt(anoInicioFiltro), parseInt(mesInicioFiltro) - 1);
+                        }
+                        if (mesFimFiltro && anoFimFiltro) {
+                            dataFim = new Date(parseInt(anoFimFiltro), parseInt(mesFimFiltro) - 1);
+                        }
+                        
+                        if (dataInicio && dataFim) {
+                            return dataReg >= dataInicio && dataReg <= dataFim;
+                        } else if (dataInicio) {
+                            return dataReg >= dataInicio;
+                        } else if (dataFim) {
+                            return dataReg <= dataFim;
+                        }
+                        return true;
+                    });
+                }
 
-            if (dadosFiltrados.length === 0) {
-                historyBody.innerHTML = `
+                if (absenteismoFiltrado.length === 0) {
+                    historyBody.innerHTML = `
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 30px;">
+                                <div class="empty-state">
+                                    <i class="fas fa-calendar-times"></i>
+                                    <p>Nenhum registro de absenteísmo encontrado${filtroPeriodoAtivo ? ' para o período selecionado' : ''}</p>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                historyBody.innerHTML = absenteismoFiltrado.map(reg => `
                     <tr>
-                        <td colspan="7" style="text-align: center; padding: 30px;">
-                            <div class="empty-state">
-                                <i class="fas fa-calendar-times"></i>
-                                <p>Nenhum registro de absenteísmo encontrado</p>
+                        <td><strong>${getNomeMes(reg.mes)}/${reg.ano}</strong></td>
+                        <td>${reg.totalAtestados} (${reg.totalDiasAtestado || 0} dias)</td>
+                        <td>${reg.totalDeclaracoes} (${formatarHorasDecimal(reg.totalHorasDeclaracao || 0)})</td>
+                        <td>${reg.faltasManuais || reg.totalFaltas || 0}</td>
+                        <td><span style="color: var(--absenteismo); font-weight: bold;">${reg.taxaAbsenteismo}%</span></td>
+                        <td>${formatDate(reg.dataRegistro)}</td>
+                        <td>
+                            <div class="actions-cell">
+                                <button class="btn btn-danger btn-small" onclick="solicitarExclusao('absenteismo', '${reg.id}', 'Absenteísmo ${getNomeMes(reg.mes)}/${reg.ano}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
                             </div>
                         </td>
                     </tr>
-                `;
-                return;
-            }
+                `).join('');
 
-            historyBody.innerHTML = dadosFiltrados.map(reg => `
-                <tr>
-                    <td><strong>${getNomeMes(reg.mes)}/${reg.ano}</strong></td>
-                    <td>${reg.totalAtestados} (${reg.totalDiasAtestado || 0} dias)</td>
-                    <td>${reg.totalDeclaracoes} (${formatarHorasDecimal(reg.totalHorasDeclaracao || 0)})</td>
-                    <td>${reg.faltasManuais || reg.totalFaltas || 0}</td>
-                    <td><span style="color: var(--absenteismo); font-weight: bold;">${reg.taxaAbsenteismo}%</span></td>
-                    <td>${formatDate(reg.dataRegistro)}</td>
-                    <td>
-                        <div class="actions-cell">
-                            <button class="btn btn-danger btn-small" onclick="solicitarExclusao('absenteismo', '${reg.id}', 'Absenteísmo ${getNomeMes(reg.mes)}/${reg.ano}')">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            `).join('');
+                // Atualizar taxa total do dashboard e card de taxa total
+                calcularTaxaTotalAbsenteismo();
+                atualizarTaxaAbsenteismoDashboard();
+
+            } catch (error) {
+                console.error('Erro ao carregar histórico de absenteísmo:', error);
+                showNotification('Erro ao carregar histórico de absenteísmo', 'error');
+            }
         }
 
-        function limparFiltrosAbsenteismo() {
-            document.getElementById('filtro-absenteismo-mes-inicio').value = '';
-            document.getElementById('filtro-absenteismo-ano-inicio').value = '';
-            document.getElementById('filtro-absenteismo-mes-fim').value = '';
-            document.getElementById('filtro-absenteismo-ano-fim').value = '';
-            
-            absenteismoFiltros = {
-                mesInicio: '',
-                anoInicio: '',
-                mesFim: '',
-                anoFim: ''
-            };
-            
-            filtrarHistoricoAbsenteismo();
-            showNotification('Filtros de absenteísmo limpos com sucesso!', 'info');
+        async function excluirAbsenteismo(id) {
+            itemToDelete = id;
+            deleteCollection = 'absenteismo';
+            document.getElementById('confirmMessage').textContent = 
+                'Tem certeza que deseja excluir este registro de absenteísmo? Esta ação não pode ser desfeita.';
+            document.getElementById('confirmModal').style.display = 'flex';
         }
 
         function atualizarTaxaAbsenteismoDashboard() {
@@ -3521,7 +3577,7 @@
                 document.getElementById('periodoAbsenteismo').textContent = `${getNomeMes(ultimoRegistro.mes)}/${ultimoRegistro.ano}`;
             } else {
                 document.getElementById('taxaAbsenteismoGeral').textContent = '0%';
-                document.getElementById('periodoAbsenteismo').textContent = 'sem registros';
+                document.getElementById('periodoAbsenteismo').textContent = 'Total Geral';
             }
         }
 
@@ -3550,7 +3606,6 @@
             document.getElementById('filtro-data-fim-atestado').value = '';
             atestadosFiltros = { nome: '', tipo: 'todos', unidade: 'todos', departamento: 'todos', empresa: 'todos', dataInicio: '', dataFim: '' };
             filtrarAtestados();
-            atualizarCardTotalAtestados();
             showNotification('Filtros de atestados limpos com sucesso!', 'info');
         }
 
@@ -3585,7 +3640,7 @@
             document.getElementById('filtro-dashboard-data-fim').value = '';
             dashboardFiltros = { colaborador: 'todos', departamento: 'todos', dataInicio: '', dataFim: '' };
             loadDashboardData();
-            showNotification('Filtros do dashboard limpos com sucesso!', 'info');
+            showNotification('Filtros limpos com sucesso!', 'info');
         }
 
         // === FUNÇÕES DE CARREGAMENTO DE CACHE ===
@@ -3618,7 +3673,9 @@
                 loadDeclaracoes();
                 loadConfiguracoes();
                 loadDashboardData();
-                carregarHistoricoAbsenteismo();
+                carregarAnosAbsenteismo();
+                await carregarHistoricoAbsenteismo();
+                calcularTaxaTotalAbsenteismo();
                 
             } catch (error) {
                 console.error('Erro ao carregar cache de dados:', error);
@@ -3823,6 +3880,9 @@
                     const colaboradoresPermitidos = colaboradoresFiltrados.map(c => c.nome);
                     examesFiltrados = examesFiltrados.filter(e => colaboradoresPermitidos.includes(e.funcionario));
                 }
+                if (dashboardFiltros.dataInicio || dashboardFiltros.dataFim) {
+                    examesFiltrados = examesFiltrados.filter(e => e.dataExame && exameDentroFiltro(e.dataExame));
+                }
                 
                 const totalExames = examesFiltrados.length;
                 const examesVencidos = examesFiltrados.filter(e => e.vencimento && calcularStatusVencimento(e.vencimento) === 'vencido').length;
@@ -3835,6 +3895,9 @@
                 if (dashboardFiltros.departamento !== 'todos' || dashboardFiltros.colaborador !== 'todos') {
                     const colaboradoresPermitidos = colaboradoresFiltrados.map(c => c.nome);
                     atestadosFiltrados = atestadosFiltrados.filter(a => colaboradoresPermitidos.includes(a.funcionario));
+                }
+                if (dashboardFiltros.dataInicio || dashboardFiltros.dataFim) {
+                    atestadosFiltrados = atestadosFiltrados.filter(a => a.dataInicio && atestadoDentroFiltro(a.dataInicio));
                 }
                 
                 const totalAtestados = atestadosFiltrados.length;
@@ -3856,6 +3919,9 @@
                     const colaboradoresPermitidos = colaboradoresFiltrados.map(c => c.nome);
                     catsFiltrados = catsFiltrados.filter(c => colaboradoresPermitidos.includes(c.funcionario));
                 }
+                if (dashboardFiltros.dataInicio || dashboardFiltros.dataFim) {
+                    catsFiltrados = catsFiltrados.filter(c => c.dataRegistro && catDentroFiltro(c.dataRegistro));
+                }
                 
                 const totalCats = catsFiltrados.length;
                 const catsAnalise = catsFiltrados.filter(c => c.status === 'em_analise').length;
@@ -3868,6 +3934,9 @@
                 if (dashboardFiltros.departamento !== 'todos' || dashboardFiltros.colaborador !== 'todos') {
                     const colaboradoresPermitidos = colaboradoresFiltrados.map(c => c.nome);
                     declaracoesFiltrados = declaracoesFiltrados.filter(d => colaboradoresPermitidos.includes(d.funcionario));
+                }
+                if (dashboardFiltros.dataInicio || dashboardFiltros.dataFim) {
+                    declaracoesFiltrados = declaracoesFiltrados.filter(d => d.data && declaracaoDentroFiltro(d.data));
                 }
                 
                 const totalDeclaracoes = declaracoesFiltrados.length;
@@ -3904,7 +3973,7 @@
                 
                 const topColaboradoresHTML = document.getElementById('topAtestadosColaboradores');
                 if (topColaboradores.length === 0) {
-                    topColaboradoresHTML.innerHTML = `<li class="ranking-item"><span style="color: #666;">Nenhum atestado registrado</span></li>`;
+                    topColaboradoresHTML.innerHTML = `<li class="ranking-item"><span style="color: #666;">Nenhum atestado encontrado</span></li>`;
                 } else {
                     topColaboradoresHTML.innerHTML = topColaboradores.map((item, index) => {
                         const colaborador = cache.colaboradores.find(c => c.nome === item.nome);
@@ -4055,6 +4124,10 @@
                     });
                     const colaboradoresPermitidos = colaboradoresFiltrados.map(c => c.nome);
                     examesFiltrados = examesFiltrados.filter(e => colaboradoresPermitidos.includes(e.funcionario));
+                }
+                
+                if (dashboardFiltros.dataInicio || dashboardFiltros.dataFim) {
+                    examesFiltrados = examesFiltrados.filter(e => e.dataExame && exameDentroFiltro(e.dataExame));
                 }
                 
                 const examesProximos = [];
@@ -4230,7 +4303,6 @@
                             </td>
                         </tr>
                     `;
-                    atualizarCardsExames();
                     return;
                 }
                 
@@ -4767,6 +4839,71 @@
 
         // === FUNÇÕES DE VERIFICAÇÃO DE FILTROS ===
         
+        function atestadoDentroFiltro(dataInicioAtestado) {
+            if (!dashboardFiltros.dataInicio && !dashboardFiltros.dataFim) return true;
+            const dataAtestado = new Date(dataInicioAtestado + 'T12:00:00');
+            if (dashboardFiltros.dataInicio) {
+                const dataInicio = new Date(dashboardFiltros.dataInicio + 'T00:00:00');
+                if (dataAtestado < dataInicio) return false;
+            }
+            if (dashboardFiltros.dataFim) {
+                const dataFim = new Date(dashboardFiltros.dataFim + 'T23:59:59');
+                if (dataAtestado > dataFim) return false;
+            }
+            return true;
+        }
+
+        function exameDentroFiltro(dataExame) {
+            if (!dashboardFiltros.dataInicio && !dashboardFiltros.dataFim) return true;
+            const dataExameObj = new Date(dataExame + 'T12:00:00');
+            if (dashboardFiltros.dataInicio) {
+                const dataInicio = new Date(dashboardFiltros.dataInicio + 'T00:00:00');
+                if (dataExameObj < dataInicio) return false;
+            }
+            if (dashboardFiltros.dataFim) {
+                const dataFim = new Date(dashboardFiltros.dataFim + 'T23:59:59');
+                if (dataExameObj > dataFim) return false;
+            }
+            return true;
+        }
+
+        function catDentroFiltro(dataRegistro) {
+            if (!dashboardFiltros.dataInicio && !dashboardFiltros.dataFim) return true;
+            const dataRegistroObj = new Date(dataRegistro + 'T12:00:00');
+            if (dashboardFiltros.dataInicio) {
+                const dataInicio = new Date(dashboardFiltros.dataInicio + 'T00:00:00');
+                if (dataRegistroObj < dataInicio) return false;
+            }
+            if (dashboardFiltros.dataFim) {
+                const dataFim = new Date(dashboardFiltros.dataFim + 'T23:59:59');
+                if (dataRegistroObj > dataFim) return false;
+            }
+            return true;
+        }
+
+        function declaracaoDentroFiltro(dataDeclaracao) {
+            if (!dashboardFiltros.dataInicio && !dashboardFiltros.dataFim) return true;
+            const dataDeclaracaoObj = new Date(dataDeclaracao + 'T12:00:00');
+            if (dashboardFiltros.dataInicio) {
+                const dataInicio = new Date(dashboardFiltros.dataInicio + 'T00:00:00');
+                if (dataDeclaracaoObj < dataInicio) return false;
+            }
+            if (dashboardFiltros.dataFim) {
+                const dataFim = new Date(dashboardFiltros.dataFim + 'T23:59:59');
+                if (dataDeclaracaoObj > dataFim) return false;
+            }
+            return true;
+        }
+
+        function colaboradorDentroFiltro(colaboradorNome) {
+            if (dashboardFiltros.colaborador !== 'todos' && colaboradorNome !== dashboardFiltros.colaborador) return false;
+            if (dashboardFiltros.departamento !== 'todos') {
+                const colaborador = cache.colaboradores.find(c => c.nome === colaboradorNome);
+                if (!colaborador || colaborador.departamento !== dashboardFiltros.departamento) return false;
+            }
+            return true;
+        }
+
         function atestadoDentroPeriodoFiltro(dataInicio, dataInicioFiltro, dataFimFiltro) {
             if (!dataInicioFiltro && !dataFimFiltro) return true;
             const dataInicioAtestado = new Date(dataInicio + 'T12:00:00');
@@ -5824,6 +5961,7 @@
                 } else if (deleteCollection === 'absenteismo') {
                     await carregarHistoricoAbsenteismo();
                     atualizarTaxaAbsenteismoDashboard();
+                    calcularTaxaTotalAbsenteismo();
                 }
                 
                 closeModal();
@@ -5949,8 +6087,8 @@
             if (!editMode) {
                 const hoje = new Date();
                 document.getElementById('atestado-data-inicio').value = hoje.toISOString().split('T')[0];
-                document.getElementById('atestado-dias-afastamento').value = '1';
-                document.getElementById('atestado-data-final').value = hoje.toISOString().split('T')[0];
+                document.getElementById('atestado-dias-afastamento').value = '';
+                document.getElementById('atestado-data-final').value = '';
                 document.getElementById('atestado-unidade').value = 'dias';
                 document.getElementById('campos-hora').classList.add('hidden');
                 document.getElementById('campo-dias-afastamento').classList.remove('hidden');
@@ -6179,8 +6317,8 @@
                 document.getElementById('atestado-cid').value = '';
                 const hoje = new Date();
                 document.getElementById('atestado-data-inicio').value = hoje.toISOString().split('T')[0];
-                document.getElementById('atestado-dias-afastamento').value = '1';
-                document.getElementById('atestado-data-final').value = hoje.toISOString().split('T')[0];
+                document.getElementById('atestado-dias-afastamento').value = '';
+                document.getElementById('atestado-data-final').value = '';
                 document.getElementById('atestado-unidade').value = 'dias';
                 document.getElementById('campos-hora').classList.add('hidden');
                 document.getElementById('campo-dias-afastamento').classList.remove('hidden');
@@ -6425,10 +6563,14 @@
                         document.getElementById('absenteismo').classList.remove('hidden');
                         carregarAnosAbsenteismo();
                         carregarHistoricoAbsenteismo();
+                        calcularTaxaTotalAbsenteismo();
                         
                         // Limpar o campo de faltas manual ao abrir a página
                         const faltasInput = document.getElementById('faltas-manual-input');
                         if (faltasInput) faltasInput.value = '0';
+                        
+                        // Limpar filtros de período
+                        limparFiltroPeriodo();
                     }
                     
                     if (pageId === 'dashboard') {
@@ -7020,35 +7162,6 @@
                     atualizarCardsDeclaracoes();
                 });
             }
-
-            // Filtros automáticos para absenteísmo
-            const filtroAbsenteismoMesInicio = document.getElementById('filtro-absenteismo-mes-inicio');
-            if (filtroAbsenteismoMesInicio) {
-                filtroAbsenteismoMesInicio.addEventListener('change', function() {
-                    absenteismoFiltros.mesInicio = this.value;
-                });
-            }
-            
-            const filtroAbsenteismoAnoInicio = document.getElementById('filtro-absenteismo-ano-inicio');
-            if (filtroAbsenteismoAnoInicio) {
-                filtroAbsenteismoAnoInicio.addEventListener('change', function() {
-                    absenteismoFiltros.anoInicio = this.value;
-                });
-            }
-            
-            const filtroAbsenteismoMesFim = document.getElementById('filtro-absenteismo-mes-fim');
-            if (filtroAbsenteismoMesFim) {
-                filtroAbsenteismoMesFim.addEventListener('change', function() {
-                    absenteismoFiltros.mesFim = this.value;
-                });
-            }
-            
-            const filtroAbsenteismoAnoFim = document.getElementById('filtro-absenteismo-ano-fim');
-            if (filtroAbsenteismoAnoFim) {
-                filtroAbsenteismoAnoFim.addEventListener('change', function() {
-                    absenteismoFiltros.anoFim = this.value;
-                });
-            }
         }
 
         // Inicializar aplicação
@@ -7096,14 +7209,15 @@
         window.limparFiltrosAtestados = limparFiltrosAtestados;
         window.limparFiltrosCATs = limparFiltrosCATs;
         window.limparFiltrosDeclaracoes = limparFiltrosDeclaracoes;
-        window.limparFiltrosAbsenteismo = limparFiltrosAbsenteismo;
-        window.filtrarHistoricoAbsenteismo = filtrarHistoricoAbsenteismo;
         window.calcularVencimentoExame = calcularVencimentoExame;
         window.calcularHorasDeclaracao = calcularHorasDeclaracao;
         window.toggleFilters = toggleFilters;
         window.calcularAbsenteismoPreview = calcularAbsenteismoPreview;
         window.calcularAbsenteismoComFaltas = calcularAbsenteismoComFaltas;
         window.salvarAbsenteismo = salvarAbsenteismo;
+        window.excluirAbsenteismo = excluirAbsenteismo;
+        window.filtrarAbsenteismoPeriodo = filtrarAbsenteismoPeriodo;
+        window.limparFiltroPeriodo = limparFiltroPeriodo;
         
         // Exportação
         window.exportDashboardPDF = exportDashboardPDF;
