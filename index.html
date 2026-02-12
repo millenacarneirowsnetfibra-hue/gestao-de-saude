@@ -1089,6 +1089,23 @@
             margin-top: 5px;
         }
 
+        .faltas-input {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .faltas-input input {
+            width: 100px;
+            padding: 8px;
+            text-align: center;
+            border: 2px solid var(--absenteismo);
+            border-radius: 6px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
         .absenteismo-table {
             margin-top: 30px;
         }
@@ -1103,10 +1120,12 @@
             gap: 20px;
             align-items: flex-end;
             margin-bottom: 20px;
+            flex-wrap: wrap;
         }
 
         .selector-group {
             flex: 1;
+            min-width: 200px;
         }
 
         .selector-group label {
@@ -1177,6 +1196,32 @@
         .export-buttons {
             display: flex;
             gap: 10px;
+        }
+
+        .campo-faltas {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .campo-faltas label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--absenteismo);
+            font-size: 1.1rem;
+        }
+
+        .campo-faltas input {
+            width: 150px;
+            font-size: 1.5rem;
+            padding: 10px;
+            border: 2px solid var(--absenteismo);
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -2335,7 +2380,7 @@
                 </div>
             </section>
 
-            <!-- Absenteísmo - Página Principal -->
+            <!-- Absenteísmo - Página Principal (AJUSTADA COM FALTAS EDITÁVEIS) -->
             <section id="absenteismo" class="page-content absenteismo-page">
                 <div class="page-title">
                     <h2><i class="fas fa-calendar-times"></i> Gestão de Absenteísmo</h2>
@@ -2400,7 +2445,7 @@
                         </div>
                     </div>
 
-                    <!-- Pré-visualização dos dados -->
+                    <!-- Pré-visualização dos dados com campo de faltas editável -->
                     <div id="absenteismoPreview" class="absenteismo-preview" style="display: none;">
                         <h3><i class="fas fa-eye"></i> Pré-visualização do Período</h3>
                         
@@ -2416,10 +2461,22 @@
                                 <div class="subvalue" id="previewDeclaracoesHoras">0h00</div>
                             </div>
                             <div class="preview-item">
-                                <div class="label">Faltas Registradas</div>
+                                <div class="label">Faltas não justificadas</div>
                                 <div class="value" id="previewFaltas">0</div>
-                                <div class="subvalue">total de ocorrências</div>
+                                <div class="subvalue">
+                                    <div class="faltas-input">
+                                        <input type="number" id="faltas-manual-input" min="0" value="0" onchange="calcularAbsenteismoComFaltas()" style="width: 80px; padding: 5px; text-align: center;">
+                                    </div>
+                                    <small style="display: block; margin-top: 5px;">Digite o número de faltas</small>
+                                </div>
                             </div>
+                        </div>
+                        
+                        <div style="margin-top: 20px; text-align: right;">
+                            <small style="color: #666;">
+                                <i class="fas fa-info-circle"></i> 
+                                Atestados e declarações são carregados automaticamente. Faltas são editáveis manualmente.
+                            </small>
                         </div>
                     </div>
                 </div>
@@ -2907,7 +2964,7 @@
             }
         }
 
-        // === FUNÇÕES DE ABSENTEÍSMO ===
+        // === FUNÇÕES DE ABSENTEÍSMO (AJUSTADAS COM FALTAS EDITÁVEIS) ===
         
         function carregarAnosAbsenteismo() {
             const selectAno = document.getElementById('absenteismo-ano');
@@ -2962,30 +3019,77 @@
                 }
             });
 
-            const totalFaltas = totalAtestados + totalDeclaracoes;
-
-            // Calcular taxa de absenteísmo (simplificada)
-            const totalColaboradoresAtivos = cache.colaboradores.filter(c => c.status === 'ativo').length || 1;
-            const diasUteis = 22; // Aproximação de dias úteis no mês
-            const horasPorDia = 8;
-            const totalHorasEsperadas = totalColaboradoresAtivos * diasUteis * horasPorDia;
-            const totalHorasPerdidas = (totalDiasAtestado * horasPorDia) + totalHorasDeclaracao;
-            const taxaAbsenteismo = totalHorasEsperadas > 0 ? (totalHorasPerdidas / totalHorasEsperadas) * 100 : 0;
-
-            // Atualizar preview
+            // Atualizar preview com dados automáticos
             document.getElementById('previewAtestados').textContent = totalAtestados;
             document.getElementById('previewAtestadosDias').textContent = `${totalDiasAtestado} dias`;
             document.getElementById('previewDeclaracoes').textContent = totalDeclaracoes;
             document.getElementById('previewDeclaracoesHoras').textContent = formatarHorasDecimal(totalHorasDeclaracao);
-            document.getElementById('previewFaltas').textContent = totalFaltas;
-
-            // Atualizar taxa
-            document.getElementById('taxaAbsenteismoCalculada').textContent = `${taxaAbsenteismo.toFixed(2)}%`;
-            document.getElementById('periodoAbsenteismoCalculado').innerHTML = `${getNomeMes(mes)}/${ano}`;
-
+            
             // Mostrar cards
             document.getElementById('taxaAbsenteismoCard').style.display = 'flex';
             document.getElementById('absenteismoPreview').style.display = 'block';
+            
+            // Calcular taxa com as faltas atuais
+            calcularAbsenteismoComFaltas();
+        }
+
+        function calcularAbsenteismoComFaltas() {
+            const mes = document.getElementById('absenteismo-mes').value;
+            const ano = document.getElementById('absenteismo-ano').value;
+            const faltasManuais = parseInt(document.getElementById('faltas-manual-input').value) || 0;
+            
+            if (!mes || !ano) return;
+            
+            // Recalcular dados do período
+            const atestadosPeriodo = cache.atestados.filter(atestado => {
+                if (!atestado.dataInicio) return false;
+                const data = new Date(atestado.dataInicio + 'T12:00:00');
+                return data.getMonth() + 1 === parseInt(mes) && data.getFullYear() === parseInt(ano);
+            });
+
+            const declaracoesPeriodo = cache.declaracoes.filter(declaracao => {
+                if (!declaracao.data) return false;
+                const data = new Date(declaracao.data + 'T12:00:00');
+                return data.getMonth() + 1 === parseInt(mes) && data.getFullYear() === parseInt(ano);
+            });
+
+            const totalAtestados = atestadosPeriodo.length;
+            let totalDiasAtestado = 0;
+            atestadosPeriodo.forEach(atestado => {
+                if (atestado.unidade === 'dias' && atestado.dataInicio && atestado.dataFinal) {
+                    totalDiasAtestado += calcularDiasAtestado(atestado.dataInicio, atestado.dataFinal);
+                }
+            });
+
+            const totalDeclaracoes = declaracoesPeriodo.length;
+            let totalHorasDeclaracao = 0;
+            declaracoesPeriodo.forEach(declaracao => {
+                if (declaracao.horas) {
+                    totalHorasDeclaracao += declaracao.horas;
+                }
+            });
+
+            // Atualizar preview
+            document.getElementById('previewFaltas').textContent = faltasManuais;
+            
+            // Calcular taxa de absenteísmo
+            const totalColaboradoresAtivos = cache.colaboradores.filter(c => c.status === 'ativo').length || 1;
+            const diasUteis = 22; // Aproximação de dias úteis no mês
+            const horasPorDia = 8;
+            const totalHorasEsperadas = totalColaboradoresAtivos * diasUteis * horasPorDia;
+            
+            // Converter faltas manuais para horas (considerando 8h por dia)
+            const horasFaltasManuais = faltasManuais * horasPorDia;
+            
+            // Total de horas perdidas
+            const totalHorasPerdidas = (totalDiasAtestado * horasPorDia) + totalHorasDeclaracao + horasFaltasManuais;
+            
+            // Calcular taxa
+            const taxaAbsenteismo = totalHorasEsperadas > 0 ? (totalHorasPerdidas / totalHorasEsperadas) * 100 : 0;
+            
+            // Atualizar taxa
+            document.getElementById('taxaAbsenteismoCalculada').textContent = `${taxaAbsenteismo.toFixed(2)}%`;
+            document.getElementById('periodoAbsenteismoCalculado').innerHTML = `${getNomeMes(mes)}/${ano}`;
 
             // Salvar cálculo para registro
             absenteismoCalculo = {
@@ -2995,7 +3099,8 @@
                 totalDiasAtestado,
                 totalDeclaracoes,
                 totalHorasDeclaracao,
-                totalFaltas,
+                faltasManuais,
+                totalFaltas: faltasManuais,
                 taxaAbsenteismo: parseFloat(taxaAbsenteismo.toFixed(2))
             };
         }
@@ -3083,14 +3188,14 @@
                 historyBody.innerHTML = cache.absenteismo.map(reg => `
                     <tr>
                         <td><strong>${getNomeMes(reg.mes)}/${reg.ano}</strong></td>
-                        <td>${reg.totalAtestados} (${reg.totalDiasAtestado} dias)</td>
-                        <td>${reg.totalDeclaracoes} (${formatarHorasDecimal(reg.totalHorasDeclaracao)})</td>
-                        <td>${reg.totalFaltas}</td>
+                        <td>${reg.totalAtestados} (${reg.totalDiasAtestado || 0} dias)</td>
+                        <td>${reg.totalDeclaracoes} (${formatarHorasDecimal(reg.totalHorasDeclaracao || 0)})</td>
+                        <td>${reg.faltasManuais || reg.totalFaltas || 0}</td>
                         <td><span style="color: var(--absenteismo); font-weight: bold;">${reg.taxaAbsenteismo}%</span></td>
                         <td>${formatDate(reg.dataRegistro)}</td>
                         <td>
                             <div class="actions-cell">
-                                <button class="btn btn-danger btn-small" onclick="excluirAbsenteismo('${reg.id}')">
+                                <button class="btn btn-danger btn-small" onclick="solicitarExclusao('absenteismo', '${reg.id}', 'Absenteísmo ${getNomeMes(reg.mes)}/${reg.ano}')">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </div>
@@ -6101,6 +6206,10 @@
                         document.getElementById('absenteismo').classList.remove('hidden');
                         carregarAnosAbsenteismo();
                         carregarHistoricoAbsenteismo();
+                        
+                        // Limpar o campo de faltas manual ao abrir a página
+                        const faltasInput = document.getElementById('faltas-manual-input');
+                        if (faltasInput) faltasInput.value = '0';
                     }
                     
                     if (pageId === 'dashboard') {
@@ -6743,6 +6852,7 @@
         window.calcularHorasDeclaracao = calcularHorasDeclaracao;
         window.toggleFilters = toggleFilters;
         window.calcularAbsenteismoPreview = calcularAbsenteismoPreview;
+        window.calcularAbsenteismoComFaltas = calcularAbsenteismoComFaltas;
         window.salvarAbsenteismo = salvarAbsenteismo;
         window.excluirAbsenteismo = excluirAbsenteismo;
         
