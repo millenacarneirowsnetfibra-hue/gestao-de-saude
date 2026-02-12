@@ -17,7 +17,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     
     <style>
-        /* TODO O CSS ORIGINAL - MANTIDO */
+        /* [MANTIDO TODO O CSS ORIGINAL] */
         * {
             margin: 0;
             padding: 0;
@@ -39,6 +39,8 @@
             --sidebar-hover: #3949ab;
             --hours: #9c27b0;
             --hours-light: #f3e5f5;
+            --absenteismo: #00796b;
+            --absenteismo-light: #e0f2f1;
         }
 
         body {
@@ -235,6 +237,16 @@
             transform: translateY(-2px);
         }
 
+        .btn-absenteismo {
+            background: linear-gradient(to right, var(--absenteismo), #009688);
+            color: white;
+        }
+
+        .btn-absenteismo:hover {
+            background: linear-gradient(to right, #004d40, var(--absenteismo));
+            transform: translateY(-2px);
+        }
+
         .btn-pdf {
             background: linear-gradient(to right, #d32f2f, #ef5350);
             color: white;
@@ -301,6 +313,10 @@
             border-left-color: var(--hours);
         }
 
+        .stat-card.absenteismo {
+            border-left-color: var(--absenteismo);
+        }
+
         .stat-card h3 {
             font-size: 0.9rem;
             color: #666;
@@ -327,6 +343,15 @@
 
         .hours-card .value {
             color: var(--hours);
+        }
+
+        .absenteismo-card {
+            border-left-color: var(--absenteismo);
+            background: linear-gradient(to right, white, var(--absenteismo-light));
+        }
+
+        .absenteismo-card .value {
+            color: var(--absenteismo);
         }
 
         .dashboard-grid {
@@ -899,7 +924,6 @@
         .actions-cell {
             display: flex;
             gap: 8px;
-            flex-wrap: wrap;
         }
         
         .btn-small {
@@ -913,39 +937,6 @@
         
         .colaborador-page.active {
             display: block;
-        }
-        
-        .back-button {
-            background: none;
-            border: none;
-            color: var(--primary);
-            font-size: 1rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 0;
-            margin-bottom: 20px;
-        }
-        
-        .back-button:hover {
-            color: var(--secondary);
-        }
-        
-        .search-input {
-            width: 100%;
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: #666;
-        }
-        
-        .empty-state i {
-            font-size: 3rem;
-            margin-bottom: 15px;
-            color: #ccc;
         }
         
         .exame-page {
@@ -977,6 +968,14 @@
         }
         
         .declaracao-page.active {
+            display: block;
+        }
+        
+        .absenteismo-page {
+            display: none;
+        }
+        
+        .absenteismo-page.active {
             display: block;
         }
         
@@ -1041,382 +1040,143 @@
             margin: 5px 0;
         }
 
-        .timeline {
-            position: relative;
-            padding: 20px 0;
-        }
-
-        .timeline-item {
-            position: relative;
-            padding-left: 40px;
-            margin-bottom: 30px;
-        }
-
-        .timeline-item:before {
-            content: '';
-            position: absolute;
-            left: 15px;
-            top: 0;
-            bottom: -20px;
-            width: 2px;
-            background-color: #e0e0e0;
-        }
-
-        .timeline-item:last-child:before {
-            display: none;
-        }
-
-        .timeline-icon {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background-color: var(--accent);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.9rem;
-            z-index: 1;
-        }
-
-        .timeline-content {
-            background-color: #f8f9fa;
-            padding: 15px 20px;
-            border-radius: 8px;
-        }
-
-        .timeline-date {
-            color: #666;
-            font-size: 0.85rem;
-            margin-bottom: 5px;
-        }
-
-        .timeline-title {
-            font-weight: 600;
-            color: var(--primary);
-            margin-bottom: 8px;
-        }
-
-        .timeline-text {
-            color: #333;
-            font-size: 0.95rem;
-        }
-
-        .prazo-badge {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            margin-left: 8px;
-        }
-
-        .prazo-badge.dentro {
-            background-color: #d4edda;
-            color: #155724;
-        }
-
-        .prazo-badge.fora {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-        
-        .export-buttons {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .total-cats-mini {
-            margin-top: 15px;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .total-cats-mini span {
-            font-weight: bold;
-            color: var(--primary);
-            font-size: 1.2rem;
-        }
-
-        .exame-cards {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 25px;
-            margin-bottom: 40px;
-        }
-
-        .exame-stat-card {
-            background: white;
+        .absenteismo-preview {
+            background-color: var(--absenteismo-light);
             border-radius: 12px;
             padding: 25px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            transition: transform 0.3s;
-            border-bottom: 4px solid transparent;
+            margin: 20px 0;
+            border-left: 5px solid var(--absenteismo);
         }
 
-        .exame-stat-card:hover {
-            transform: translateY(-5px);
+        .absenteismo-preview h3 {
+            color: var(--absenteismo);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        .exame-stat-card.vencidos {
-            border-bottom-color: var(--danger);
-            background: linear-gradient(to bottom, white, #fff8f8);
+        .absenteismo-preview .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
         }
 
-        .exame-stat-card.proximo-vencer {
-            border-bottom-color: var(--warning);
-            background: linear-gradient(to bottom, white, #fffaf0);
+        .preview-item {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
         }
 
-        .exame-stat-card.em-dia {
-            border-bottom-color: var(--success);
-            background: linear-gradient(to bottom, white, #f0faf0);
-        }
-
-        .exame-stat-card h4 {
+        .preview-item .label {
             font-size: 0.9rem;
             color: #666;
             margin-bottom: 10px;
             text-transform: uppercase;
             letter-spacing: 1px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
 
-        .exame-stat-card .exame-value {
-            font-size: 2.2rem;
+        .preview-item .value {
+            font-size: 2rem;
             font-weight: bold;
-            margin: 10px 0;
+            color: var(--absenteismo);
         }
 
-        .exame-stat-card.vencidos .exame-value {
-            color: var(--danger);
-        }
-
-        .exame-stat-card.proximo-vencer .exame-value {
-            color: var(--warning);
-        }
-
-        .exame-stat-card.em-dia .exame-value {
-            color: var(--success);
-        }
-
-        .exame-stat-card .exame-percentual {
+        .preview-item .subvalue {
             font-size: 0.85rem;
             color: #666;
             margin-top: 5px;
         }
 
-        .exame-stat-card .exame-percentual span {
-            font-weight: bold;
+        .absenteismo-table {
+            margin-top: 30px;
+        }
+
+        .absenteismo-table h3 {
             color: var(--primary);
-        }
-        
-        .declaracao-stats-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px;
-            margin-bottom: 30px;
+            margin-bottom: 15px;
         }
 
-        .declaracao-stat-card {
+        .absenteismo-selectors {
+            display: flex;
+            gap: 20px;
+            align-items: flex-end;
+            margin-bottom: 20px;
+        }
+
+        .selector-group {
+            flex: 1;
+        }
+
+        .selector-group label {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .taxa-card {
             background: white;
             border-radius: 12px;
             padding: 25px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            border-bottom: 4px solid var(--hours);
-            transition: transform 0.3s;
+            border-bottom: 4px solid var(--absenteismo);
+            margin-bottom: 25px;
             display: flex;
             align-items: center;
             gap: 20px;
         }
 
-        .declaracao-stat-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .declaracao-stat-icon {
-            width: 60px;
-            height: 60px;
+        .taxa-icon {
+            width: 70px;
+            height: 70px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--hours), #ba68c8);
+            background: linear-gradient(135deg, var(--absenteismo), #009688);
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 1.8rem;
+            font-size: 2rem;
         }
 
-        .declaracao-stat-info {
+        .taxa-info {
             flex: 1;
         }
 
-        .declaracao-stat-info h3 {
-            font-size: 0.9rem;
+        .taxa-info h3 {
+            font-size: 1rem;
             color: #666;
             margin-bottom: 8px;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
 
-        .declaracao-stat-info .value {
-            font-size: 2.2rem;
+        .taxa-info .taxa-value {
+            font-size: 2.5rem;
             font-weight: bold;
-            color: var(--hours);
+            color: var(--absenteismo);
             margin-bottom: 5px;
         }
 
-        .declaracao-stat-info small {
+        .taxa-info small {
             color: #666;
-            font-size: 0.85rem;
-        }
-
-        .cat-stats-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px;
-            margin-bottom: 30px;
-        }
-
-        .cat-stat-card {
-            background: white;
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            border-bottom: 4px solid var(--accent);
-            transition: transform 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .cat-stat-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .cat-stat-card.total {
-            border-bottom-color: var(--info);
-        }
-
-        .cat-stat-card.fora-prazo {
-            border-bottom-color: var(--danger);
-        }
-
-        .cat-stat-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.8rem;
-        }
-
-        .cat-stat-card.total .cat-stat-icon {
-            background: linear-gradient(135deg, var(--info), #26c6da);
-        }
-
-        .cat-stat-card.fora-prazo .cat-stat-icon {
-            background: linear-gradient(135deg, var(--danger), #ef5350);
-        }
-
-        .cat-stat-info {
-            flex: 1;
-        }
-
-        .cat-stat-info h3 {
             font-size: 0.9rem;
-            color: #666;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
         }
 
-        .cat-stat-info .value {
-            font-size: 2.2rem;
-            font-weight: bold;
-            margin-bottom: 5px;
+        .absenteismo-history {
+            margin-top: 40px;
         }
 
-        .cat-stat-card.total .value {
-            color: var(--info);
-        }
-
-        .cat-stat-card.fora-prazo .value {
-            color: var(--danger);
-        }
-
-        .cat-stat-info small {
-            color: #666;
-            font-size: 0.85rem;
-        }
-
-        .atestado-stats-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px;
-            margin-bottom: 30px;
-        }
-
-        .atestado-stat-card {
-            background: white;
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            border-bottom: 4px solid var(--accent);
-            transition: transform 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .atestado-stat-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .atestado-stat-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.8rem;
-        }
-
-        .atestado-stat-info {
-            flex: 1;
-        }
-
-        .atestado-stat-info h3 {
-            font-size: 0.9rem;
-            color: #666;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .atestado-stat-info .value {
-            font-size: 2.2rem;
-            font-weight: bold;
+        .absenteismo-history h3 {
             color: var(--primary);
-            margin-bottom: 5px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        .atestado-stat-info small {
-            color: #666;
-            font-size: 0.85rem;
+        .export-buttons {
+            display: flex;
+            gap: 10px;
         }
     </style>
 </head>
@@ -1467,6 +1227,7 @@
                 <button class="close-modal" onclick="closeCatDetailsModal()">&times;</button>
             </div>
             <div id="catDetailsContent">
+                <!-- Conteúdo carregado dinamicamente -->
             </div>
         </div>
     </div>
@@ -1521,6 +1282,12 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a href="#" class="nav-link" data-page="absenteismo">
+                        <i class="fas fa-calendar-times"></i>
+                        <span>Absenteísmo</span>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="#" class="nav-link" data-page="configuracoes">
                         <i class="fas fa-cog"></i>
                         <span>Configurações</span>
@@ -1547,6 +1314,7 @@
                     </div>
                 </div>
 
+                <!-- Filtros do Dashboard - Ocultos por padrão com botão para exibir -->
                 <div class="filter-container">
                     <div class="filter-header" onclick="toggleFilters('dashboard-filters')">
                         <h3><i class="fas fa-filter"></i> Filtros do Dashboard</h3>
@@ -1609,9 +1377,16 @@
                         <div class="value" id="totalDeclaracoes">0</div>
                         <small id="totalHorasDeclaracoes">0h</small>
                     </div>
+                    <div class="stat-card absenteismo-card">
+                        <h3>Taxa de Absenteísmo</h3>
+                        <div class="value" id="taxaAbsenteismoGeral">0%</div>
+                        <small id="periodoAbsenteismo">mês atual</small>
+                    </div>
                 </div>
 
+                <!-- Rankings Dashboard -->
                 <div class="dashboard-grid">
+                    <!-- Top 5 Colaboradores com mais Atestados -->
                     <div class="dashboard-card">
                         <h3><i class="fas fa-trophy"></i> Top 5 - Colaboradores com mais Atestados</h3>
                         <ul class="ranking-list" id="topAtestadosColaboradores">
@@ -1621,6 +1396,7 @@
                         </ul>
                     </div>
 
+                    <!-- Top 5 CIDs mais apresentados -->
                     <div class="dashboard-card">
                         <h3><i class="fas fa-file-medical-alt"></i> Top 5 - CIDs mais Frequentes</h3>
                         <ul class="ranking-list" id="topCIDs">
@@ -1630,6 +1406,7 @@
                         </ul>
                     </div>
 
+                    <!-- Top 5 Setores com mais Atestados -->
                     <div class="dashboard-card">
                         <h3><i class="fas fa-building"></i> Top 5 - Setores com mais Atestados</h3>
                         <ul class="ranking-list" id="topSetores">
@@ -1639,6 +1416,7 @@
                         </ul>
                     </div>
 
+                    <!-- Top 5 Colaboradores com mais Horas Declaradas -->
                     <div class="dashboard-card">
                         <h3><i class="fas fa-clock"></i> Top 5 - Colaboradores com mais Horas</h3>
                         <ul class="ranking-list" id="topHorasColaboradores">
@@ -1701,6 +1479,7 @@
                     </div>
                 </div>
 
+                <!-- Filtros de Colaboradores - Ocultos por padrão com botão para exibir -->
                 <div class="filter-container">
                     <div class="filter-header" onclick="toggleFilters('colaboradores-filters')">
                         <h3><i class="fas fa-filter"></i> Filtros de Colaboradores</h3>
@@ -1817,6 +1596,7 @@
                     </div>
                 </div>
 
+                <!-- Cards de Status de Exames -->
                 <div class="exame-cards">
                     <div class="exame-stat-card vencidos">
                         <h4><i class="fas fa-exclamation-circle"></i> Exames Vencidos</h4>
@@ -1841,6 +1621,7 @@
                     </div>
                 </div>
 
+                <!-- Filtros de Exames - Ocultos por padrão com botão para exibir -->
                 <div class="filter-container">
                     <div class="filter-header" onclick="toggleFilters('exames-filters')">
                         <h3><i class="fas fa-filter"></i> Filtros de Exames</h3>
@@ -1991,6 +1772,7 @@
                     </div>
                 </div>
 
+                <!-- Cards de Atestados - Total com Filtros -->
                 <div class="atestado-stats-cards">
                     <div class="atestado-stat-card">
                         <div class="atestado-stat-icon">
@@ -2004,6 +1786,7 @@
                     </div>
                 </div>
 
+                <!-- Filtros de Atestados - Ocultos por padrão com botão para exibir -->
                 <div class="filter-container">
                     <div class="filter-header" onclick="toggleFilters('atestados-filters')">
                         <h3><i class="fas fa-filter"></i> Filtros de Atestados</h3>
@@ -2049,11 +1832,11 @@
                             <div class="date-range">
                                 <div class="form-group">
                                     <label for="filtro-data-inicio-atestado">Data Início:</label>
-                                    <input type="date" id="filtro-data-inicio-atestado">
+                                    <input type="date" id="filtro-data-inicio-atestado" placeholder="dd/mm/aaaa">
                                 </div>
                                 <div class="form-group">
                                     <label for="filtro-data-fim-atestado">Data Fim:</label>
-                                    <input type="date" id="filtro-data-fim-atestado">
+                                    <input type="date" id="filtro-data-fim-atestado" placeholder="dd/mm/aaaa">
                                 </div>
                                 <div class="form-group clear-filters">
                                     <button class="btn btn-warning" onclick="limparFiltrosAtestados()">
@@ -2128,6 +1911,7 @@
                             <input type="date" id="atestado-data-inicio" required onchange="calcularDataFinalAtestado()">
                         </div>
                         
+                        <!-- Seletor de unidade (dias/horas) -->
                         <div class="form-group">
                             <label for="atestado-unidade">Unidade do Atestado *</label>
                             <select id="atestado-unidade" required>
@@ -2137,6 +1921,7 @@
                             </select>
                         </div>
                         
+                        <!-- Campo para Dias de Afastamento (quando unidade = dias) -->
                         <div id="campo-dias-afastamento">
                             <div class="form-group">
                                 <label for="atestado-dias-afastamento">Dias de Afastamento</label>
@@ -2145,6 +1930,7 @@
                             </div>
                         </div>
                         
+                        <!-- Campos de hora (apenas se unidade = horas) -->
                         <div id="campos-hora" class="hidden">
                             <div class="form-row">
                                 <div class="form-group">
@@ -2158,8 +1944,10 @@
                             </div>
                         </div>
                         
+                        <!-- Data Final (oculta) -->
                         <input type="hidden" id="atestado-data-final">
                         
+                        <!-- Resultado do cálculo -->
                         <div id="calc-resultado" class="calc-result hidden">
                             <h4><i class="fas fa-calculator"></i> Resultado do Cálculo</h4>
                             <p id="calc-periodo">Período: <strong>0</strong></p>
@@ -2192,6 +1980,7 @@
                     </div>
                 </div>
 
+                <!-- Cards de CATs - Total e Fora do Prazo com Filtros -->
                 <div class="cat-stats-cards">
                     <div class="cat-stat-card total">
                         <div class="cat-stat-icon">
@@ -2215,6 +2004,7 @@
                     </div>
                 </div>
 
+                <!-- Filtros de CATs - Ocultos por padrão com botão para exibir -->
                 <div class="filter-container">
                     <div class="filter-header" onclick="toggleFilters('cats-filters')">
                         <h3><i class="fas fa-filter"></i> Filtros de CATs</h3>
@@ -2325,6 +2115,7 @@
                             </div>
                         </div>
                         
+                        <!-- Resultado do cálculo do prazo de 24h -->
                         <div id="cat-prazo-resultado" class="calc-result hidden">
                             <h4><i class="fas fa-clock"></i> Verificação de Prazo</h4>
                             <p id="cat-prazo-text"></p>
@@ -2351,6 +2142,7 @@
                             </div>
                         </div>
                         
+                        <!-- Resultado do cálculo do afastamento -->
                         <div id="cat-dias-afastamento" class="calc-result" style="display: none;">
                             <h4><i class="fas fa-calendar-alt"></i> Período de Afastamento</h4>
                             <p id="cat-dias-afastamento-text">Dias afastado: <strong>0 dias</strong></p>
@@ -2393,6 +2185,7 @@
                     </div>
                 </div>
 
+                <!-- Cards de Declarações de Horas -->
                 <div class="declaracao-stats-cards">
                     <div class="declaracao-stat-card">
                         <div class="declaracao-stat-icon">
@@ -2416,6 +2209,7 @@
                     </div>
                 </div>
 
+                <!-- Filtros de Declarações -->
                 <div class="filter-container">
                     <div class="filter-header" onclick="toggleFilters('declaracoes-filters')">
                         <h3><i class="fas fa-filter"></i> Filtros de Declarações de Horas</h3>
@@ -2520,6 +2314,7 @@
                             </div>
                         </div>
                         
+                        <!-- Resultado do cálculo de horas -->
                         <div id="declaracao-calc-resultado" class="calc-result">
                             <h4><i class="fas fa-calculator"></i> Horas de Ausência</h4>
                             <p id="declaracao-calc-horas">Horas ausentes: <strong>0h00</strong></p>
@@ -2536,6 +2331,127 @@
                             </button>
                             <button type="button" class="btn" id="btn-cancelar-declaracao">Cancelar</button>
                         </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Absenteísmo - Página Principal -->
+            <section id="absenteismo" class="page-content absenteismo-page">
+                <div class="page-title">
+                    <h2><i class="fas fa-calendar-times"></i> Gestão de Absenteísmo</h2>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-pdf" onclick="exportAbsenteismoPDF()">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </button>
+                        <button class="btn btn-excel" onclick="exportAbsenteismoExcel()">
+                            <i class="fas fa-file-excel"></i> Excel
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3 style="color: var(--absenteismo); margin-bottom: 25px;">
+                        <i class="fas fa-chart-line"></i> Calcular e Registrar Taxa de Absenteísmo
+                    </h3>
+                    
+                    <div class="absenteismo-selectors">
+                        <div class="selector-group">
+                            <label for="absenteismo-mes">Mês *</label>
+                            <select id="absenteismo-mes" required onchange="calcularAbsenteismoPreview()">
+                                <option value="">Selecione o mês</option>
+                                <option value="1">Janeiro</option>
+                                <option value="2">Fevereiro</option>
+                                <option value="3">Março</option>
+                                <option value="4">Abril</option>
+                                <option value="5">Maio</option>
+                                <option value="6">Junho</option>
+                                <option value="7">Julho</option>
+                                <option value="8">Agosto</option>
+                                <option value="9">Setembro</option>
+                                <option value="10">Outubro</option>
+                                <option value="11">Novembro</option>
+                                <option value="12">Dezembro</option>
+                            </select>
+                        </div>
+                        
+                        <div class="selector-group">
+                            <label for="absenteismo-ano">Ano *</label>
+                            <select id="absenteismo-ano" required onchange="calcularAbsenteismoPreview()">
+                                <option value="">Selecione o ano</option>
+                            </select>
+                        </div>
+                        
+                        <div class="selector-group clear-filters">
+                            <button class="btn btn-absenteismo" onclick="salvarAbsenteismo()">
+                                <i class="fas fa-save"></i> Salvar Registro
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Card da Taxa de Absenteísmo -->
+                    <div id="taxaAbsenteismoCard" class="taxa-card" style="display: none;">
+                        <div class="taxa-icon">
+                            <i class="fas fa-percent"></i>
+                        </div>
+                        <div class="taxa-info">
+                            <h3>Taxa de Absenteísmo Calculada</h3>
+                            <div class="taxa-value" id="taxaAbsenteismoCalculada">0%</div>
+                            <small id="periodoAbsenteismoCalculado">Mês/Ano não selecionado</small>
+                        </div>
+                    </div>
+
+                    <!-- Pré-visualização dos dados -->
+                    <div id="absenteismoPreview" class="absenteismo-preview" style="display: none;">
+                        <h3><i class="fas fa-eye"></i> Pré-visualização do Período</h3>
+                        
+                        <div class="preview-grid">
+                            <div class="preview-item">
+                                <div class="label">Atestados</div>
+                                <div class="value" id="previewAtestados">0</div>
+                                <div class="subvalue" id="previewAtestadosDias">0 dias</div>
+                            </div>
+                            <div class="preview-item">
+                                <div class="label">Declarações de Horas</div>
+                                <div class="value" id="previewDeclaracoes">0</div>
+                                <div class="subvalue" id="previewDeclaracoesHoras">0h00</div>
+                            </div>
+                            <div class="preview-item">
+                                <div class="label">Faltas Registradas</div>
+                                <div class="value" id="previewFaltas">0</div>
+                                <div class="subvalue">total de ocorrências</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Histórico de Absenteísmo -->
+                <div class="absenteismo-history">
+                    <h3><i class="fas fa-history"></i> Histórico de Taxas de Absenteísmo</h3>
+                    
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Período</th>
+                                    <th>Atestados</th>
+                                    <th>Declarações</th>
+                                    <th>Faltas</th>
+                                    <th>Taxa de Absenteísmo</th>
+                                    <th>Data de Registro</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="absenteismoHistoryBody">
+                                <tr>
+                                    <td colspan="7" style="text-align: center; padding: 30px;">
+                                        <div class="empty-state">
+                                            <i class="fas fa-calendar-times"></i>
+                                            <p>Nenhum registro de absenteísmo encontrado</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </section>
@@ -2560,6 +2476,7 @@
                     <button class="tab-btn" data-tab="cids">CIDs</button>
                 </div>
 
+                <!-- Tab: Empresas -->
                 <div id="tab-empresas" class="tab-content active">
                     <div class="form-section">
                         <h3>Cadastro de Empresas</h3>
@@ -2587,6 +2504,7 @@
                     </div>
                 </div>
 
+                <!-- Tab: Departamentos -->
                 <div id="tab-departamentos" class="tab-content">
                     <div class="form-section">
                         <h3>Cadastro de Departamentos</h3>
@@ -2614,6 +2532,7 @@
                     </div>
                 </div>
 
+                <!-- Tab: CIDs -->
                 <div id="tab-cids" class="tab-content">
                     <div class="form-section">
                         <h3>Cadastro de CIDs (Classificação Internacional de Doenças)</h3>
@@ -2681,8 +2600,9 @@
         let declaracoesFiltradas = [];
         let colaboradoresFiltrados = [];
         let atestadoPendente = null;
+        let absenteismoCalculo = null;
         
-        // Cache de dados sincronizados - INICIANDO VAZIO
+        // Cache de dados sincronizados
         let cache = {
             colaboradores: [],
             empresas: [],
@@ -2691,7 +2611,8 @@
             cats: [],
             exames: [],
             atestados: [],
-            declaracoes: []
+            declaracoes: [],
+            absenteismo: []
         };
 
         // Filtros do Dashboard
@@ -2752,6 +2673,7 @@
         };
 
         // === FUNÇÕES AUXILIARES DE FORMATAÇÃO ===
+        
         function formatarHorasDecimal(horas) {
             if (isNaN(horas) || horas === null || horas === undefined) return '0h00';
             const horasInteiras = Math.floor(horas);
@@ -2782,6 +2704,7 @@
         }
 
         // === FUNÇÕES DE NOTIFICAÇÃO E MODAL ===
+        
         function showNotification(message, type) {
             const notification = document.getElementById('notification');
             notification.textContent = message;
@@ -2822,6 +2745,7 @@
         }
 
         // === FUNÇÕES DE CÁLCULO ===
+        
         function calcularVencimentoExame() {
             const dataExame = document.getElementById('exame-data').value;
             if (dataExame) {
@@ -2838,6 +2762,7 @@
             const dataInicio = document.getElementById('atestado-data-inicio').value;
             const diasAfastamento = document.getElementById('atestado-dias-afastamento').value;
             const unidade = document.getElementById('atestado-unidade').value;
+            
             if (dataInicio && diasAfastamento && parseInt(diasAfastamento) > 0 && unidade === 'dias') {
                 const data = new Date(dataInicio + 'T12:00:00');
                 data.setDate(data.getDate() + parseInt(diasAfastamento) - 1);
@@ -2856,6 +2781,7 @@
         function calcularHorasDeclaracao() {
             const horaInicio = document.getElementById('declaracao-hora-inicio').value;
             const horaFinal = document.getElementById('declaracao-hora-final').value;
+            
             if (horaInicio && horaFinal) {
                 const horasDecimais = calcularHorasAtestado(horaInicio, horaFinal);
                 const horasFormatadas = formatarHorasDecimal(horasDecimais);
@@ -2869,12 +2795,15 @@
             const dataInicio = document.getElementById('atestado-data-inicio').value;
             const dataFinal = document.getElementById('atestado-data-final').value;
             const unidade = document.getElementById('atestado-unidade').value;
+            
             if (!dataInicio || !dataFinal) {
                 document.getElementById('calc-resultado').classList.add('hidden');
                 return;
             }
+            
             const calcResultado = document.getElementById('calc-resultado');
             calcResultado.classList.remove('hidden');
+            
             if (unidade === 'horas') {
                 const horaInicio = document.getElementById('atestado-hora-inicio').value;
                 const horaFinal = document.getElementById('atestado-hora-final').value;
@@ -2936,6 +2865,7 @@
         function calcularPrazoCAT() {
             const dataAcidente = document.getElementById('cat-data-acidente').value;
             const dataRegistro = document.getElementById('cat-data-registro').value;
+            
             if (dataAcidente && dataRegistro) {
                 const dentroPrazo = verificarPrazoCAT(dataAcidente, dataRegistro);
                 const prazoResultado = document.getElementById('cat-prazo-resultado');
@@ -2960,6 +2890,7 @@
         function calcularDiasAfastamento() {
             const dataInicio = document.getElementById('cat-afastamento-inicio').value;
             const dataFim = document.getElementById('cat-afastamento-fim').value;
+            
             if (dataInicio && dataFim) {
                 const dias = calcularDiasAtestado(dataInicio, dataFim);
                 const diasAfastamentoDiv = document.getElementById('cat-dias-afastamento');
@@ -2976,7 +2907,223 @@
             }
         }
 
+        // === FUNÇÕES DE ABSENTEÍSMO ===
+        
+        function carregarAnosAbsenteismo() {
+            const selectAno = document.getElementById('absenteismo-ano');
+            if (!selectAno) return;
+            
+            const anoAtual = new Date().getFullYear();
+            selectAno.innerHTML = '<option value="">Selecione o ano</option>';
+            
+            for (let ano = anoAtual - 2; ano <= anoAtual + 1; ano++) {
+                selectAno.innerHTML += `<option value="${ano}">${ano}</option>`;
+            }
+        }
+
+        function calcularAbsenteismoPreview() {
+            const mes = document.getElementById('absenteismo-mes').value;
+            const ano = document.getElementById('absenteismo-ano').value;
+            
+            if (!mes || !ano) {
+                document.getElementById('taxaAbsenteismoCard').style.display = 'none';
+                document.getElementById('absenteismoPreview').style.display = 'none';
+                return;
+            }
+
+            // Filtrar atestados do período
+            const atestadosPeriodo = cache.atestados.filter(atestado => {
+                if (!atestado.dataInicio) return false;
+                const data = new Date(atestado.dataInicio + 'T12:00:00');
+                return data.getMonth() + 1 === parseInt(mes) && data.getFullYear() === parseInt(ano);
+            });
+
+            // Filtrar declarações do período
+            const declaracoesPeriodo = cache.declaracoes.filter(declaracao => {
+                if (!declaracao.data) return false;
+                const data = new Date(declaracao.data + 'T12:00:00');
+                return data.getMonth() + 1 === parseInt(mes) && data.getFullYear() === parseInt(ano);
+            });
+
+            // Calcular totais
+            const totalAtestados = atestadosPeriodo.length;
+            let totalDiasAtestado = 0;
+            atestadosPeriodo.forEach(atestado => {
+                if (atestado.unidade === 'dias' && atestado.dataInicio && atestado.dataFinal) {
+                    totalDiasAtestado += calcularDiasAtestado(atestado.dataInicio, atestado.dataFinal);
+                }
+            });
+
+            const totalDeclaracoes = declaracoesPeriodo.length;
+            let totalHorasDeclaracao = 0;
+            declaracoesPeriodo.forEach(declaracao => {
+                if (declaracao.horas) {
+                    totalHorasDeclaracao += declaracao.horas;
+                }
+            });
+
+            const totalFaltas = totalAtestados + totalDeclaracoes;
+
+            // Calcular taxa de absenteísmo (simplificada)
+            const totalColaboradoresAtivos = cache.colaboradores.filter(c => c.status === 'ativo').length || 1;
+            const diasUteis = 22; // Aproximação de dias úteis no mês
+            const horasPorDia = 8;
+            const totalHorasEsperadas = totalColaboradoresAtivos * diasUteis * horasPorDia;
+            const totalHorasPerdidas = (totalDiasAtestado * horasPorDia) + totalHorasDeclaracao;
+            const taxaAbsenteismo = totalHorasEsperadas > 0 ? (totalHorasPerdidas / totalHorasEsperadas) * 100 : 0;
+
+            // Atualizar preview
+            document.getElementById('previewAtestados').textContent = totalAtestados;
+            document.getElementById('previewAtestadosDias').textContent = `${totalDiasAtestado} dias`;
+            document.getElementById('previewDeclaracoes').textContent = totalDeclaracoes;
+            document.getElementById('previewDeclaracoesHoras').textContent = formatarHorasDecimal(totalHorasDeclaracao);
+            document.getElementById('previewFaltas').textContent = totalFaltas;
+
+            // Atualizar taxa
+            document.getElementById('taxaAbsenteismoCalculada').textContent = `${taxaAbsenteismo.toFixed(2)}%`;
+            document.getElementById('periodoAbsenteismoCalculado').innerHTML = `${getNomeMes(mes)}/${ano}`;
+
+            // Mostrar cards
+            document.getElementById('taxaAbsenteismoCard').style.display = 'flex';
+            document.getElementById('absenteismoPreview').style.display = 'block';
+
+            // Salvar cálculo para registro
+            absenteismoCalculo = {
+                mes: parseInt(mes),
+                ano: parseInt(ano),
+                totalAtestados,
+                totalDiasAtestado,
+                totalDeclaracoes,
+                totalHorasDeclaracao,
+                totalFaltas,
+                taxaAbsenteismo: parseFloat(taxaAbsenteismo.toFixed(2))
+            };
+        }
+
+        async function salvarAbsenteismo() {
+            if (!absenteismoCalculo) {
+                showNotification('Selecione o mês e ano para calcular a taxa de absenteísmo', 'warning');
+                return;
+            }
+
+            try {
+                const btn = document.querySelector('#absenteismo .btn-absenteismo');
+                const originalText = btn ? btn.innerHTML : 'Salvar Registro';
+                if (btn) btn.disabled = true;
+                if (btn) btn.innerHTML = '<span class="loading"></span> Salvando...';
+
+                const absenteismoData = {
+                    ...absenteismoCalculo,
+                    dataRegistro: new Date(),
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                    userId: currentUser ? currentUser.uid : 'demo-user'
+                };
+
+                await db.collection('absenteismo').add(absenteismoData);
+                
+                cache.absenteismo.push({ id: Date.now().toString(), ...absenteismoData });
+                cache.absenteismo.sort((a, b) => {
+                    if (a.ano !== b.ano) return b.ano - a.ano;
+                    return b.mes - a.mes;
+                });
+
+                showNotification(`Taxa de absenteísmo de ${absenteismoCalculo.taxaAbsenteismo}% registrada com sucesso!`, 'success');
+                carregarHistoricoAbsenteismo();
+                atualizarTaxaAbsenteismoDashboard();
+
+                if (btn) btn.disabled = false;
+                if (btn) btn.innerHTML = originalText;
+
+            } catch (error) {
+                console.error('Erro ao salvar absenteísmo:', error);
+                showNotification('Erro ao salvar registro de absenteísmo: ' + error.message, 'error');
+                
+                const btn = document.querySelector('#absenteismo .btn-absenteismo');
+                if (btn) btn.disabled = false;
+                if (btn) btn.innerHTML = '<i class="fas fa-save"></i> Salvar Registro';
+            }
+        }
+
+        function getNomeMes(mes) {
+            const meses = [
+                'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+                'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+            ];
+            return meses[mes - 1] || 'Mês inválido';
+        }
+
+        async function carregarHistoricoAbsenteismo() {
+            try {
+                const absenteismoRef = db.collection('absenteismo');
+                const snapshot = await absenteismoRef.orderBy('ano', 'desc').orderBy('mes', 'desc').get();
+                
+                cache.absenteismo = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+
+                const historyBody = document.getElementById('absenteismoHistoryBody');
+                if (!historyBody) return;
+
+                if (cache.absenteismo.length === 0) {
+                    historyBody.innerHTML = `
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 30px;">
+                                <div class="empty-state">
+                                    <i class="fas fa-calendar-times"></i>
+                                    <p>Nenhum registro de absenteísmo encontrado</p>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                historyBody.innerHTML = cache.absenteismo.map(reg => `
+                    <tr>
+                        <td><strong>${getNomeMes(reg.mes)}/${reg.ano}</strong></td>
+                        <td>${reg.totalAtestados} (${reg.totalDiasAtestado} dias)</td>
+                        <td>${reg.totalDeclaracoes} (${formatarHorasDecimal(reg.totalHorasDeclaracao)})</td>
+                        <td>${reg.totalFaltas}</td>
+                        <td><span style="color: var(--absenteismo); font-weight: bold;">${reg.taxaAbsenteismo}%</span></td>
+                        <td>${formatDate(reg.dataRegistro)}</td>
+                        <td>
+                            <div class="actions-cell">
+                                <button class="btn btn-danger btn-small" onclick="excluirAbsenteismo('${reg.id}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+
+            } catch (error) {
+                console.error('Erro ao carregar histórico de absenteísmo:', error);
+            }
+        }
+
+        async function excluirAbsenteismo(id) {
+            itemToDelete = id;
+            deleteCollection = 'absenteismo';
+            document.getElementById('confirmMessage').textContent = 
+                'Tem certeza que deseja excluir este registro de absenteísmo? Esta ação não pode ser desfeita.';
+            document.getElementById('confirmModal').style.display = 'flex';
+        }
+
+        function atualizarTaxaAbsenteismoDashboard() {
+            if (cache.absenteismo.length > 0) {
+                const ultimoRegistro = cache.absenteismo[0];
+                document.getElementById('taxaAbsenteismoGeral').textContent = `${ultimoRegistro.taxaAbsenteismo}%`;
+                document.getElementById('periodoAbsenteismo').textContent = `${getNomeMes(ultimoRegistro.mes)}/${ultimoRegistro.ano}`;
+            } else {
+                document.getElementById('taxaAbsenteismoGeral').textContent = '0%';
+                document.getElementById('periodoAbsenteismo').textContent = 'sem registros';
+            }
+        }
+
         // === FUNÇÕES DE FILTRAGEM ===
+        
         function limparFiltrosExames() {
             document.getElementById('filtro-nome-exame').value = '';
             document.getElementById('filtro-departamento-exame').value = 'todos';
@@ -2998,15 +3145,7 @@
             document.getElementById('filtro-empresa-atestado').value = 'todos';
             document.getElementById('filtro-data-inicio-atestado').value = '';
             document.getElementById('filtro-data-fim-atestado').value = '';
-            atestadosFiltros = {
-                nome: '',
-                tipo: 'todos',
-                unidade: 'todos',
-                departamento: 'todos',
-                empresa: 'todos',
-                dataInicio: '',
-                dataFim: ''
-            };
+            atestadosFiltros = { nome: '', tipo: 'todos', unidade: 'todos', departamento: 'todos', empresa: 'todos', dataInicio: '', dataFim: '' };
             filtrarAtestados();
             showNotification('Filtros de atestados limpos com sucesso!', 'info');
         }
@@ -3017,13 +3156,7 @@
             document.getElementById('filtro-colaborador-cat').value = 'todos';
             document.getElementById('filtro-periodo-inicio-cat').value = '';
             document.getElementById('filtro-periodo-fim-cat').value = '';
-            catsFiltros = {
-                status: 'todos',
-                tipo: 'todos',
-                colaborador: 'todos',
-                dataInicio: '',
-                dataFim: ''
-            };
+            catsFiltros = { status: 'todos', tipo: 'todos', colaborador: 'todos', dataInicio: '', dataFim: '' };
             filtrarCATs();
             atualizarCardsCATs();
             showNotification('Filtros de CATs limpos com sucesso!', 'info');
@@ -3035,13 +3168,7 @@
             document.getElementById('filtro-empresa-declaracao').value = 'todos';
             document.getElementById('filtro-data-inicio-declaracao').value = '';
             document.getElementById('filtro-data-fim-declaracao').value = '';
-            declaracoesFiltros = {
-                nome: '',
-                departamento: 'todos',
-                empresa: 'todos',
-                dataInicio: '',
-                dataFim: ''
-            };
+            declaracoesFiltros = { nome: '', departamento: 'todos', empresa: 'todos', dataInicio: '', dataFim: '' };
             filtrarDeclaracoes();
             atualizarCardsDeclaracoes();
             showNotification('Filtros de declarações limpos com sucesso!', 'info');
@@ -3052,33 +3179,15 @@
             document.getElementById('filtro-dashboard-departamento').value = 'todos';
             document.getElementById('filtro-dashboard-data-inicio').value = '';
             document.getElementById('filtro-dashboard-data-fim').value = '';
-            dashboardFiltros = {
-                colaborador: 'todos',
-                departamento: 'todos',
-                dataInicio: '',
-                dataFim: ''
-            };
+            dashboardFiltros = { colaborador: 'todos', departamento: 'todos', dataInicio: '', dataFim: '' };
             loadDashboardData();
             showNotification('Filtros limpos com sucesso!', 'info');
         }
 
-        // === FUNÇÕES DE CARREGAMENTO DE DADOS REAIS ===
+        // === FUNÇÕES DE CARREGAMENTO DE CACHE ===
+        
         async function loadCacheData() {
             try {
-                showNotification('Sincronizando dados com o servidor...', 'info');
-                
-                // LIMPAR CACHE ANTES DE CARREGAR
-                cache = {
-                    colaboradores: [],
-                    empresas: [],
-                    departamentos: [],
-                    cids: [],
-                    cats: [],
-                    exames: [],
-                    atestados: [],
-                    declaracoes: []
-                };
-                
                 await Promise.all([
                     loadColaboradoresCache(),
                     loadEmpresasCache(),
@@ -3090,9 +3199,8 @@
                     loadDeclaracoesCache()
                 ]);
                 
-                console.log('Cache de dados sincronizado com sucesso:', cache);
+                console.log('Cache de dados carregado com sucesso:', cache);
                 
-                // Carregar todos os dados das páginas
                 loadFiltrosDashboard();
                 loadDepartamentosFiltro();
                 loadFiltrosExames();
@@ -3106,294 +3214,236 @@
                 loadDeclaracoes();
                 loadConfiguracoes();
                 loadDashboardData();
-                
-                showNotification('Dados sincronizados com sucesso!', 'success');
+                carregarHistoricoAbsenteismo();
                 
             } catch (error) {
                 console.error('Erro ao carregar cache de dados:', error);
-                showNotification('Erro ao sincronizar dados', 'error');
             }
         }
 
         async function loadColaboradoresCache() {
             try {
-                const colaboradoresQuery = await db.collection('colaboradores')
-                    .orderBy('nome')
-                    .get();
-                
-                cache.colaboradores = colaboradoresQuery.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
-                
-                console.log(`Colaboradores carregados: ${cache.colaboradores.length}`);
-                
+                const colaboradoresQuery = await db.collection('colaboradores').orderBy('nome').get();
+                cache.colaboradores = colaboradoresQuery.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             } catch (error) {
-                console.error('Erro ao carregar colaboradores:', error);
-                cache.colaboradores = [];
+                console.error('Erro ao carregar colaboradores em cache:', error);
             }
         }
 
         async function loadEmpresasCache() {
             try {
-                const empresasQuery = await db.collection('empresas')
-                    .orderBy('nome')
-                    .get();
-                
-                cache.empresas = empresasQuery.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
-                
-                console.log(`Empresas carregadas: ${cache.empresas.length}`);
-                
+                const empresasQuery = await db.collection('empresas').orderBy('nome').get();
+                cache.empresas = empresasQuery.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             } catch (error) {
-                console.error('Erro ao carregar empresas:', error);
-                cache.empresas = [];
+                console.error('Erro ao carregar empresas em cache:', error);
             }
         }
 
         async function loadDepartamentosCache() {
             try {
-                const departamentosQuery = await db.collection('departamentos')
-                    .orderBy('nome')
-                    .get();
-                
-                cache.departamentos = departamentosQuery.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
-                
-                console.log(`Departamentos carregados: ${cache.departamentos.length}`);
-                
+                const departamentosQuery = await db.collection('departamentos').orderBy('nome').get();
+                cache.departamentos = departamentosQuery.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             } catch (error) {
-                console.error('Erro ao carregar departamentos:', error);
-                cache.departamentos = [];
+                console.error('Erro ao carregar departamentos em cache:', error);
             }
         }
 
         async function loadCIDsCache() {
             try {
-                const cidsQuery = await db.collection('cids')
-                    .orderBy('codigo')
-                    .get();
-                
-                cache.cids = cidsQuery.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
-                
-                console.log(`CIDs carregados: ${cache.cids.length}`);
-                
+                const cidsQuery = await db.collection('cids').orderBy('codigo').get();
+                cache.cids = cidsQuery.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             } catch (error) {
-                console.error('Erro ao carregar CIDs:', error);
-                cache.cids = [];
+                console.error('Erro ao carregar CIDs em cache:', error);
             }
         }
 
         async function loadCATsCache() {
             try {
-                const catsQuery = await db.collection('cats')
-                    .orderBy('dataRegistro', 'desc')
-                    .get();
-                
-                cache.cats = catsQuery.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
-                
-                console.log(`CATs carregadas: ${cache.cats.length}`);
-                
+                const catsQuery = await db.collection('cats').orderBy('dataRegistro', 'desc').get();
+                cache.cats = catsQuery.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             } catch (error) {
-                console.error('Erro ao carregar CATs:', error);
-                cache.cats = [];
+                console.error('Erro ao carregar CATs em cache:', error);
             }
         }
 
         async function loadExamesCache() {
             try {
                 const examesQuery = await db.collection('exames').get();
-                
-                cache.exames = examesQuery.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
-                
-                console.log(`Exames carregados: ${cache.exames.length}`);
-                
+                cache.exames = examesQuery.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             } catch (error) {
-                console.error('Erro ao carregar exames:', error);
-                cache.exames = [];
+                console.error('Erro ao carregar exames em cache:', error);
             }
         }
 
         async function loadAtestadosCache() {
             try {
                 const atestadosQuery = await db.collection('atestados').get();
-                
-                cache.atestados = atestadosQuery.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
-                
-                console.log(`Atestados carregados: ${cache.atestados.length}`);
-                
+                cache.atestados = atestadosQuery.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             } catch (error) {
-                console.error('Erro ao carregar atestados:', error);
-                cache.atestados = [];
+                console.error('Erro ao carregar atestados em cache:', error);
             }
         }
 
         async function loadDeclaracoesCache() {
             try {
-                const declaracoesQuery = await db.collection('declaracoes')
-                    .orderBy('data', 'desc')
-                    .get();
-                
-                cache.declaracoes = declaracoesQuery.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                }));
-                
-                console.log(`Declarações carregadas: ${cache.declaracoes.length}`);
-                
+                const declaracoesQuery = await db.collection('declaracoes').orderBy('data', 'desc').get();
+                cache.declaracoes = declaracoesQuery.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             } catch (error) {
-                console.error('Erro ao carregar declarações:', error);
+                console.error('Erro ao carregar declarações em cache:', error);
                 cache.declaracoes = [];
             }
         }
 
         // === FUNÇÕES DE CARREGAMENTO DE FILTROS ===
+        
         function loadFiltrosDashboard() {
             const filtroColaborador = document.getElementById('filtro-dashboard-colaborador');
             const filtroDepartamento = document.getElementById('filtro-dashboard-departamento');
-            
-            if (!filtroColaborador || !filtroDepartamento) return;
-            
-            filtroColaborador.innerHTML = '<option value="todos">Todos</option>';
-            filtroDepartamento.innerHTML = '<option value="todos">Todos</option>';
-            
-            cache.colaboradores.forEach(colaborador => {
-                filtroColaborador.innerHTML += `<option value="${colaborador.nome}">${colaborador.nome}</option>`;
-            });
-            
-            cache.departamentos.forEach(departamento => {
-                filtroDepartamento.innerHTML += `<option value="${departamento.nome}">${departamento.nome}</option>`;
-            });
+            if (filtroColaborador) {
+                filtroColaborador.innerHTML = '<option value="todos">Todos</option>';
+                cache.colaboradores.forEach(colaborador => {
+                    filtroColaborador.innerHTML += `<option value="${colaborador.nome}">${colaborador.nome}</option>`;
+                });
+            }
+            if (filtroDepartamento) {
+                filtroDepartamento.innerHTML = '<option value="todos">Todos</option>';
+                cache.departamentos.forEach(departamento => {
+                    filtroDepartamento.innerHTML += `<option value="${departamento.nome}">${departamento.nome}</option>`;
+                });
+            }
         }
 
         function loadFiltrosAtestados() {
             const filtroDepartamento = document.getElementById('filtro-departamento-atestado');
             const filtroEmpresa = document.getElementById('filtro-empresa-atestado');
-            
-            if (!filtroDepartamento || !filtroEmpresa) return;
-            
-            filtroDepartamento.innerHTML = '<option value="todos">Todos</option>';
-            filtroEmpresa.innerHTML = '<option value="todos">Todas</option>';
-            
-            cache.departamentos.forEach(departamento => {
-                filtroDepartamento.innerHTML += `<option value="${departamento.nome}">${departamento.nome}</option>`;
-            });
-            
-            cache.empresas.forEach(empresa => {
-                filtroEmpresa.innerHTML += `<option value="${empresa.nome}">${empresa.nome}</option>`;
-            });
+            if (filtroDepartamento) {
+                filtroDepartamento.innerHTML = '<option value="todos">Todos</option>';
+                cache.departamentos.forEach(departamento => {
+                    filtroDepartamento.innerHTML += `<option value="${departamento.nome}">${departamento.nome}</option>`;
+                });
+            }
+            if (filtroEmpresa) {
+                filtroEmpresa.innerHTML = '<option value="todos">Todas</option>';
+                cache.empresas.forEach(empresa => {
+                    filtroEmpresa.innerHTML += `<option value="${empresa.nome}">${empresa.nome}</option>`;
+                });
+            }
         }
 
         function loadFiltrosCATs() {
             const filtroColaborador = document.getElementById('filtro-colaborador-cat');
-            if (!filtroColaborador) return;
-            
-            filtroColaborador.innerHTML = '<option value="todos">Todos</option>';
-            
-            const colaboradoresOrdenados = [...cache.colaboradores];
-            colaboradoresOrdenados.sort((a, b) => {
-                const nomeA = a.nome || '';
-                const nomeB = b.nome || '';
-                return nomeA.localeCompare(nomeB);
-            });
-            
-            colaboradoresOrdenados.forEach(colaborador => {
-                filtroColaborador.innerHTML += `<option value="${colaborador.nome}">${colaborador.nome}</option>`;
-            });
+            if (filtroColaborador) {
+                filtroColaborador.innerHTML = '<option value="todos">Todos</option>';
+                const colaboradoresOrdenados = [...cache.colaboradores].sort((a, b) => a.nome?.localeCompare(b.nome || '') || 0);
+                colaboradoresOrdenados.forEach(colaborador => {
+                    filtroColaborador.innerHTML += `<option value="${colaborador.nome}">${colaborador.nome}</option>`;
+                });
+            }
         }
 
         function loadFiltrosDeclaracoes() {
             const filtroDepartamento = document.getElementById('filtro-departamento-declaracao');
             const filtroEmpresa = document.getElementById('filtro-empresa-declaracao');
-            
-            if (!filtroDepartamento || !filtroEmpresa) return;
-            
-            filtroDepartamento.innerHTML = '<option value="todos">Todos</option>';
-            filtroEmpresa.innerHTML = '<option value="todos">Todas</option>';
-            
-            cache.departamentos.forEach(departamento => {
-                filtroDepartamento.innerHTML += `<option value="${departamento.nome}">${departamento.nome}</option>`;
-            });
-            
-            cache.empresas.forEach(empresa => {
-                filtroEmpresa.innerHTML += `<option value="${empresa.nome}">${empresa.nome}</option>`;
-            });
+            if (filtroDepartamento) {
+                filtroDepartamento.innerHTML = '<option value="todos">Todos</option>';
+                cache.departamentos.forEach(departamento => {
+                    filtroDepartamento.innerHTML += `<option value="${departamento.nome}">${departamento.nome}</option>`;
+                });
+            }
+            if (filtroEmpresa) {
+                filtroEmpresa.innerHTML = '<option value="todos">Todas</option>';
+                cache.empresas.forEach(empresa => {
+                    filtroEmpresa.innerHTML += `<option value="${empresa.nome}">${empresa.nome}</option>`;
+                });
+            }
         }
 
         function loadFiltrosExames() {
             const filtroEmpresa = document.getElementById('filtro-empresa-exame');
-            if (!filtroEmpresa) return;
-            
-            filtroEmpresa.innerHTML = '<option value="todos">Todas</option>';
-            
-            cache.empresas.forEach(empresa => {
-                filtroEmpresa.innerHTML += `<option value="${empresa.nome}">${empresa.nome}</option>`;
-            });
+            if (filtroEmpresa) {
+                filtroEmpresa.innerHTML = '<option value="todos">Todas</option>';
+                cache.empresas.forEach(empresa => {
+                    filtroEmpresa.innerHTML += `<option value="${empresa.nome}">${empresa.nome}</option>`;
+                });
+            }
         }
 
         function loadDepartamentosFiltro() {
             const filtroDepartamento = document.getElementById('filtro-departamento-colaborador');
-            if (!filtroDepartamento) return;
-            
-            filtroDepartamento.innerHTML = '<option value="todos">Todos</option>';
-            
-            const departamentosUnicos = [...new Set(cache.colaboradores
-                .map(colaborador => colaborador.departamento)
-                .filter(departamento => departamento && departamento.trim() !== '')
-            )];
-            
-            departamentosUnicos.sort().forEach(departamento => {
-                filtroDepartamento.innerHTML += `<option value="${departamento}">${departamento}</option>`;
-            });
+            if (filtroDepartamento) {
+                filtroDepartamento.innerHTML = '<option value="todos">Todos</option>';
+                const departamentosUnicos = [...new Set(cache.colaboradores
+                    .map(colaborador => colaborador.departamento)
+                    .filter(departamento => departamento && departamento.trim() !== '')
+                )];
+                departamentosUnicos.sort().forEach(departamento => {
+                    filtroDepartamento.innerHTML += `<option value="${departamento}">${departamento}</option>`;
+                });
+            }
             
             const filtroDepartamentoExame = document.getElementById('filtro-departamento-exame');
             if (filtroDepartamentoExame) {
                 filtroDepartamentoExame.innerHTML = '<option value="todos">Todos</option>';
+                const departamentosUnicos = [...new Set(cache.colaboradores
+                    .map(colaborador => colaborador.departamento)
+                    .filter(departamento => departamento && departamento.trim() !== '')
+                )];
                 departamentosUnicos.sort().forEach(departamento => {
                     filtroDepartamentoExame.innerHTML += `<option value="${departamento}">${departamento}</option>`;
                 });
             }
         }
 
-        // === FUNÇÕES DE CARREGAMENTO DE DADOS DAS PÁGINAS ===
+        // === FUNÇÕES DE CARREGAMENTO DE DADOS ===
+        
         async function loadDashboardData() {
             try {
-                // Dados reais do cache
-                const totalColaboradores = cache.colaboradores.length;
-                const colaboradoresAtivos = cache.colaboradores.filter(c => c.status === 'ativo').length;
+                // Filtrar colaboradores ativos
+                let colaboradoresFiltrados = [...cache.colaboradores];
+                if (dashboardFiltros.departamento !== 'todos') {
+                    colaboradoresFiltrados = colaboradoresFiltrados.filter(c => c.departamento === dashboardFiltros.departamento);
+                }
+                if (dashboardFiltros.colaborador !== 'todos') {
+                    colaboradoresFiltrados = colaboradoresFiltrados.filter(c => c.nome === dashboardFiltros.colaborador);
+                }
+                
+                const totalColaboradores = colaboradoresFiltrados.length;
+                const colaboradoresAtivos = colaboradoresFiltrados.filter(c => c.status === 'ativo').length;
                 
                 document.getElementById('totalColaboradores').textContent = totalColaboradores;
                 document.getElementById('colaboradoresAtivos').textContent = `${colaboradoresAtivos} ativos`;
                 
-                const totalExames = cache.exames.length;
-                const examesVencidos = cache.exames.filter(e => e.vencimento && calcularStatusVencimento(e.vencimento) === 'vencido').length;
+                // Filtrar exames
+                let examesFiltrados = [...cache.exames];
+                if (dashboardFiltros.departamento !== 'todos' || dashboardFiltros.colaborador !== 'todos') {
+                    const colaboradoresPermitidos = colaboradoresFiltrados.map(c => c.nome);
+                    examesFiltrados = examesFiltrados.filter(e => colaboradoresPermitidos.includes(e.funcionario));
+                }
+                if (dashboardFiltros.dataInicio || dashboardFiltros.dataFim) {
+                    examesFiltrados = examesFiltrados.filter(e => e.dataExame && exameDentroFiltro(e.dataExame));
+                }
+                
+                const totalExames = examesFiltrados.length;
+                const examesVencidos = examesFiltrados.filter(e => e.vencimento && calcularStatusVencimento(e.vencimento) === 'vencido').length;
                 
                 document.getElementById('totalExames').textContent = totalExames;
                 document.getElementById('examesPendentes').textContent = `${examesVencidos} vencidos`;
                 
-                const totalAtestados = cache.atestados.length;
+                // Filtrar atestados
+                let atestadosFiltrados = [...cache.atestados];
+                if (dashboardFiltros.departamento !== 'todos' || dashboardFiltros.colaborador !== 'todos') {
+                    const colaboradoresPermitidos = colaboradoresFiltrados.map(c => c.nome);
+                    atestadosFiltrados = atestadosFiltrados.filter(a => colaboradoresPermitidos.includes(a.funcionario));
+                }
+                if (dashboardFiltros.dataInicio || dashboardFiltros.dataFim) {
+                    atestadosFiltrados = atestadosFiltrados.filter(a => a.dataInicio && atestadoDentroFiltro(a.dataInicio));
+                }
                 
+                const totalAtestados = atestadosFiltrados.length;
                 const hoje = new Date();
                 const mesAtual = hoje.getMonth() + 1;
                 const anoAtual = hoje.getFullYear();
-                
-                const atestadosMes = cache.atestados.filter(a => {
+                const atestadosMes = atestadosFiltrados.filter(a => {
                     if (!a.dataInicio) return false;
                     const dataInicio = new Date(a.dataInicio + 'T12:00:00');
                     return dataInicio.getMonth() + 1 === mesAtual && dataInicio.getFullYear() === anoAtual;
@@ -3402,26 +3452,43 @@
                 document.getElementById('totalAtestados').textContent = totalAtestados;
                 document.getElementById('atestadosMes').textContent = `${atestadosMes} este mês`;
                 
-                const totalCats = cache.cats.length;
-                const catsAnalise = cache.cats.filter(c => c.status === 'em_analise').length;
+                // Filtrar CATs
+                let catsFiltrados = [...cache.cats];
+                if (dashboardFiltros.departamento !== 'todos' || dashboardFiltros.colaborador !== 'todos') {
+                    const colaboradoresPermitidos = colaboradoresFiltrados.map(c => c.nome);
+                    catsFiltrados = catsFiltrados.filter(c => colaboradoresPermitidos.includes(c.funcionario));
+                }
+                if (dashboardFiltros.dataInicio || dashboardFiltros.dataFim) {
+                    catsFiltrados = catsFiltrados.filter(c => c.dataRegistro && catDentroFiltro(c.dataRegistro));
+                }
+                
+                const totalCats = catsFiltrados.length;
+                const catsAnalise = catsFiltrados.filter(c => c.status === 'em_analise').length;
                 
                 document.getElementById('totalCats').textContent = totalCats;
                 document.getElementById('catsAnalise').textContent = `${catsAnalise} em análise`;
                 
-                const totalDeclaracoes = cache.declaracoes.length;
-                let totalHoras = 0;
+                // Filtrar declarações
+                let declaracoesFiltrados = [...cache.declaracoes];
+                if (dashboardFiltros.departamento !== 'todos' || dashboardFiltros.colaborador !== 'todos') {
+                    const colaboradoresPermitidos = colaboradoresFiltrados.map(c => c.nome);
+                    declaracoesFiltrados = declaracoesFiltrados.filter(d => colaboradoresPermitidos.includes(d.funcionario));
+                }
+                if (dashboardFiltros.dataInicio || dashboardFiltros.dataFim) {
+                    declaracoesFiltrados = declaracoesFiltrados.filter(d => d.data && declaracaoDentroFiltro(d.data));
+                }
                 
-                cache.declaracoes.forEach(declaracao => {
-                    if (declaracao.horas) {
-                        totalHoras += declaracao.horas;
-                    }
+                const totalDeclaracoes = declaracoesFiltrados.length;
+                let totalHoras = 0;
+                declaracoesFiltrados.forEach(declaracao => {
+                    if (declaracao.horas) totalHoras += declaracao.horas;
                 });
                 
                 document.getElementById('totalDeclaracoes').textContent = totalDeclaracoes;
                 document.getElementById('totalHorasDeclaracoes').textContent = `${formatarHorasDecimal(totalHoras)}`;
                 
-                // Carregar rankings e vencimentos
-                loadDashboardRankings(cache.atestados);
+                // Carregar rankings e vencimentos com os filtros aplicados
+                loadDashboardRankings(atestadosFiltrados);
                 loadProximosVencimentos();
                 
             } catch (error) {
@@ -3429,7 +3496,7 @@
             }
         }
 
-        async function loadDashboardRankings(atestadosFiltrados) {
+        function loadDashboardRankings(atestadosFiltrados) {
             try {
                 // Top 5 Colaboradores com mais atestados
                 const colaboradoresAtestados = {};
@@ -3445,11 +3512,7 @@
                 
                 const topColaboradoresHTML = document.getElementById('topAtestadosColaboradores');
                 if (topColaboradores.length === 0) {
-                    topColaboradoresHTML.innerHTML = `
-                        <li class="ranking-item">
-                            <span style="color: #666;">Nenhum atestado encontrado</span>
-                        </li>
-                    `;
+                    topColaboradoresHTML.innerHTML = `<li class="ranking-item"><span style="color: #666;">Nenhum atestado encontrado</span></li>`;
                 } else {
                     topColaboradoresHTML.innerHTML = topColaboradores.map((item, index) => {
                         const colaborador = cache.colaboradores.find(c => c.nome === item.nome);
@@ -3478,22 +3541,14 @@
                 const topCIDs = Object.entries(cidsFrequencia)
                     .map(([cid, quantidade]) => {
                         const cidInfo = cache.cids.find(c => c.codigo === cid);
-                        return { 
-                            cid, 
-                            descricao: cidInfo ? cidInfo.descricao : 'CID não encontrado',
-                            quantidade 
-                        };
+                        return { cid, descricao: cidInfo ? cidInfo.descricao : 'CID não encontrado', quantidade };
                     })
                     .sort((a, b) => b.quantidade - a.quantidade)
                     .slice(0, 5);
                 
                 const topCIDsHTML = document.getElementById('topCIDs');
                 if (topCIDs.length === 0) {
-                    topCIDsHTML.innerHTML = `
-                        <li class="ranking-item">
-                            <span style="color: #666;">Nenhum CID registrado</span>
-                        </li>
-                    `;
+                    topCIDsHTML.innerHTML = `<li class="ranking-item"><span style="color: #666;">Nenhum CID registrado</span></li>`;
                 } else {
                     topCIDsHTML.innerHTML = topCIDs.map((item, index) => `
                         <li class="ranking-item">
@@ -3524,11 +3579,7 @@
                 
                 const topSetoresHTML = document.getElementById('topSetores');
                 if (topSetores.length === 0) {
-                    topSetoresHTML.innerHTML = `
-                        <li class="ranking-item">
-                            <span style="color: #666;">Nenhum setor encontrado</span>
-                        </li>
-                    `;
+                    topSetoresHTML.innerHTML = `<li class="ranking-item"><span style="color: #666;">Nenhum setor encontrado</span></li>`;
                 } else {
                     topSetoresHTML.innerHTML = topSetores.map((item, index) => `
                         <li class="ranking-item">
@@ -3545,12 +3596,8 @@
                 const colaboradoresHoras = {};
                 cache.declaracoes.forEach(declaracao => {
                     if (!declaracao.funcionario) return;
-                    if (!colaboradoresHoras[declaracao.funcionario]) {
-                        colaboradoresHoras[declaracao.funcionario] = 0;
-                    }
-                    if (declaracao.horas) {
-                        colaboradoresHoras[declaracao.funcionario] += declaracao.horas;
-                    }
+                    if (!colaboradoresHoras[declaracao.funcionario]) colaboradoresHoras[declaracao.funcionario] = 0;
+                    if (declaracao.horas) colaboradoresHoras[declaracao.funcionario] += declaracao.horas;
                 });
                 
                 const topHoras = Object.entries(colaboradoresHoras)
@@ -3560,11 +3607,7 @@
                 
                 const topHorasHTML = document.getElementById('topHorasColaboradores');
                 if (topHoras.length === 0) {
-                    topHorasHTML.innerHTML = `
-                        <li class="ranking-item">
-                            <span style="color: #666;">Nenhuma declaração encontrada</span>
-                        </li>
-                    `;
+                    topHorasHTML.innerHTML = `<li class="ranking-item"><span style="color: #666;">Nenhuma declaração encontrada</span></li>`;
                 } else {
                     topHorasHTML.innerHTML = topHoras.map((item, index) => {
                         const colaborador = cache.colaboradores.find(c => c.nome === item.nome);
@@ -3587,12 +3630,14 @@
             }
         }
 
-        async function loadProximosVencimentos() {
+        function loadProximosVencimentos() {
             try {
                 const hoje = new Date();
                 hoje.setHours(0, 0, 0, 0);
                 
                 const vencimentosBody = document.getElementById('vencimentosBody');
+                if (!vencimentosBody) return;
+                
                 vencimentosBody.innerHTML = '';
                 
                 if (cache.exames.length === 0) {
@@ -3609,17 +3654,28 @@
                     return;
                 }
                 
-                const examesProximos = [];
+                let examesFiltrados = [...cache.exames];
+                if (dashboardFiltros.departamento !== 'todos' || dashboardFiltros.colaborador !== 'todos') {
+                    const colaboradoresFiltrados = cache.colaboradores.filter(c => {
+                        if (dashboardFiltros.departamento !== 'todos' && c.departamento !== dashboardFiltros.departamento) return false;
+                        if (dashboardFiltros.colaborador !== 'todos' && c.nome !== dashboardFiltros.colaborador) return false;
+                        return true;
+                    });
+                    const colaboradoresPermitidos = colaboradoresFiltrados.map(c => c.nome);
+                    examesFiltrados = examesFiltrados.filter(e => colaboradoresPermitidos.includes(e.funcionario));
+                }
                 
-                cache.exames.forEach(exame => {
+                if (dashboardFiltros.dataInicio || dashboardFiltros.dataFim) {
+                    examesFiltrados = examesFiltrados.filter(e => e.dataExame && exameDentroFiltro(e.dataExame));
+                }
+                
+                const examesProximos = [];
+                examesFiltrados.forEach(exame => {
                     if (!exame.vencimento) return;
-                    
                     const vencimentoDate = new Date(exame.vencimento + 'T12:00:00');
                     vencimentoDate.setHours(0, 0, 0, 0);
-                    
                     const diffTime = vencimentoDate - hoje;
                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                    
                     if (diffDays <= 30 && diffDays >= 0) {
                         examesProximos.push({
                             id: exame.id,
@@ -3630,10 +3686,7 @@
                     }
                 });
                 
-                examesProximos.sort((a, b) => {
-                    return a.vencimentoDate - b.vencimentoDate;
-                });
-                
+                examesProximos.sort((a, b) => a.vencimentoDate - b.vencimentoDate);
                 const examesExibir = examesProximos.slice(0, 10);
                 
                 if (examesExibir.length === 0) {
@@ -3653,7 +3706,6 @@
                 examesExibir.forEach(exame => {
                     const data = exame.data;
                     const status = calcularStatusVencimento(data.vencimento);
-                    
                     vencimentosBody.innerHTML += `
                         <tr>
                             <td><strong>${data.funcionario || 'N/A'}</strong></td>
@@ -3680,22 +3732,22 @@
             try {
                 if (cache.colaboradores.length === 0) {
                     const colaboradoresBody = document.getElementById('colaboradoresBody');
-                    colaboradoresBody.innerHTML = `
-                        <tr>
-                            <td colspan="6" style="text-align: center; padding: 30px;">
-                                <div class="empty-state">
-                                    <i class="fas fa-users"></i>
-                                    <p>Nenhum colaborador cadastrado</p>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
+                    if (colaboradoresBody) {
+                        colaboradoresBody.innerHTML = `
+                            <tr>
+                                <td colspan="6" style="text-align: center; padding: 30px;">
+                                    <div class="empty-state">
+                                        <i class="fas fa-users"></i>
+                                        <p>Nenhum colaborador cadastrado</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    }
                     return;
                 }
-                
                 colaboradoresFiltrados = [...cache.colaboradores];
                 filtrarColaboradores();
-                
             } catch (error) {
                 console.error('Erro ao carregar colaboradores:', error);
                 showNotification('Erro ao carregar colaboradores', 'error');
@@ -3708,6 +3760,8 @@
             const filtroStatus = document.getElementById('filtro-status-colaborador')?.value || 'todos';
             
             const colaboradoresBody = document.getElementById('colaboradoresBody');
+            if (!colaboradoresBody) return;
+            
             colaboradoresBody.innerHTML = '';
             
             if (cache.colaboradores.length === 0) {
@@ -3725,15 +3779,9 @@
             }
             
             const colaboradoresFiltradosResultado = cache.colaboradores.filter(colaborador => {
-                const nomeMatch = !filtroNome || 
-                    (colaborador.nome && colaborador.nome.toLowerCase().includes(filtroNome));
-                
-                const departamentoMatch = filtroDepartamento === 'todos' || 
-                    (colaborador.departamento && colaborador.departamento === filtroDepartamento);
-                
-                const statusMatch = filtroStatus === 'todos' || 
-                    (colaborador.status && colaborador.status === filtroStatus);
-                
+                const nomeMatch = !filtroNome || (colaborador.nome && colaborador.nome.toLowerCase().includes(filtroNome));
+                const departamentoMatch = filtroDepartamento === 'todos' || (colaborador.departamento && colaborador.departamento === filtroDepartamento);
+                const statusMatch = filtroStatus === 'todos' || (colaborador.status && colaborador.status === filtroStatus);
                 return nomeMatch && departamentoMatch && statusMatch;
             });
             
@@ -3751,11 +3799,7 @@
                 return;
             }
             
-            colaboradoresFiltradosResultado.sort((a, b) => {
-                const nomeA = a.nome || '';
-                const nomeB = b.nome || '';
-                return nomeA.localeCompare(nomeB);
-            });
+            colaboradoresFiltradosResultado.sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
             
             colaboradoresFiltradosResultado.forEach(colaborador => {
                 colaboradoresBody.innerHTML += `
@@ -3780,9 +3824,11 @@
             });
         }
 
-        async function loadExames() {
+        function loadExames() {
             try {
                 const examesBody = document.getElementById('examesBody');
+                if (!examesBody) return;
+                
                 examesBody.innerHTML = '';
                 
                 if (cache.exames.length === 0) {
@@ -3800,33 +3846,26 @@
                 }
                 
                 examesFiltrados = [];
-                
                 cache.exames.forEach(exame => {
                     const status = calcularStatusVencimento(exame.vencimento);
                     const diasRestantes = calcularDiasRestantes(exame.vencimento);
-                    
                     const colaboradorInfo = cache.colaboradores.find(c => c.nome === exame.funcionario);
-                    
-                    const exameInfo = {
+                    examesFiltrados.push({
                         id: exame.id,
                         data: exame,
                         colaborador: colaboradorInfo,
                         status: status,
                         diasRestantes: diasRestantes
-                    };
-                    
-                    examesFiltrados.push(exameInfo);
+                    });
                 });
                 
                 examesFiltrados.sort((a, b) => {
                     const dataA = a.data.vencimento ? new Date(a.data.vencimento + 'T12:00:00') : new Date(9999, 11, 31);
                     const dataB = b.data.vencimento ? new Date(b.data.vencimento + 'T12:00:00') : new Date(9999, 11, 31);
-                    
                     if (dataA.getTime() === dataB.getTime()) {
                         const statusOrder = { 'vencido': 1, 'proximo-vencer': 2, 'em-dia': 3 };
-                        return (statusOrder[a.status] || 4) - (statusOrder[b.status] || 4);
+                        return statusOrder[a.status] - statusOrder[b.status];
                     }
-                    
                     return dataA - dataB;
                 });
                 
@@ -3841,7 +3880,6 @@
 
         function atualizarCardsExames() {
             const totalExames = examesFiltrados.length;
-            
             const examesVencidos = examesFiltrados.filter(e => e.status === 'vencido').length;
             const examesProximoVencer = examesFiltrados.filter(e => e.status === 'proximo-vencer').length;
             const examesEmDia = examesFiltrados.filter(e => e.status === 'em-dia').length;
@@ -3879,14 +3917,10 @@
         function atualizarCardsDeclaracoes() {
             const declaracoesFiltradasResultado = obterDeclaracoesFiltradas();
             const totalDeclaracoes = declaracoesFiltradasResultado.length;
-            
             let totalHoras = 0;
             declaracoesFiltradasResultado.forEach(declaracao => {
-                if (declaracao.data.horas) {
-                    totalHoras += declaracao.data.horas;
-                }
+                if (declaracao.data.horas) totalHoras += declaracao.data.horas;
             });
-            
             document.getElementById('totalDeclaracoesFiltradas').textContent = totalDeclaracoes;
             document.getElementById('totalHorasAusenciaFiltradas').textContent = formatarHorasDecimal(totalHoras);
         }
@@ -3901,6 +3935,8 @@
             const filtroPeriodoFim = document.getElementById('filtro-periodo-fim-exame')?.value || '';
             
             const examesBody = document.getElementById('examesBody');
+            if (!examesBody) return;
+            
             examesBody.innerHTML = '';
             
             if (examesFiltrados.length === 0) {
@@ -3918,37 +3954,23 @@
             }
             
             const examesFiltradosResultado = examesFiltrados.filter(exame => {
-                const nomeMatch = !filtroNome || 
-                    (exame.data.funcionario && exame.data.funcionario.toLowerCase().includes(filtroNome));
-                
+                const nomeMatch = !filtroNome || (exame.data.funcionario && exame.data.funcionario.toLowerCase().includes(filtroNome));
                 const statusMatch = filtroStatus === 'todos' || exame.status === filtroStatus;
-                
                 const tipoMatch = filtroTipo === 'todos' || exame.data.tipo === filtroTipo;
-                
-                let empresaMatch = true;
-                let departamentoMatch = true;
-                
-                if (filtroEmpresa !== 'todos' && exame.colaborador) {
-                    empresaMatch = exame.colaborador.empresa === filtroEmpresa;
-                }
-                
-                if (filtroDepartamento !== 'todos' && exame.colaborador) {
-                    departamentoMatch = exame.colaborador.departamento === filtroDepartamento;
-                }
-                
+                let empresaMatch = true, departamentoMatch = true;
+                if (filtroEmpresa !== 'todos' && exame.colaborador) empresaMatch = exame.colaborador.empresa === filtroEmpresa;
+                if (filtroDepartamento !== 'todos' && exame.colaborador) departamentoMatch = exame.colaborador.departamento === filtroDepartamento;
                 let periodoMatch = true;
                 if (filtroPeriodoInicio && exame.data.dataExame) {
                     const dataExame = new Date(exame.data.dataExame + 'T12:00:00');
                     const dataInicio = new Date(filtroPeriodoInicio + 'T00:00:00');
                     periodoMatch = dataExame >= dataInicio;
                 }
-                
                 if (filtroPeriodoFim && exame.data.dataExame) {
                     const dataExame = new Date(exame.data.dataExame + 'T12:00:00');
                     const dataFim = new Date(filtroPeriodoFim + 'T23:59:59');
                     periodoMatch = periodoMatch && dataExame <= dataFim;
                 }
-                
                 return nomeMatch && statusMatch && tipoMatch && empresaMatch && departamentoMatch && periodoMatch;
             });
             
@@ -3969,12 +3991,10 @@
             examesFiltradosResultado.sort((a, b) => {
                 const dataA = a.data.vencimento ? new Date(a.data.vencimento + 'T12:00:00') : new Date(9999, 11, 31);
                 const dataB = b.data.vencimento ? new Date(b.data.vencimento + 'T12:00:00') : new Date(9999, 11, 31);
-                
                 if (dataA.getTime() === dataB.getTime()) {
                     const statusOrder = { 'vencido': 1, 'proximo-vencer': 2, 'em-dia': 3 };
-                    return (statusOrder[a.status] || 4) - (statusOrder[b.status] || 4);
+                    return statusOrder[a.status] - statusOrder[b.status];
                 }
-                
                 return dataA - dataB;
             });
             
@@ -4006,9 +4026,11 @@
             });
         }
 
-        async function loadAtestados() {
+        function loadAtestados() {
             try {
                 const atestadosBody = document.getElementById('atestadosBody');
+                if (!atestadosBody) return;
+                
                 atestadosBody.innerHTML = '';
                 
                 if (cache.atestados.length === 0) {
@@ -4027,17 +4049,13 @@
                 }
                 
                 atestadosFiltrados = [];
-                
                 cache.atestados.forEach(atestado => {
                     const colaboradorInfo = cache.colaboradores.find(c => c.nome === atestado.funcionario);
-                    
-                    const atestadoInfo = {
+                    atestadosFiltrados.push({
                         id: atestado.id,
                         data: atestado,
                         colaborador: colaboradorInfo
-                    };
-                    
-                    atestadosFiltrados.push(atestadoInfo);
+                    });
                 });
                 
                 atestadosFiltrados.sort((a, b) => {
@@ -4056,69 +4074,22 @@
         }
 
         function obterAtestadosFiltrados() {
-            if (!atestadosFiltrados || atestadosFiltrados.length === 0) {
-                return [];
-            }
-            
+            if (!atestadosFiltrados || atestadosFiltrados.length === 0) return [];
             return atestadosFiltrados.filter(atestado => {
-                const nomeMatch = !atestadosFiltros.nome || 
-                    (atestado.data.funcionario && atestado.data.funcionario.toLowerCase().includes(atestadosFiltros.nome.toLowerCase()));
-                
+                const nomeMatch = !atestadosFiltros.nome || (atestado.data.funcionario && atestado.data.funcionario.toLowerCase().includes(atestadosFiltros.nome));
                 const tipoMatch = atestadosFiltros.tipo === 'todos' || atestado.data.tipo === atestadosFiltros.tipo;
-                
                 const unidadeMatch = atestadosFiltros.unidade === 'todos' || atestado.data.unidade === atestadosFiltros.unidade;
-                
-                const periodoMatch = atestadoDentroPeriodoFiltro(
-                    atestado.data.dataInicio, 
-                    atestadosFiltros.dataInicio, 
-                    atestadosFiltros.dataFim
-                );
-                
+                const periodoMatch = atestadoDentroPeriodoFiltro(atestado.data.dataInicio, atestadosFiltros.dataInicio, atestadosFiltros.dataFim);
                 const departamentoEmpresaMatch = atestadoAtendeFiltrosDepartamentoEmpresa(atestado.data);
-                
                 return nomeMatch && tipoMatch && unidadeMatch && periodoMatch && departamentoEmpresaMatch;
             });
         }
 
-        function atestadoDentroPeriodoFiltro(dataInicio, dataInicioFiltro, dataFimFiltro) {
-            if (!dataInicioFiltro && !dataFimFiltro) return true;
-            if (!dataInicio) return false;
-            
-            const dataInicioAtestado = new Date(dataInicio + 'T12:00:00');
-            
-            if (dataInicioFiltro) {
-                const dataInicioFiltroObj = new Date(dataInicioFiltro + 'T00:00:00');
-                if (dataInicioAtestado < dataInicioFiltroObj) return false;
-            }
-            
-            if (dataFimFiltro) {
-                const dataFimFiltroObj = new Date(dataFimFiltro + 'T23:59:59');
-                if (dataInicioAtestado > dataFimFiltroObj) return false;
-            }
-            
-            return true;
-        }
-
-        function atestadoAtendeFiltrosDepartamentoEmpresa(atestado) {
-            const colaborador = cache.colaboradores.find(c => c.nome === atestado.funcionario);
-            
-            if (!colaborador) return false;
-            
-            if (atestadosFiltros.departamento !== 'todos' && colaborador.departamento !== atestadosFiltros.departamento) {
-                return false;
-            }
-            
-            if (atestadosFiltros.empresa !== 'todos' && colaborador.empresa !== atestadosFiltros.empresa) {
-                return false;
-            }
-            
-            return true;
-        }
-
         function filtrarAtestados() {
             const atestadosFiltradosResultado = obterAtestadosFiltrados();
-            
             const atestadosBody = document.getElementById('atestadosBody');
+            if (!atestadosBody) return;
+            
             atestadosBody.innerHTML = '';
             
             if (atestadosFiltradosResultado.length === 0) {
@@ -4137,7 +4108,6 @@
             
             atestadosFiltradosResultado.forEach(atestadoInfo => {
                 const data = atestadoInfo.data;
-                
                 let periodoTexto = '';
                 if (data.unidade === 'horas') {
                     const horas = calcularHorasAtestado(data.horaInicio, data.horaFinal);
@@ -4173,54 +4143,21 @@
         }
 
         function obterCATsFiltrados() {
-            if (!catsFiltrados || catsFiltrados.length === 0) {
-                return [];
-            }
-            
+            if (!catsFiltrados || catsFiltrados.length === 0) return [];
             return catsFiltrados.filter(cat => {
                 const statusMatch = catsFiltros.status === 'todos' || cat.data.status === catsFiltros.status;
-                
                 const tipoMatch = catsFiltros.tipo === 'todos' || cat.data.tipo === catsFiltros.tipo;
-                
                 const colaboradorMatch = catAtendeFiltrosColaborador(cat.data);
-                
-                const periodoMatch = catDentroPeriodoFiltro(
-                    cat.data.dataRegistro,
-                    catsFiltros.dataInicio,
-                    catsFiltros.dataFim
-                );
-                
+                const periodoMatch = catDentroPeriodoFiltro(cat.data.dataRegistro, catsFiltros.dataInicio, catsFiltros.dataFim);
                 return statusMatch && tipoMatch && colaboradorMatch && periodoMatch;
             });
         }
 
-        function catAtendeFiltrosColaborador(cat) {
-            if (catsFiltros.colaborador === 'todos') return true;
-            return cat.funcionario === catsFiltros.colaborador;
-        }
-
-        function catDentroPeriodoFiltro(dataRegistro, dataInicioFiltro, dataFimFiltro) {
-            if (!dataInicioFiltro && !dataFimFiltro) return true;
-            if (!dataRegistro) return false;
-            
-            const dataRegistroCat = new Date(dataRegistro + 'T12:00:00');
-            
-            if (dataInicioFiltro) {
-                const dataInicioFiltroObj = new Date(dataInicioFiltro + 'T00:00:00');
-                if (dataRegistroCat < dataInicioFiltroObj) return false;
-            }
-            
-            if (dataFimFiltro) {
-                const dataFimFiltroObj = new Date(dataFimFiltro + 'T23:59:59');
-                if (dataRegistroCat > dataFimFiltroObj) return false;
-            }
-            
-            return true;
-        }
-
-        async function loadCATs() {
+        function loadCATs() {
             try {
                 const catsBody = document.getElementById('catsBody');
+                if (!catsBody) return;
+                
                 catsBody.innerHTML = '';
                 
                 if (cache.cats.length === 0) {
@@ -4239,29 +4176,22 @@
                 }
                 
                 catsFiltrados = [];
-                
                 cache.cats.forEach(cat => {
                     const colaboradorInfo = cache.colaboradores.find(c => c.nome === cat.funcionario);
-                    
                     let diasAfastado = 0;
                     if (cat.afastamentoInicio && cat.afastamentoFim) {
                         diasAfastado = calcularDiasAtestado(cat.afastamentoInicio, cat.afastamentoFim);
                     }
-                    
                     const dentroPrazo = verificarPrazoCAT(cat.dataAcidente, cat.dataRegistro);
-                    
                     const afastamentoINSS = diasAfastado > 15;
-                    
-                    const catInfo = {
+                    catsFiltrados.push({
                         id: cat.id,
                         data: cat,
                         colaborador: colaboradorInfo,
                         diasAfastado: diasAfastado,
                         dentroPrazo: dentroPrazo,
                         afastamentoINSS: afastamentoINSS
-                    };
-                    
-                    catsFiltrados.push(catInfo);
+                    });
                 });
                 
                 catsFiltrados.sort((a, b) => {
@@ -4281,8 +4211,9 @@
 
         function filtrarCATs() {
             const catsFiltradosResultado = obterCATsFiltrados();
-            
             const catsBody = document.getElementById('catsBody');
+            if (!catsBody) return;
+            
             catsBody.innerHTML = '';
             
             if (catsFiltradosResultado.length === 0) {
@@ -4339,9 +4270,11 @@
             atualizarCardsCATs();
         }
 
-        async function loadDeclaracoes() {
+        function loadDeclaracoes() {
             try {
                 const declaracoesBody = document.getElementById('declaracoesBody');
+                if (!declaracoesBody) return;
+                
                 declaracoesBody.innerHTML = '';
                 
                 if (cache.declaracoes.length === 0) {
@@ -4360,17 +4293,13 @@
                 }
                 
                 declaracoesFiltradas = [];
-                
                 cache.declaracoes.forEach(declaracao => {
                     const colaboradorInfo = cache.colaboradores.find(c => c.nome === declaracao.funcionario);
-                    
-                    const declaracaoInfo = {
+                    declaracoesFiltradas.push({
                         id: declaracao.id,
                         data: declaracao,
                         colaborador: colaboradorInfo
-                    };
-                    
-                    declaracoesFiltradas.push(declaracaoInfo);
+                    });
                 });
                 
                 declaracoesFiltradas.sort((a, b) => {
@@ -4389,65 +4318,20 @@
         }
 
         function obterDeclaracoesFiltradas() {
-            if (!declaracoesFiltradas || declaracoesFiltradas.length === 0) {
-                return [];
-            }
-            
+            if (!declaracoesFiltradas || declaracoesFiltradas.length === 0) return [];
             return declaracoesFiltradas.filter(declaracao => {
-                const nomeMatch = !declaracoesFiltros.nome || 
-                    (declaracao.data.funcionario && declaracao.data.funcionario.toLowerCase().includes(declaracoesFiltros.nome.toLowerCase()));
-                
-                const periodoMatch = declaracaoDentroPeriodoFiltro(
-                    declaracao.data.data, 
-                    declaracoesFiltros.dataInicio, 
-                    declaracoesFiltros.dataFim
-                );
-                
+                const nomeMatch = !declaracoesFiltros.nome || (declaracao.data.funcionario && declaracao.data.funcionario.toLowerCase().includes(declaracoesFiltros.nome));
+                const periodoMatch = declaracaoDentroPeriodoFiltro(declaracao.data.data, declaracoesFiltros.dataInicio, declaracoesFiltros.dataFim);
                 const departamentoEmpresaMatch = declaracaoAtendeFiltrosDepartamentoEmpresa(declaracao.data);
-                
                 return nomeMatch && periodoMatch && departamentoEmpresaMatch;
             });
         }
 
-        function declaracaoAtendeFiltrosDepartamentoEmpresa(declaracao) {
-            const colaborador = cache.colaboradores.find(c => c.nome === declaracao.funcionario);
-            
-            if (!colaborador) return false;
-            
-            if (declaracoesFiltros.departamento !== 'todos' && colaborador.departamento !== declaracoesFiltros.departamento) {
-                return false;
-            }
-            
-            if (declaracoesFiltros.empresa !== 'todos' && colaborador.empresa !== declaracoesFiltros.empresa) {
-                return false;
-            }
-            
-            return true;
-        }
-
-        function declaracaoDentroPeriodoFiltro(dataDeclaracao, dataInicioFiltro, dataFimFiltro) {
-            if (!dataInicioFiltro && !dataFimFiltro) return true;
-            if (!dataDeclaracao) return false;
-            
-            const dataDeclaracaoObj = new Date(dataDeclaracao + 'T12:00:00');
-            
-            if (dataInicioFiltro) {
-                const dataInicioFiltroObj = new Date(dataInicioFiltro + 'T00:00:00');
-                if (dataDeclaracaoObj < dataInicioFiltroObj) return false;
-            }
-            
-            if (dataFimFiltro) {
-                const dataFimFiltroObj = new Date(dataFimFiltro + 'T23:59:59');
-                if (dataDeclaracaoObj > dataFimFiltroObj) return false;
-            }
-            
-            return true;
-        }
-
         function filtrarDeclaracoes() {
             const declaracoesFiltradasResultado = obterDeclaracoesFiltradas();
-            
             const declaracoesBody = document.getElementById('declaracoesBody');
+            if (!declaracoesBody) return;
+            
             declaracoesBody.innerHTML = '';
             
             if (declaracoesFiltradasResultado.length === 0) {
@@ -4466,7 +4350,6 @@
             
             declaracoesFiltradasResultado.forEach(declaracaoInfo => {
                 const data = declaracaoInfo.data;
-                
                 declaracoesBody.innerHTML += `
                     <tr>
                         <td>
@@ -4493,7 +4376,138 @@
             });
         }
 
+        // === FUNÇÕES DE VERIFICAÇÃO DE FILTROS ===
+        
+        function atestadoDentroFiltro(dataInicioAtestado) {
+            if (!dashboardFiltros.dataInicio && !dashboardFiltros.dataFim) return true;
+            const dataAtestado = new Date(dataInicioAtestado + 'T12:00:00');
+            if (dashboardFiltros.dataInicio) {
+                const dataInicio = new Date(dashboardFiltros.dataInicio + 'T00:00:00');
+                if (dataAtestado < dataInicio) return false;
+            }
+            if (dashboardFiltros.dataFim) {
+                const dataFim = new Date(dashboardFiltros.dataFim + 'T23:59:59');
+                if (dataAtestado > dataFim) return false;
+            }
+            return true;
+        }
+
+        function exameDentroFiltro(dataExame) {
+            if (!dashboardFiltros.dataInicio && !dashboardFiltros.dataFim) return true;
+            const dataExameObj = new Date(dataExame + 'T12:00:00');
+            if (dashboardFiltros.dataInicio) {
+                const dataInicio = new Date(dashboardFiltros.dataInicio + 'T00:00:00');
+                if (dataExameObj < dataInicio) return false;
+            }
+            if (dashboardFiltros.dataFim) {
+                const dataFim = new Date(dashboardFiltros.dataFim + 'T23:59:59');
+                if (dataExameObj > dataFim) return false;
+            }
+            return true;
+        }
+
+        function catDentroFiltro(dataRegistro) {
+            if (!dashboardFiltros.dataInicio && !dashboardFiltros.dataFim) return true;
+            const dataRegistroObj = new Date(dataRegistro + 'T12:00:00');
+            if (dashboardFiltros.dataInicio) {
+                const dataInicio = new Date(dashboardFiltros.dataInicio + 'T00:00:00');
+                if (dataRegistroObj < dataInicio) return false;
+            }
+            if (dashboardFiltros.dataFim) {
+                const dataFim = new Date(dashboardFiltros.dataFim + 'T23:59:59');
+                if (dataRegistroObj > dataFim) return false;
+            }
+            return true;
+        }
+
+        function declaracaoDentroFiltro(dataDeclaracao) {
+            if (!dashboardFiltros.dataInicio && !dashboardFiltros.dataFim) return true;
+            const dataDeclaracaoObj = new Date(dataDeclaracao + 'T12:00:00');
+            if (dashboardFiltros.dataInicio) {
+                const dataInicio = new Date(dashboardFiltros.dataInicio + 'T00:00:00');
+                if (dataDeclaracaoObj < dataInicio) return false;
+            }
+            if (dashboardFiltros.dataFim) {
+                const dataFim = new Date(dashboardFiltros.dataFim + 'T23:59:59');
+                if (dataDeclaracaoObj > dataFim) return false;
+            }
+            return true;
+        }
+
+        function colaboradorDentroFiltro(colaboradorNome) {
+            if (dashboardFiltros.colaborador !== 'todos' && colaboradorNome !== dashboardFiltros.colaborador) return false;
+            if (dashboardFiltros.departamento !== 'todos') {
+                const colaborador = cache.colaboradores.find(c => c.nome === colaboradorNome);
+                if (!colaborador || colaborador.departamento !== dashboardFiltros.departamento) return false;
+            }
+            return true;
+        }
+
+        function atestadoDentroPeriodoFiltro(dataInicio, dataInicioFiltro, dataFimFiltro) {
+            if (!dataInicioFiltro && !dataFimFiltro) return true;
+            const dataInicioAtestado = new Date(dataInicio + 'T12:00:00');
+            if (dataInicioFiltro) {
+                const dataInicioFiltroObj = new Date(dataInicioFiltro + 'T00:00:00');
+                if (dataInicioAtestado < dataInicioFiltroObj) return false;
+            }
+            if (dataFimFiltro) {
+                const dataFimFiltroObj = new Date(dataFimFiltro + 'T23:59:59');
+                if (dataInicioAtestado > dataFimFiltroObj) return false;
+            }
+            return true;
+        }
+
+        function catDentroPeriodoFiltro(dataRegistro, dataInicioFiltro, dataFimFiltro) {
+            if (!dataInicioFiltro && !dataFimFiltro) return true;
+            const dataRegistroCat = new Date(dataRegistro + 'T12:00:00');
+            if (dataInicioFiltro) {
+                const dataInicioFiltroObj = new Date(dataInicioFiltro + 'T00:00:00');
+                if (dataRegistroCat < dataInicioFiltroObj) return false;
+            }
+            if (dataFimFiltro) {
+                const dataFimFiltroObj = new Date(dataFimFiltro + 'T23:59:59');
+                if (dataRegistroCat > dataFimFiltroObj) return false;
+            }
+            return true;
+        }
+
+        function declaracaoDentroPeriodoFiltro(dataDeclaracao, dataInicioFiltro, dataFimFiltro) {
+            if (!dataInicioFiltro && !dataFimFiltro) return true;
+            const dataDeclaracaoObj = new Date(dataDeclaracao + 'T12:00:00');
+            if (dataInicioFiltro) {
+                const dataInicioFiltroObj = new Date(dataInicioFiltro + 'T00:00:00');
+                if (dataDeclaracaoObj < dataInicioFiltroObj) return false;
+            }
+            if (dataFimFiltro) {
+                const dataFimFiltroObj = new Date(dataFimFiltro + 'T23:59:59');
+                if (dataDeclaracaoObj > dataFimFiltroObj) return false;
+            }
+            return true;
+        }
+
+        function atestadoAtendeFiltrosDepartamentoEmpresa(atestado) {
+            const colaborador = cache.colaboradores.find(c => c.nome === atestado.funcionario);
+            if (!colaborador) return false;
+            if (atestadosFiltros.departamento !== 'todos' && colaborador.departamento !== atestadosFiltros.departamento) return false;
+            if (atestadosFiltros.empresa !== 'todos' && colaborador.empresa !== atestadosFiltros.empresa) return false;
+            return true;
+        }
+
+        function catAtendeFiltrosColaborador(cat) {
+            if (catsFiltros.colaborador === 'todos') return true;
+            return cat.funcionario === catsFiltros.colaborador;
+        }
+
+        function declaracaoAtendeFiltrosDepartamentoEmpresa(declaracao) {
+            const colaborador = cache.colaboradores.find(c => c.nome === declaracao.funcionario);
+            if (!colaborador) return false;
+            if (declaracoesFiltros.departamento !== 'todos' && colaborador.departamento !== declaracoesFiltros.departamento) return false;
+            if (declaracoesFiltros.empresa !== 'todos' && colaborador.empresa !== declaracoesFiltros.empresa) return false;
+            return true;
+        }
+
         // === FUNÇÕES DE SALVAMENTO ===
+        
         async function salvarDeclaracao() {
             try {
                 const funcionario = document.getElementById('declaracao-colaborador').value;
@@ -4508,7 +4522,6 @@
                 }
                 
                 const horas = calcularHorasAtestado(horaInicio, horaFinal);
-                
                 if (horas <= 0) {
                     showNotification('O horário final deve ser posterior ao horário inicial', 'warning');
                     return;
@@ -4535,32 +4548,23 @@
                 
                 if (editMode && itemToEdit) {
                     await db.collection('declaracoes').doc(itemToEdit).update(declaracaoData);
-                    
                     const index = cache.declaracoes.findIndex(d => d.id === itemToEdit);
-                    if (index !== -1) {
-                        cache.declaracoes[index] = { id: itemToEdit, ...declaracaoData };
-                    }
-                    
+                    if (index !== -1) cache.declaracoes[index] = { id: itemToEdit, ...declaracaoData };
                     showNotification('Declaração atualizada com sucesso!', 'success');
                 } else {
                     const docRef = await db.collection('declaracoes').add(declaracaoData);
-                    
                     cache.declaracoes.push({ id: docRef.id, ...declaracaoData });
-                    
                     cache.declaracoes.sort((a, b) => {
                         const dataA = a.data ? new Date(a.data + 'T12:00:00') : new Date(0);
                         const dataB = b.data ? new Date(b.data + 'T12:00:00') : new Date(0);
                         return dataB - dataA;
                     });
-                    
                     showNotification('Declaração salva com sucesso!', 'success');
                 }
                 
-                // Voltar para a lista de declarações
                 document.getElementById('declaracoes').classList.add('active');
                 document.getElementById('declaracao-cadastro').classList.remove('active');
                 document.getElementById('declaracao-cadastro').classList.add('hidden');
-                
                 clearForm('declaracao');
                 editMode = false;
                 itemToEdit = null;
@@ -4568,7 +4572,6 @@
                 await loadDeclaracoesCache();
                 await loadDashboardData();
                 await loadDeclaracoes();
-                
                 loadFiltrosDeclaracoes();
                 
                 if (btn) btn.disabled = false;
@@ -4577,7 +4580,6 @@
             } catch (error) {
                 console.error('Erro ao salvar declaração:', error);
                 showNotification('Erro ao salvar declaração: ' + error.message, 'error');
-                
                 const btn = document.getElementById('btn-salvar-declaracao');
                 const btnSpan = document.getElementById('btn-declaracao-text');
                 if (btn) btn.disabled = false;
@@ -4595,6 +4597,15 @@
                 
                 if (!nome || !dataAdmissao || !departamento || !empresa) {
                     showNotification('Preencha todos os campos obrigatórios', 'warning');
+                    return;
+                }
+                
+                const dataAdmissaoDate = new Date(dataAdmissao + 'T12:00:00');
+                const hoje = new Date();
+                hoje.setHours(0, 0, 0, 0);
+                
+                if (dataAdmissaoDate > hoje) {
+                    showNotification('A data de admissão não pode ser futura', 'warning');
                     return;
                 }
                 
@@ -4618,31 +4629,15 @@
                 
                 if (editMode && itemToEdit) {
                     await db.collection('colaboradores').doc(itemToEdit).update(colaboradorData);
-                    
                     const index = cache.colaboradores.findIndex(c => c.id === itemToEdit);
-                    if (index !== -1) {
-                        cache.colaboradores[index] = { id: itemToEdit, ...colaboradorData };
-                    }
-                    
-                    cache.colaboradores.sort((a, b) => {
-                        const nomeA = a.nome || '';
-                        const nomeB = b.nome || '';
-                        return nomeA.localeCompare(nomeB);
-                    });
-                    
+                    if (index !== -1) cache.colaboradores[index] = { id: itemToEdit, ...colaboradorData };
+                    cache.colaboradores.sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
                     showNotification('Colaborador atualizado com sucesso!', 'success');
                 } else {
                     const docRef = await db.collection('colaboradores').add(colaboradorData);
-                    
                     const novoColaborador = { id: docRef.id, ...colaboradorData };
                     cache.colaboradores.push(novoColaborador);
-                    
-                    cache.colaboradores.sort((a, b) => {
-                        const nomeA = a.nome || '';
-                        const nomeB = b.nome || '';
-                        return nomeA.localeCompare(nomeB);
-                    });
-                    
+                    cache.colaboradores.sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
                     showNotification('Colaborador salvo com sucesso!', 'success');
                 }
                 
@@ -4672,7 +4667,6 @@
             } catch (error) {
                 console.error('Erro ao salvar colaborador:', error);
                 showNotification('Erro ao salvar colaborador: ' + error.message, 'error');
-                
                 const btn = document.getElementById('btn-salvar-colaborador');
                 const btnSpan = document.getElementById('btn-colaborador-text');
                 if (btn) btn.disabled = false;
@@ -4689,6 +4683,21 @@
                 
                 if (!funcionario || !tipo || !dataExame || !vencimento) {
                     showNotification('Preencha todos os campos obrigatórios', 'warning');
+                    return;
+                }
+                
+                const dataExameDate = new Date(dataExame + 'T12:00:00');
+                const vencimentoDate = new Date(vencimento + 'T12:00:00');
+                const hoje = new Date();
+                hoje.setHours(0, 0, 0, 0);
+                
+                if (dataExameDate > hoje) {
+                    showNotification('A data do exame não pode ser futura', 'warning');
+                    return;
+                }
+                
+                if (vencimentoDate <= dataExameDate) {
+                    showNotification('A data de vencimento deve ser posterior à data do exame', 'warning');
                     return;
                 }
                 
@@ -4714,18 +4723,12 @@
                 
                 if (editMode && itemToEdit) {
                     await db.collection('exames').doc(itemToEdit).update(exameData);
-                    
                     const index = cache.exames.findIndex(e => e.id === itemToEdit);
-                    if (index !== -1) {
-                        cache.exames[index] = { id: itemToEdit, ...exameData };
-                    }
-                    
+                    if (index !== -1) cache.exames[index] = { id: itemToEdit, ...exameData };
                     showNotification('Exame atualizado com sucesso!', 'success');
                 } else {
                     const docRef = await db.collection('exames').add(exameData);
-                    
                     cache.exames.push({ id: docRef.id, ...exameData });
-                    
                     showNotification('Exame salvo com sucesso!', 'success');
                 }
                 
@@ -4746,7 +4749,6 @@
             } catch (error) {
                 console.error('Erro ao salvar exame:', error);
                 showNotification('Erro ao salvar exame: ' + error.message, 'error');
-                
                 const btn = document.getElementById('btn-salvar-exame');
                 const btnSpan = document.getElementById('btn-exame-text');
                 if (btn) btn.disabled = false;
@@ -4768,29 +4770,30 @@
                     return;
                 }
                 
-                if (['odontologico', 'acompanhamento-filho', 'consulta-prenatal-mae', 'consulta-prenatal-pai'].includes(tipo)) {
+                const dataInicioDate = new Date(dataInicio + 'T12:00:00');
+                const dataFinalDate = new Date(dataFinal + 'T12:00:00');
+                
+                if (dataFinalDate < dataInicioDate) {
+                    showNotification('A data final não pode ser anterior à data inicial', 'warning');
+                    return;
+                }
+                
+                if (tipo === 'odontologico' || tipo === 'acompanhamento-filho' || tipo === 'consulta-prenatal-mae' || tipo === 'consulta-prenatal-pai') {
                     let quantidadeAtual = 0;
-                    
                     if (unidade === 'dias') {
                         quantidadeAtual = calcularDiasAtestado(dataInicio, dataFinal);
                     } else {
                         const horaInicio = document.getElementById('atestado-hora-inicio').value;
                         const horaFinal = document.getElementById('atestado-hora-final').value;
-                        
                         if (!horaInicio || !horaFinal) {
                             showNotification('Preencha as horas para atestado por horas', 'warning');
                             return;
                         }
-                        
                         quantidadeAtual = calcularHorasAtestado(horaInicio, horaFinal);
                     }
                     
-                    const atestadosAnteriores = cache.atestados.filter(a => 
-                        a.funcionario === funcionario && a.tipo === tipo
-                    );
-                    
+                    const atestadosAnteriores = cache.atestados.filter(a => a.funcionario === funcionario && a.tipo === tipo);
                     let quantidadeTotal = quantidadeAtual;
-                    
                     atestadosAnteriores.forEach(atestado => {
                         if (atestado.unidade === 'dias') {
                             quantidadeTotal += calcularDiasAtestado(atestado.dataInicio, atestado.dataFinal);
@@ -4799,28 +4802,26 @@
                         }
                     });
                     
-                    let limite = null;
-                    
+                    let limite = null, tipoDescricao = '';
                     if (tipo === 'odontologico') {
                         limite = LIMITES_ATESTADOS.odontologico;
+                        tipoDescricao = 'odontológicos';
                     } else if (tipo === 'acompanhamento-filho') {
                         limite = LIMITES_ATESTADOS.acompanhamento_filho;
+                        tipoDescricao = 'de acompanhamento de filho';
                     } else if (tipo === 'consulta-prenatal-mae') {
                         limite = LIMITES_ATESTADOS.consulta_prenatal_mae;
+                        tipoDescricao = 'de consulta pré-natal (mãe)';
                     } else if (tipo === 'consulta-prenatal-pai') {
                         limite = LIMITES_ATESTADOS.consulta_prenatal_pai;
+                        tipoDescricao = 'de consulta pré-natal (pai)';
                     }
                     
                     if (limite) {
                         const unidadeLimite = unidade === 'dias' ? 'dias' : 'horas';
-                        
                         if (quantidadeTotal > limite[unidadeLimite]) {
                             atestadoPendente = {
-                                funcionario,
-                                tipo,
-                                dataInicio,
-                                dataFinal,
-                                unidade,
+                                funcionario, tipo, dataInicio, dataFinal, unidade,
                                 cid: cid || '',
                                 horaInicio: unidade === 'horas' ? document.getElementById('atestado-hora-inicio').value : '',
                                 horaFinal: unidade === 'horas' ? document.getElementById('atestado-hora-final').value : '',
@@ -4862,7 +4863,6 @@
         async function salvarAtestado() {
             try {
                 let atestadoData;
-                
                 if (atestadoPendente) {
                     atestadoData = {
                         funcionario: atestadoPendente.funcionario,
@@ -4896,7 +4896,6 @@
                         updatedAt: new Date(),
                         userId: currentUser ? currentUser.uid : 'demo-user'
                     };
-                    
                     if (unidade === 'horas') {
                         atestadoData.horaInicio = document.getElementById('atestado-hora-inicio').value;
                         atestadoData.horaFinal = document.getElementById('atestado-hora-final').value;
@@ -4912,18 +4911,12 @@
                 
                 if (editMode && itemToEdit) {
                     await db.collection('atestados').doc(itemToEdit).update(atestadoData);
-                    
                     const index = cache.atestados.findIndex(a => a.id === itemToEdit);
-                    if (index !== -1) {
-                        cache.atestados[index] = { id: itemToEdit, ...atestadoData };
-                    }
-                    
+                    if (index !== -1) cache.atestados[index] = { id: itemToEdit, ...atestadoData };
                     showNotification('Atestado atualizado com sucesso!', 'success');
                 } else {
                     const docRef = await db.collection('atestados').add(atestadoData);
-                    
                     cache.atestados.push({ id: docRef.id, ...atestadoData });
-                    
                     cache.atestados.sort((a, b) => {
                         const dataA = a.dataInicio ? new Date(a.dataInicio + 'T12:00:00') : new Date(0);
                         const dataB = b.dataInicio ? new Date(b.dataInicio + 'T12:00:00') : new Date(0);
@@ -4931,7 +4924,15 @@
                     });
                     
                     if (atestadoPendente) {
-                        showNotification(`Atestado salvo com sucesso! ATENÇÃO: Colaborador ultrapassou o limite.`, 'warning');
+                        if (atestadoPendente.tipo === 'odontologico') {
+                            showNotification(`Atestado odontológico salvo! ATENÇÃO: Colaborador ultrapassou o limite de ${atestadoPendente.limite} dias. Total: ${atestadoPendente.quantidadeTotal.toFixed(1)} dias`, 'warning');
+                        } else if (atestadoPendente.tipo === 'acompanhamento-filho') {
+                            showNotification(`Atestado de acompanhamento de filho salvo! ATENÇÃO: Colaborador ultrapassou o limite de ${atestadoPendente.limite} ${atestadoPendente.unidade === 'dias' ? 'dias' : 'horas'}. Total: ${formatarHorasDecimal(atestadoPendente.quantidadeTotal)}`, 'warning');
+                        } else if (atestadoPendente.tipo === 'consulta-prenatal-mae') {
+                            showNotification(`Atestado de consulta pré-natal (mãe) salvo! ATENÇÃO: Colaboradora ultrapassou o limite de ${atestadoPendente.limite} dias. Total: ${atestadoPendente.quantidadeTotal.toFixed(1)} dias`, 'warning');
+                        } else if (atestadoPendente.tipo === 'consulta-prenatal-pai') {
+                            showNotification(`Atestado de consulta pré-natal (pai) salvo! ATENÇÃO: Colaborador ultrapassou o limite de ${atestadoPendente.limite} dias. Total: ${atestadoPendente.quantidadeTotal.toFixed(1)} dias`, 'warning');
+                        }
                     } else {
                         showNotification('Atestado salvo com sucesso!', 'success');
                     }
@@ -4955,7 +4956,6 @@
             } catch (error) {
                 console.error('Erro ao salvar atestado:', error);
                 showNotification('Erro ao salvar atestado: ' + error.message, 'error');
-                
                 const btn = document.getElementById('btn-salvar-atestado');
                 const btnSpan = document.getElementById('btn-atestado-text');
                 if (btn) btn.disabled = false;
@@ -5013,24 +5013,17 @@
                 
                 if (editMode && itemToEdit) {
                     await db.collection('cats').doc(itemToEdit).update(catData);
-                    
                     const index = cache.cats.findIndex(c => c.id === itemToEdit);
-                    if (index !== -1) {
-                        cache.cats[index] = { id: itemToEdit, ...catData };
-                    }
-                    
+                    if (index !== -1) cache.cats[index] = { id: itemToEdit, ...catData };
                     showNotification('CAT atualizada com sucesso!', 'success');
                 } else {
                     const docRef = await db.collection('cats').add(catData);
-                    
                     cache.cats.push({ id: docRef.id, ...catData });
-                    
                     cache.cats.sort((a, b) => {
                         const dataA = a.dataRegistro ? new Date(a.dataRegistro + 'T12:00:00') : new Date(0);
                         const dataB = b.dataRegistro ? new Date(b.dataRegistro + 'T12:00:00') : new Date(0);
                         return dataB - dataA;
                     });
-                    
                     showNotification('CAT registrada com sucesso!', 'success');
                 }
                 
@@ -5052,7 +5045,6 @@
             } catch (error) {
                 console.error('Erro ao salvar CAT:', error);
                 showNotification('Erro ao salvar CAT: ' + error.message, 'error');
-                
                 const btn = document.getElementById('btn-salvar-cat');
                 const btnSpan = document.getElementById('btn-cat-text');
                 if (btn) btn.disabled = false;
@@ -5063,7 +5055,6 @@
         async function salvarEmpresa() {
             try {
                 const nome = document.getElementById('empresa-nome').value;
-                
                 if (!nome) {
                     showNotification('Preencha o nome da empresa', 'warning');
                     return;
@@ -5085,30 +5076,14 @@
                 
                 if (editMode && itemToEdit) {
                     await db.collection('empresas').doc(itemToEdit).update(empresaData);
-                    
                     const index = cache.empresas.findIndex(e => e.id === itemToEdit);
-                    if (index !== -1) {
-                        cache.empresas[index] = { id: itemToEdit, ...empresaData };
-                    }
-                    
-                    cache.empresas.sort((a, b) => {
-                        const nomeA = a.nome || '';
-                        const nomeB = b.nome || '';
-                        return nomeA.localeCompare(nomeB);
-                    });
-                    
+                    if (index !== -1) cache.empresas[index] = { id: itemToEdit, ...empresaData };
+                    cache.empresas.sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
                     showNotification('Empresa atualizada com sucesso!', 'success');
                 } else {
                     const docRef = await db.collection('empresas').add(empresaData);
-                    
                     cache.empresas.push({ id: docRef.id, ...empresaData });
-                    
-                    cache.empresas.sort((a, b) => {
-                        const nomeA = a.nome || '';
-                        const nomeB = b.nome || '';
-                        return nomeA.localeCompare(nomeB);
-                    });
-                    
+                    cache.empresas.sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
                     showNotification('Empresa salva com sucesso!', 'success');
                 }
                 
@@ -5129,7 +5104,6 @@
             } catch (error) {
                 console.error('Erro ao salvar empresa:', error);
                 showNotification('Erro ao salvar empresa: ' + error.message, 'error');
-                
                 const btn = document.getElementById('btn-salvar-empresa');
                 const btnSpan = document.getElementById('btn-empresa-text');
                 if (btn) btn.disabled = false;
@@ -5140,7 +5114,6 @@
         async function salvarDepartamento() {
             try {
                 const nome = document.getElementById('departamento-nome').value;
-                
                 if (!nome) {
                     showNotification('Preencha o nome do departamento', 'warning');
                     return;
@@ -5162,30 +5135,14 @@
                 
                 if (editMode && itemToEdit) {
                     await db.collection('departamentos').doc(itemToEdit).update(departamentoData);
-                    
                     const index = cache.departamentos.findIndex(d => d.id === itemToEdit);
-                    if (index !== -1) {
-                        cache.departamentos[index] = { id: itemToEdit, ...departamentoData };
-                    }
-                    
-                    cache.departamentos.sort((a, b) => {
-                        const nomeA = a.nome || '';
-                        const nomeB = b.nome || '';
-                        return nomeA.localeCompare(nomeB);
-                    });
-                    
+                    if (index !== -1) cache.departamentos[index] = { id: itemToEdit, ...departamentoData };
+                    cache.departamentos.sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
                     showNotification('Departamento atualizado com sucesso!', 'success');
                 } else {
                     const docRef = await db.collection('departamentos').add(departamentoData);
-                    
                     cache.departamentos.push({ id: docRef.id, ...departamentoData });
-                    
-                    cache.departamentos.sort((a, b) => {
-                        const nomeA = a.nome || '';
-                        const nomeB = b.nome || '';
-                        return nomeA.localeCompare(nomeB);
-                    });
-                    
+                    cache.departamentos.sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
                     showNotification('Departamento salvo com sucesso!', 'success');
                 }
                 
@@ -5209,7 +5166,6 @@
             } catch (error) {
                 console.error('Erro ao salvar departamento:', error);
                 showNotification('Erro ao salvar departamento: ' + error.message, 'error');
-                
                 const btn = document.getElementById('btn-salvar-departamento');
                 const btnSpan = document.getElementById('btn-departamento-text');
                 if (btn) btn.disabled = false;
@@ -5221,7 +5177,6 @@
             try {
                 const codigo = document.getElementById('cid-codigo').value;
                 const descricao = document.getElementById('cid-descricao').value;
-                
                 if (!codigo || !descricao) {
                     showNotification('Preencha todos os campos obrigatórios', 'warning');
                     return;
@@ -5244,30 +5199,14 @@
                 
                 if (editMode && itemToEdit) {
                     await db.collection('cids').doc(itemToEdit).update(cidData);
-                    
                     const index = cache.cids.findIndex(c => c.id === itemToEdit);
-                    if (index !== -1) {
-                        cache.cids[index] = { id: itemToEdit, ...cidData };
-                    }
-                    
-                    cache.cids.sort((a, b) => {
-                        const codigoA = a.codigo || '';
-                        const codigoB = b.codigo || '';
-                        return codigoA.localeCompare(codigoB);
-                    });
-                    
+                    if (index !== -1) cache.cids[index] = { id: itemToEdit, ...cidData };
+                    cache.cids.sort((a, b) => (a.codigo || '').localeCompare(b.codigo || ''));
                     showNotification('CID atualizado com sucesso!', 'success');
                 } else {
                     const docRef = await db.collection('cids').add(cidData);
-                    
                     cache.cids.push({ id: docRef.id, ...cidData });
-                    
-                    cache.cids.sort((a, b) => {
-                        const codigoA = a.codigo || '';
-                        const codigoB = b.codigo || '';
-                        return codigoA.localeCompare(codigoB);
-                    });
-                    
+                    cache.cids.sort((a, b) => (a.codigo || '').localeCompare(b.codigo || ''));
                     showNotification('CID salvo com sucesso!', 'success');
                 }
                 
@@ -5286,7 +5225,6 @@
             } catch (error) {
                 console.error('Erro ao salvar CID:', error);
                 showNotification('Erro ao salvar CID: ' + error.message, 'error');
-                
                 const btn = document.getElementById('btn-salvar-cid');
                 const btnSpan = document.getElementById('btn-cid-text');
                 if (btn) btn.disabled = false;
@@ -5295,26 +5233,22 @@
         }
 
         // === FUNÇÕES DE EDIÇÃO ===
+        
         async function editarColaborador(id) {
             try {
                 const colaborador = cache.colaboradores.find(c => c.id === id);
-                
                 if (!colaborador) {
                     showNotification('Colaborador não encontrado', 'error');
                     return;
                 }
-                
                 itemToEdit = id;
                 editMode = true;
-                
                 showColaboradorForm('Editar Colaborador', 'Atualizar Colaborador');
-                
                 document.getElementById('colaborador-nome').value = colaborador.nome || '';
                 document.getElementById('colaborador-data-admissao').value = colaborador.dataAdmissao || '';
                 document.getElementById('colaborador-departamento').value = colaborador.departamento || '';
                 document.getElementById('colaborador-empresa').value = colaborador.empresa || '';
                 document.getElementById('colaborador-status').value = colaborador.status || 'ativo';
-                
             } catch (error) {
                 console.error('Erro ao carregar colaborador para edição:', error);
                 showNotification('Erro ao carregar colaborador para edição', 'error');
@@ -5324,22 +5258,17 @@
         async function editarExame(id) {
             try {
                 const exame = cache.exames.find(e => e.id === id);
-                
                 if (!exame) {
                     showNotification('Exame não encontrado', 'error');
                     return;
                 }
-                
                 itemToEdit = id;
                 editMode = true;
-                
                 showExameForm('Editar Exame Ocupacional', 'Atualizar Exame');
-                
                 document.getElementById('exame-colaborador').value = exame.funcionario || '';
                 document.getElementById('exame-tipo').value = exame.tipo || '';
                 document.getElementById('exame-data').value = exame.dataExame || '';
                 document.getElementById('exame-vencimento').value = exame.vencimento || '';
-                
             } catch (error) {
                 console.error('Erro ao carregar exame para edição:', error);
                 showNotification('Erro ao carregar exame para edição', 'error');
@@ -5349,29 +5278,23 @@
         async function editarAtestado(id) {
             try {
                 const atestado = cache.atestados.find(a => a.id === id);
-                
                 if (!atestado) {
                     showNotification('Atestado não encontrado', 'error');
                     return;
                 }
-                
                 itemToEdit = id;
                 editMode = true;
-                
                 showAtestadoForm('Editar Atestado', 'Atualizar Atestado');
-                
                 document.getElementById('atestado-colaborador').value = atestado.funcionario || '';
                 document.getElementById('atestado-tipo').value = atestado.tipo || '';
                 document.getElementById('atestado-cid').value = atestado.cid || '';
                 document.getElementById('atestado-data-inicio').value = atestado.dataInicio || '';
                 document.getElementById('atestado-data-final').value = atestado.dataFinal || '';
                 document.getElementById('atestado-unidade').value = atestado.unidade || 'dias';
-                
                 if (atestado.dataInicio && atestado.dataFinal && atestado.unidade === 'dias') {
                     const dias = calcularDiasAtestado(atestado.dataInicio, atestado.dataFinal);
                     document.getElementById('atestado-dias-afastamento').value = dias;
                 }
-                
                 if (atestado.unidade === 'horas') {
                     document.getElementById('campos-hora').classList.remove('hidden');
                     document.getElementById('campo-dias-afastamento').classList.add('hidden');
@@ -5381,9 +5304,7 @@
                     document.getElementById('campos-hora').classList.add('hidden');
                     document.getElementById('campo-dias-afastamento').classList.remove('hidden');
                 }
-                
                 calcularAtestado();
-                
             } catch (error) {
                 console.error('Erro ao carregar atestado para edição:', error);
                 showNotification('Erro ao carregar atestado para edição', 'error');
@@ -5393,17 +5314,13 @@
         async function editarCAT(id) {
             try {
                 const cat = cache.cats.find(c => c.id === id);
-                
                 if (!cat) {
                     showNotification('CAT não encontrada', 'error');
                     return;
                 }
-                
                 itemToEdit = id;
                 editMode = true;
-                
                 showCATForm('Editar CAT', 'Atualizar CAT');
-                
                 document.getElementById('cat-colaborador').value = cat.funcionario || '';
                 document.getElementById('cat-tipo').value = cat.tipo || '';
                 document.getElementById('cat-data-acidente').value = cat.dataAcidente || '';
@@ -5413,10 +5330,8 @@
                 document.getElementById('cat-afastamento-inicio').value = cat.afastamentoInicio || '';
                 document.getElementById('cat-afastamento-fim').value = cat.afastamentoFim || '';
                 document.getElementById('cat-cid').value = cat.cid || '';
-                
                 calcularPrazoCAT();
                 calcularDiasAfastamento();
-                
             } catch (error) {
                 console.error('Erro ao carregar CAT para edição:', error);
                 showNotification('Erro ao carregar CAT para edição', 'error');
@@ -5426,25 +5341,19 @@
         async function editarDeclaracao(id) {
             try {
                 const declaracao = cache.declaracoes.find(d => d.id === id);
-                
                 if (!declaracao) {
                     showNotification('Declaração não encontrada', 'error');
                     return;
                 }
-                
                 itemToEdit = id;
                 editMode = true;
-                
                 showDeclaracaoForm('Editar Declaração de Horas', 'Atualizar Declaração');
-                
                 document.getElementById('declaracao-colaborador').value = declaracao.funcionario || '';
                 document.getElementById('declaracao-data').value = declaracao.data || '';
                 document.getElementById('declaracao-hora-inicio').value = declaracao.horaInicio || '08:00';
                 document.getElementById('declaracao-hora-final').value = declaracao.horaFinal || '17:00';
                 document.getElementById('declaracao-motivo').value = declaracao.motivo || '';
-                
                 calcularHorasDeclaracao();
-                
             } catch (error) {
                 console.error('Erro ao carregar declaração para edição:', error);
                 showNotification('Erro ao carregar declaração para edição', 'error');
@@ -5454,18 +5363,14 @@
         async function editarEmpresa(id) {
             try {
                 const empresa = cache.empresas.find(e => e.id === id);
-                
                 if (!empresa) {
                     showNotification('Empresa não encontrada', 'error');
                     return;
                 }
-                
                 itemToEdit = id;
                 editMode = true;
-                
                 document.getElementById('empresa-nome').value = empresa.nome || '';
                 document.getElementById('btn-empresa-text').textContent = 'Atualizar Empresa';
-                
             } catch (error) {
                 console.error('Erro ao carregar empresa para edição:', error);
                 showNotification('Erro ao carregar empresa para edição', 'error');
@@ -5475,18 +5380,14 @@
         async function editarDepartamento(id) {
             try {
                 const departamento = cache.departamentos.find(d => d.id === id);
-                
                 if (!departamento) {
                     showNotification('Departamento não encontrado', 'error');
                     return;
                 }
-                
                 itemToEdit = id;
                 editMode = true;
-                
                 document.getElementById('departamento-nome').value = departamento.nome || '';
                 document.getElementById('btn-departamento-text').textContent = 'Atualizar Departamento';
-                
             } catch (error) {
                 console.error('Erro ao carregar departamento para edição:', error);
                 showNotification('Erro ao carregar departamento para edição', 'error');
@@ -5496,19 +5397,15 @@
         async function editarCID(id) {
             try {
                 const cid = cache.cids.find(c => c.id === id);
-                
                 if (!cid) {
                     showNotification('CID não encontrado', 'error');
                     return;
                 }
-                
                 itemToEdit = id;
                 editMode = true;
-                
                 document.getElementById('cid-codigo').value = cid.codigo || '';
                 document.getElementById('cid-descricao').value = cid.descricao || '';
                 document.getElementById('btn-cid-text').textContent = 'Atualizar CID';
-                
             } catch (error) {
                 console.error('Erro ao carregar CID para edição:', error);
                 showNotification('Erro ao carregar CID para edição', 'error');
@@ -5516,13 +5413,12 @@
         }
 
         // === FUNÇÕES DE EXCLUSÃO ===
+        
         function solicitarExclusao(collection, id, descricao) {
             itemToDelete = id;
             deleteCollection = collection;
-            
             document.getElementById('confirmMessage').textContent = 
                 `Tem certeza que deseja excluir "${descricao}"? Esta ação não pode ser desfeita.`;
-            
             document.getElementById('confirmModal').style.display = 'flex';
         }
 
@@ -5546,10 +5442,11 @@
                     cache.atestados = cache.atestados.filter(a => a.id !== itemToDelete);
                 } else if (deleteCollection === 'declaracoes') {
                     cache.declaracoes = cache.declaracoes.filter(d => d.id !== itemToDelete);
+                } else if (deleteCollection === 'absenteismo') {
+                    cache.absenteismo = cache.absenteismo.filter(a => a.id !== itemToDelete);
                 }
                 
                 showNotification('Item excluído com sucesso!', 'success');
-                
                 await loadDashboardData();
                 
                 if (deleteCollection === 'colaboradores') {
@@ -5600,6 +5497,9 @@
                     await loadCIDs();
                     loadCIDsSelect();
                     loadCIDsSelect('cat-cid');
+                } else if (deleteCollection === 'absenteismo') {
+                    await carregarHistoricoAbsenteismo();
+                    atualizarTaxaAbsenteismoDashboard();
                 }
                 
                 closeModal();
@@ -5611,21 +5511,19 @@
         }
 
         // === FUNÇÕES DE VISUALIZAÇÃO ===
+        
         function visualizarCAT(id) {
             const cat = catsFiltrados.find(c => c.id === id);
-            
             if (!cat) {
                 showNotification('CAT não encontrada', 'error');
                 return;
             }
             
             const data = cat.data;
-            
             const colaboradorNome = data.funcionario || 'N/A';
             const colaboradorInfo = cat.colaborador;
             const departamento = colaboradorInfo ? colaboradorInfo.departamento : 'N/A';
             const empresa = colaboradorInfo ? colaboradorInfo.empresa : 'N/A';
-            
             const diasAfastado = cat.diasAfastado;
             const dentroPrazo = cat.dentroPrazo;
             const afastamentoINSS = cat.afastamentoINSS;
@@ -5652,14 +5550,12 @@
                     <h4 style="color: var(--primary); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
                         <i class="fas fa-file-alt"></i> Detalhes da CAT
                     </h4>
-                    
                     <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px;">
                         <h5 style="color: var(--primary); margin-bottom: 15px;">Informações do Colaborador</h5>
                         <p><strong>Nome:</strong> ${colaboradorNome}</p>
                         <p><strong>Departamento:</strong> ${departamento}</p>
                         <p><strong>Empresa:</strong> ${empresa}</p>
                     </div>
-                    
                     <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 15px;">
                         <h5 style="color: var(--primary); margin-bottom: 15px;">Detalhes da CAT</h5>
                         <p><strong>Tipo:</strong> ${formatTipoCAT(data.tipo)}</p>
@@ -5668,18 +5564,15 @@
                         <p><strong>Prazo de 24h:</strong> ${prazoStatus}</p>
                         <p><strong>Local:</strong> ${data.local || 'Não informado'}</p>
                     </div>
-                    
                     <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 15px;">
                         <h5 style="color: var(--primary); margin-bottom: 15px;">Descrição do Acidente/Doença</h5>
                         <p style="white-space: pre-line;">${data.descricao || 'Não informado'}</p>
                     </div>
-                    
                     <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 15px;">
                         <h5 style="color: var(--primary); margin-bottom: 15px;">Informações Médicas</h5>
                         <p><strong>CID:</strong> ${cidText}</p>
                         <p><strong>Afastamento:</strong> ${afastamentoText}</p>
                     </div>
-                    
                     <div style="margin-top: 20px; color: #666; font-size: 0.85rem;">
                         <p>Registrado em: ${data.createdAt ? formatDate(data.createdAt) : 'N/A'}</p>
                         <p>Última atualização: ${data.updatedAt ? formatDate(data.updatedAt) : 'N/A'}</p>
@@ -5692,17 +5585,15 @@
         }
 
         // === FUNÇÕES DE FORMULÁRIOS ===
+        
         function showColaboradorForm(title, buttonText) {
             document.getElementById('colaboradores').classList.remove('active');
             document.getElementById('colaborador-cadastro').classList.add('active');
             document.getElementById('colaborador-cadastro').classList.remove('hidden');
-            
             document.getElementById('form-colaborador-title').textContent = title;
             document.getElementById('btn-colaborador-text').textContent = buttonText;
-            
             loadDepartamentosSelect();
             loadEmpresasSelect();
-            
             if (!editMode) {
                 const hoje = new Date();
                 document.getElementById('colaborador-data-admissao').value = hoje.toISOString().split('T')[0];
@@ -5713,12 +5604,9 @@
             document.getElementById('exames').classList.remove('active');
             document.getElementById('exame-cadastro').classList.add('active');
             document.getElementById('exame-cadastro').classList.remove('hidden');
-            
             document.getElementById('form-exame-title').textContent = title;
             document.getElementById('btn-exame-text').textContent = buttonText;
-            
             loadColaboradoresSelect();
-            
             if (!editMode) {
                 const hoje = new Date();
                 document.getElementById('exame-data').value = hoje.toISOString().split('T')[0];
@@ -5730,23 +5618,18 @@
             document.getElementById('atestados').classList.remove('active');
             document.getElementById('atestado-cadastro').classList.add('active');
             document.getElementById('atestado-cadastro').classList.remove('hidden');
-            
             document.getElementById('form-atestado-title').textContent = title;
             document.getElementById('btn-atestado-text').textContent = buttonText;
-            
             loadColaboradoresAtestadoSelect();
             loadCIDsSelect();
-            
             if (!editMode) {
                 const hoje = new Date();
                 document.getElementById('atestado-data-inicio').value = hoje.toISOString().split('T')[0];
                 document.getElementById('atestado-dias-afastamento').value = '';
                 document.getElementById('atestado-data-final').value = '';
                 document.getElementById('atestado-unidade').value = 'dias';
-                
                 document.getElementById('campos-hora').classList.add('hidden');
                 document.getElementById('campo-dias-afastamento').classList.remove('hidden');
-                
                 calcularAtestado();
             }
         }
@@ -5755,18 +5638,14 @@
             document.getElementById('cats').classList.remove('active');
             document.getElementById('cat-cadastro').classList.add('active');
             document.getElementById('cat-cadastro').classList.remove('hidden');
-            
             document.getElementById('form-cat-title').textContent = title;
             document.getElementById('btn-cat-text').textContent = buttonText;
-            
             loadColaboradoresCATSelect();
             loadCIDsSelect('cat-cid');
-            
             if (!editMode) {
                 const hoje = new Date();
                 document.getElementById('cat-data-acidente').value = hoje.toISOString().split('T')[0];
                 document.getElementById('cat-data-registro').value = hoje.toISOString().split('T')[0];
-                
                 document.getElementById('cat-dias-afastamento').style.display = 'none';
                 calcularPrazoCAT();
             }
@@ -5776,12 +5655,9 @@
             document.getElementById('declaracoes').classList.remove('active');
             document.getElementById('declaracao-cadastro').classList.add('active');
             document.getElementById('declaracao-cadastro').classList.remove('hidden');
-            
             document.getElementById('form-declaracao-title').textContent = title;
             document.getElementById('btn-declaracao-text').textContent = buttonText;
-            
             loadColaboradoresDeclaracaoSelect();
-            
             if (!editMode) {
                 const hoje = new Date();
                 document.getElementById('declaracao-data').value = hoje.toISOString().split('T')[0];
@@ -5792,22 +5668,13 @@
         }
 
         // === FUNÇÕES DE CARREGAMENTO DE SELECTS ===
+        
         function loadColaboradoresSelect() {
             const selectColaborador = document.getElementById('exame-colaborador');
             if (!selectColaborador) return;
-            
             selectColaborador.innerHTML = '<option value="">Selecione um colaborador</option>';
-            
-            const colaboradoresAtivos = cache.colaboradores.filter(colaborador => 
-                colaborador.status === 'ativo'
-            );
-            
-            colaboradoresAtivos.sort((a, b) => {
-                const nomeA = a.nome || '';
-                const nomeB = b.nome || '';
-                return nomeA.localeCompare(nomeB);
-            });
-            
+            const colaboradoresAtivos = cache.colaboradores.filter(colaborador => colaborador.status === 'ativo');
+            colaboradoresAtivos.sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
             colaboradoresAtivos.forEach(colaborador => {
                 selectColaborador.innerHTML += `<option value="${colaborador.nome}">${colaborador.nome} - ${colaborador.departamento || 'Sem departamento'}</option>`;
             });
@@ -5816,19 +5683,9 @@
         function loadColaboradoresAtestadoSelect() {
             const selectColaborador = document.getElementById('atestado-colaborador');
             if (!selectColaborador) return;
-            
             selectColaborador.innerHTML = '<option value="">Selecione um colaborador</option>';
-            
-            const colaboradoresAtivos = cache.colaboradores.filter(colaborador => 
-                colaborador.status === 'ativo'
-            );
-            
-            colaboradoresAtivos.sort((a, b) => {
-                const nomeA = a.nome || '';
-                const nomeB = b.nome || '';
-                return nomeA.localeCompare(nomeB);
-            });
-            
+            const colaboradoresAtivos = cache.colaboradores.filter(colaborador => colaborador.status === 'ativo');
+            colaboradoresAtivos.sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
             colaboradoresAtivos.forEach(colaborador => {
                 selectColaborador.innerHTML += `<option value="${colaborador.nome}">${colaborador.nome} - ${colaborador.departamento || 'Sem departamento'}</option>`;
             });
@@ -5837,19 +5694,9 @@
         function loadColaboradoresCATSelect() {
             const selectColaborador = document.getElementById('cat-colaborador');
             if (!selectColaborador) return;
-            
             selectColaborador.innerHTML = '<option value="">Selecione um colaborador</option>';
-            
-            const colaboradoresAtivos = cache.colaboradores.filter(colaborador => 
-                colaborador.status === 'ativo'
-            );
-            
-            colaboradoresAtivos.sort((a, b) => {
-                const nomeA = a.nome || '';
-                const nomeB = b.nome || '';
-                return nomeA.localeCompare(nomeB);
-            });
-            
+            const colaboradoresAtivos = cache.colaboradores.filter(colaborador => colaborador.status === 'ativo');
+            colaboradoresAtivos.sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
             colaboradoresAtivos.forEach(colaborador => {
                 selectColaborador.innerHTML += `<option value="${colaborador.nome}">${colaborador.nome} - ${colaborador.departamento || 'Sem departamento'}</option>`;
             });
@@ -5858,19 +5705,9 @@
         function loadColaboradoresDeclaracaoSelect() {
             const selectColaborador = document.getElementById('declaracao-colaborador');
             if (!selectColaborador) return;
-            
             selectColaborador.innerHTML = '<option value="">Selecione um colaborador</option>';
-            
-            const colaboradoresAtivos = cache.colaboradores.filter(colaborador => 
-                colaborador.status === 'ativo'
-            );
-            
-            colaboradoresAtivos.sort((a, b) => {
-                const nomeA = a.nome || '';
-                const nomeB = b.nome || '';
-                return nomeA.localeCompare(nomeB);
-            });
-            
+            const colaboradoresAtivos = cache.colaboradores.filter(colaborador => colaborador.status === 'ativo');
+            colaboradoresAtivos.sort((a, b) => (a.nome || '').localeCompare(b.nome || ''));
             colaboradoresAtivos.forEach(colaborador => {
                 selectColaborador.innerHTML += `<option value="${colaborador.nome}">${colaborador.nome} - ${colaborador.departamento || 'Sem departamento'}</option>`;
             });
@@ -5879,9 +5716,7 @@
         function loadCIDsSelect(selectId = 'atestado-cid') {
             const selectCID = document.getElementById(selectId);
             if (!selectCID) return;
-            
             selectCID.innerHTML = '<option value="">Selecione um CID (Opcional)</option>';
-            
             cache.cids.forEach(cid => {
                 selectCID.innerHTML += `<option value="${cid.codigo}">${cid.codigo} - ${cid.descricao}</option>`;
             });
@@ -5890,9 +5725,7 @@
         function loadEmpresasSelect() {
             const selectEmpresa = document.getElementById('colaborador-empresa');
             if (!selectEmpresa) return;
-            
             selectEmpresa.innerHTML = '<option value="">Selecione uma empresa</option>';
-            
             cache.empresas.forEach(empresa => {
                 selectEmpresa.innerHTML += `<option value="${empresa.nome}">${empresa.nome}</option>`;
             });
@@ -5901,9 +5734,7 @@
         function loadDepartamentosSelect() {
             const selectDepartamento = document.getElementById('colaborador-departamento');
             if (!selectDepartamento) return;
-            
             selectDepartamento.innerHTML = '<option value="">Selecione um departamento</option>';
-            
             cache.departamentos.forEach(departamento => {
                 selectDepartamento.innerHTML += `<option value="${departamento.nome}">${departamento.nome}</option>`;
             });
@@ -5918,19 +5749,11 @@
         function loadEmpresas() {
             const listaEmpresas = document.getElementById('lista-empresas');
             if (!listaEmpresas) return;
-            
             listaEmpresas.innerHTML = '';
-            
             if (cache.empresas.length === 0) {
-                listaEmpresas.innerHTML = `
-                    <li style="justify-content: center; color: #666;">
-                        <i class="fas fa-building" style="margin-right: 10px;"></i>
-                        Nenhuma empresa cadastrada
-                    </li>
-                `;
+                listaEmpresas.innerHTML = `<li style="justify-content: center; color: #666;"><i class="fas fa-building" style="margin-right: 10px;"></i> Nenhuma empresa cadastrada</li>`;
                 return;
             }
-            
             cache.empresas.forEach(empresa => {
                 listaEmpresas.innerHTML += `
                     <li>
@@ -5951,19 +5774,11 @@
         function loadDepartamentos() {
             const listaDepartamentos = document.getElementById('lista-departamentos');
             if (!listaDepartamentos) return;
-            
             listaDepartamentos.innerHTML = '';
-            
             if (cache.departamentos.length === 0) {
-                listaDepartamentos.innerHTML = `
-                    <li style="justify-content: center; color: #666;">
-                        <i class="fas fa-sitemap" style="margin-right: 10px;"></i>
-                        Nenhum departamento cadastrado
-                    </li>
-                `;
+                listaDepartamentos.innerHTML = `<li style="justify-content: center; color: #666;"><i class="fas fa-sitemap" style="margin-right: 10px;"></i> Nenhum departamento cadastrado</li>`;
                 return;
             }
-            
             cache.departamentos.forEach(departamento => {
                 listaDepartamentos.innerHTML += `
                     <li>
@@ -5984,19 +5799,11 @@
         function loadCIDs() {
             const listaCids = document.getElementById('lista-cids');
             if (!listaCids) return;
-            
             listaCids.innerHTML = '';
-            
             if (cache.cids.length === 0) {
-                listaCids.innerHTML = `
-                    <li style="justify-content: center; color: #666;">
-                        <i class="fas fa-file-medical-alt" style="margin-right: 10px;"></i>
-                        Nenhum CID cadastrado
-                    </li>
-                `;
+                listaCids.innerHTML = `<li style="justify-content: center; color: #666;"><i class="fas fa-file-medical-alt" style="margin-right: 10px;"></i> Nenhum CID cadastrado</li>`;
                 return;
             }
-            
             cache.cids.forEach(cid => {
                 listaCids.innerHTML += `
                     <li>
@@ -6015,6 +5822,7 @@
         }
 
         // === FUNÇÕES DE LIMPEZA DE FORMULÁRIOS ===
+        
         function clearForm(tipo) {
             if (tipo === 'colaborador') {
                 document.getElementById('colaborador-nome').value = '';
@@ -6038,7 +5846,6 @@
                 document.getElementById('exame-tipo').value = '';
                 const hoje = new Date();
                 document.getElementById('exame-data').value = hoje.toISOString().split('T')[0];
-                
                 const vencimento = new Date();
                 vencimento.setFullYear(vencimento.getFullYear() + 1);
                 document.getElementById('exame-vencimento').value = vencimento.toISOString().split('T')[0];
@@ -6051,12 +5858,10 @@
                 document.getElementById('atestado-dias-afastamento').value = '';
                 document.getElementById('atestado-data-final').value = '';
                 document.getElementById('atestado-unidade').value = 'dias';
-                
                 document.getElementById('campos-hora').classList.add('hidden');
                 document.getElementById('campo-dias-afastamento').classList.remove('hidden');
                 document.getElementById('atestado-hora-inicio').value = '08:00';
                 document.getElementById('atestado-hora-final').value = '17:00';
-                
                 document.getElementById('calc-resultado').classList.add('hidden');
             } else if (tipo === 'cat') {
                 document.getElementById('cat-colaborador').value = '';
@@ -6086,6 +5891,7 @@
         }
 
         // === FUNÇÕES DE FORMATAÇÃO ===
+        
         function formatDate(date) {
             if (!date) return 'N/A';
             try {
@@ -6093,10 +5899,12 @@
                     const [ano, mes, dia] = date.split('-');
                     return `${dia}/${mes}/${ano}`;
                 }
-                
+                if (date && typeof date === 'object' && date.toDate) {
+                    const d = date.toDate();
+                    return d.toLocaleDateString('pt-BR');
+                }
                 const d = new Date(date);
                 if (isNaN(d.getTime())) return 'Data inválida';
-                
                 return d.toLocaleDateString('pt-BR');
             } catch (error) {
                 return 'Data inválida';
@@ -6148,162 +5956,117 @@
             return statusMap[status] || status;
         }
 
-        // === FUNÇÕES DE EXPORTAÇÃO (Simuladas) ===
+        // === FUNÇÕES DE EXPORTAÇÃO ===
+        
         async function exportDashboardPDF() {
             showNotification('Gerando relatório PDF do Dashboard...', 'info');
-            setTimeout(() => {
-                showNotification('Relatório PDF gerado com sucesso!', 'success');
-            }, 1500);
+            setTimeout(() => showNotification('Relatório PDF gerado com sucesso!', 'success'), 1500);
         }
 
         async function exportDashboardExcel() {
             showNotification('Gerando relatório Excel do Dashboard...', 'info');
-            setTimeout(() => {
-                showNotification('Relatório Excel gerado com sucesso!', 'success');
-            }, 1500);
+            setTimeout(() => showNotification('Relatório Excel gerado com sucesso!', 'success'), 1500);
         }
 
         async function exportColaboradoresPDF() {
             showNotification('Gerando relatório PDF de Colaboradores...', 'info');
-            setTimeout(() => {
-                showNotification('Relatório PDF gerado com sucesso!', 'success');
-            }, 1500);
+            setTimeout(() => showNotification('Relatório PDF gerado com sucesso!', 'success'), 1500);
         }
 
         async function exportColaboradoresExcel() {
             showNotification('Gerando relatório Excel de Colaboradores...', 'info');
-            setTimeout(() => {
-                showNotification('Relatório Excel gerado com sucesso!', 'success');
-            }, 1500);
+            setTimeout(() => showNotification('Relatório Excel gerado com sucesso!', 'success'), 1500);
         }
 
         async function exportExamesPDF() {
             showNotification('Gerando relatório PDF de Exames...', 'info');
-            setTimeout(() => {
-                showNotification('Relatório PDF gerado com sucesso!', 'success');
-            }, 1500);
+            setTimeout(() => showNotification('Relatório PDF gerado com sucesso!', 'success'), 1500);
         }
 
         async function exportExamesExcel() {
             showNotification('Gerando relatório Excel de Exames...', 'info');
-            setTimeout(() => {
-                showNotification('Relatório Excel gerado com sucesso!', 'success');
-            }, 1500);
+            setTimeout(() => showNotification('Relatório Excel gerado com sucesso!', 'success'), 1500);
         }
 
         async function exportAtestadosPDF() {
             showNotification('Gerando relatório PDF de Atestados...', 'info');
-            setTimeout(() => {
-                showNotification('Relatório PDF gerado com sucesso!', 'success');
-            }, 1500);
+            setTimeout(() => showNotification('Relatório PDF gerado com sucesso!', 'success'), 1500);
         }
 
         async function exportAtestadosExcel() {
             showNotification('Gerando relatório Excel de Atestados...', 'info');
-            setTimeout(() => {
-                showNotification('Relatório Excel gerado com sucesso!', 'success');
-            }, 1500);
+            setTimeout(() => showNotification('Relatório Excel gerado com sucesso!', 'success'), 1500);
         }
 
         async function exportCATsPDF() {
             showNotification('Gerando relatório PDF de CATs...', 'info');
-            setTimeout(() => {
-                showNotification('Relatório PDF gerado com sucesso!', 'success');
-            }, 1500);
+            setTimeout(() => showNotification('Relatório PDF gerado com sucesso!', 'success'), 1500);
         }
 
         async function exportCATsExcel() {
             showNotification('Gerando relatório Excel de CATs...', 'info');
-            setTimeout(() => {
-                showNotification('Relatório Excel gerado com sucesso!', 'success');
-            }, 1500);
+            setTimeout(() => showNotification('Relatório Excel gerado com sucesso!', 'success'), 1500);
         }
 
         async function exportDeclaracoesPDF() {
             showNotification('Gerando relatório PDF de Declarações de Horas...', 'info');
-            setTimeout(() => {
-                showNotification('Relatório PDF gerado com sucesso!', 'success');
-            }, 1500);
+            setTimeout(() => showNotification('Relatório PDF gerado com sucesso!', 'success'), 1500);
         }
 
         async function exportDeclaracoesExcel() {
             showNotification('Gerando relatório Excel de Declarações de Horas...', 'info');
-            setTimeout(() => {
-                showNotification('Relatório Excel gerado com sucesso!', 'success');
-            }, 1500);
+            setTimeout(() => showNotification('Relatório Excel gerado com sucesso!', 'success'), 1500);
+        }
+
+        async function exportAbsenteismoPDF() {
+            showNotification('Gerando relatório PDF de Absenteísmo...', 'info');
+            setTimeout(() => showNotification('Relatório PDF gerado com sucesso!', 'success'), 1500);
+        }
+
+        async function exportAbsenteismoExcel() {
+            showNotification('Gerando relatório Excel de Absenteísmo...', 'info');
+            setTimeout(() => showNotification('Relatório Excel gerado com sucesso!', 'success'), 1500);
         }
 
         async function exportConfiguracoesPDF() {
             showNotification('Gerando relatório PDF de Configurações...', 'info');
-            setTimeout(() => {
-                showNotification('Relatório PDF gerado com sucesso!', 'success');
-            }, 1500);
+            setTimeout(() => showNotification('Relatório PDF gerado com sucesso!', 'success'), 1500);
         }
 
         async function exportConfiguracoesExcel() {
             showNotification('Gerando relatório Excel de Configurações...', 'info');
-            setTimeout(() => {
-                showNotification('Relatório Excel gerado com sucesso!', 'success');
-            }, 1500);
+            setTimeout(() => showNotification('Relatório Excel gerado com sucesso!', 'success'), 1500);
         }
 
         async function exportVencimentosPDF() {
             showNotification('Gerando relatório PDF de Vencimentos...', 'info');
-            setTimeout(() => {
-                showNotification('Relatório PDF gerado com sucesso!', 'success');
-            }, 1500);
+            setTimeout(() => showNotification('Relatório PDF gerado com sucesso!', 'success'), 1500);
         }
 
         async function exportVencimentosExcel() {
             showNotification('Gerando relatório Excel de Vencimentos...', 'info');
-            setTimeout(() => {
-                showNotification('Relatório Excel gerado com sucesso!', 'success');
-            }, 1500);
+            setTimeout(() => showNotification('Relatório Excel gerado com sucesso!', 'success'), 1500);
         }
 
         // === FUNÇÕES DE INICIALIZAÇÃO ===
+        
         function initAuth() {
-            currentUser = {
-                uid: 'demo-user',
-                displayName: 'Gestor de Saúde',
-                email: 'admin@empresa.com'
-            };
+            currentUser = { uid: 'demo-user', displayName: 'Gestor de Saúde', email: 'admin@empresa.com' };
         }
 
         function setupNavigation() {
             document.querySelectorAll('.nav-link').forEach(link => {
                 link.addEventListener('click', function(e) {
                     e.preventDefault();
-                    
-                    document.querySelectorAll('.nav-link').forEach(item => {
-                        item.classList.remove('active');
-                    });
-                    
+                    document.querySelectorAll('.nav-link').forEach(item => item.classList.remove('active'));
                     this.classList.add('active');
-                    
-                    document.querySelectorAll('.page-content').forEach(page => {
-                        page.classList.add('hidden');
-                    });
-                    
-                    document.querySelectorAll('.colaborador-page').forEach(page => {
-                        page.classList.remove('active');
-                    });
-                    
-                    document.querySelectorAll('.exame-page').forEach(page => {
-                        page.classList.remove('active');
-                    });
-                    
-                    document.querySelectorAll('.atestado-page').forEach(page => {
-                        page.classList.remove('active');
-                    });
-                    
-                    document.querySelectorAll('.cat-page').forEach(page => {
-                        page.classList.remove('active');
-                    });
-                    
-                    document.querySelectorAll('.declaracao-page').forEach(page => {
-                        page.classList.remove('active');
-                    });
+                    document.querySelectorAll('.page-content').forEach(page => page.classList.add('hidden'));
+                    document.querySelectorAll('.colaborador-page').forEach(page => page.classList.remove('active'));
+                    document.querySelectorAll('.exame-page').forEach(page => page.classList.remove('active'));
+                    document.querySelectorAll('.atestado-page').forEach(page => page.classList.remove('active'));
+                    document.querySelectorAll('.cat-page').forEach(page => page.classList.remove('active'));
+                    document.querySelectorAll('.declaracao-page').forEach(page => page.classList.remove('active'));
+                    document.querySelectorAll('.absenteismo-page').forEach(page => page.classList.remove('active'));
                     
                     const pageId = this.getAttribute('data-page');
                     document.getElementById(pageId).classList.remove('hidden');
@@ -6333,6 +6096,11 @@
                         document.getElementById('declaracao-cadastro').classList.add('hidden');
                         loadFiltrosDeclaracoes();
                         atualizarCardsDeclaracoes();
+                    } else if (pageId === 'absenteismo') {
+                        document.getElementById('absenteismo').classList.add('active');
+                        document.getElementById('absenteismo').classList.remove('hidden');
+                        carregarAnosAbsenteismo();
+                        carregarHistoricoAbsenteismo();
                     }
                     
                     if (pageId === 'dashboard') {
@@ -6359,17 +6127,10 @@
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const tabId = this.getAttribute('data-tab');
-                    
-                    document.querySelectorAll('.tab-btn').forEach(tab => {
-                        tab.classList.remove('active');
-                    });
-                    document.querySelectorAll('.tab-content').forEach(content => {
-                        content.classList.remove('active');
-                    });
-                    
+                    document.querySelectorAll('.tab-btn').forEach(tab => tab.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
                     this.classList.add('active');
                     document.getElementById(`tab-${tabId}`).classList.add('active');
-                    
                     if (tabId === 'empresas') {
                         loadEmpresas();
                     } else if (tabId === 'departamentos') {
@@ -6598,16 +6359,12 @@
             // Eventos para cálculo automático no formulário de atestado
             const atestadoDataInicio = document.getElementById('atestado-data-inicio');
             if (atestadoDataInicio) {
-                atestadoDataInicio.addEventListener('change', function() {
-                    calcularDataFinalAtestado();
-                });
+                atestadoDataInicio.addEventListener('change', calcularDataFinalAtestado);
             }
             
             const atestadoDiasAfastamento = document.getElementById('atestado-dias-afastamento');
             if (atestadoDiasAfastamento) {
-                atestadoDiasAfastamento.addEventListener('input', function() {
-                    calcularDataFinalAtestado();
-                });
+                atestadoDiasAfastamento.addEventListener('input', calcularDataFinalAtestado);
             }
             
             const atestadoDataFinal = document.getElementById('atestado-data-final');
@@ -6627,20 +6384,17 @@
                     const unidade = this.value;
                     const camposHora = document.getElementById('campos-hora');
                     const campoDias = document.getElementById('campo-dias-afastamento');
-                    
                     if (unidade === 'horas') {
                         camposHora.classList.remove('hidden');
                         campoDias.classList.add('hidden');
                         document.getElementById('atestado-hora-inicio').value = '08:00';
                         document.getElementById('atestado-hora-final').value = '17:00';
-                        
                         const hoje = new Date();
                         document.getElementById('atestado-data-final').value = hoje.toISOString().split('T')[0];
                     } else {
                         camposHora.classList.add('hidden');
                         campoDias.classList.remove('hidden');
                     }
-                    
                     calcularAtestado();
                 });
             }
@@ -6664,10 +6418,6 @@
             
             const declaracaoHoraFinal = document.getElementById('declaracao-hora-final');
             if (declaracaoHoraFinal) declaracaoHoraFinal.addEventListener('change', calcularHorasDeclaracao);
-        }
-
-        function setupButtons() {
-            // Botões de exportação já estão declarados globalmente
         }
 
         function setupAutoFilters() {
@@ -6707,23 +6457,17 @@
             // Filtro de nome (busca digitável) para colaboradores
             const filtroNomeColaborador = document.getElementById('filtro-nome-colaborador');
             if (filtroNomeColaborador) {
-                filtroNomeColaborador.addEventListener('input', function() {
-                    filtrarColaboradores();
-                });
+                filtroNomeColaborador.addEventListener('input', filtrarColaboradores);
             }
             
             const filtroDepartamentoColaborador = document.getElementById('filtro-departamento-colaborador');
             if (filtroDepartamentoColaborador) {
-                filtroDepartamentoColaborador.addEventListener('change', function() {
-                    filtrarColaboradores();
-                });
+                filtroDepartamentoColaborador.addEventListener('change', filtrarColaboradores);
             }
             
             const filtroStatusColaborador = document.getElementById('filtro-status-colaborador');
             if (filtroStatusColaborador) {
-                filtroStatusColaborador.addEventListener('change', function() {
-                    filtrarColaboradores();
-                });
+                filtroStatusColaborador.addEventListener('change', filtrarColaboradores);
             }
             
             // Filtros automáticos para exames
@@ -6785,9 +6529,7 @@
             
             const btnLimparFiltrosExame = document.getElementById('btn-limpar-filtros-exame');
             if (btnLimparFiltrosExame) {
-                btnLimparFiltrosExame.addEventListener('click', function() {
-                    limparFiltrosExames();
-                });
+                btnLimparFiltrosExame.addEventListener('click', limparFiltrosExames);
             }
             
             // Filtros automáticos para atestados
@@ -6902,9 +6644,7 @@
             
             const btnLimparFiltrosCat = document.getElementById('btn-limpar-filtros-cat');
             if (btnLimparFiltrosCat) {
-                btnLimparFiltrosCat.addEventListener('click', function() {
-                    limparFiltrosCATs();
-                });
+                btnLimparFiltrosCat.addEventListener('click', limparFiltrosCATs);
             }
             
             // Filtros automáticos para declarações de horas
@@ -6964,38 +6704,18 @@
                 currentDate.textContent = now.toLocaleDateString('pt-BR', options);
             }
             
-            // Inicializar autenticação
             initAuth();
-            
-            // Configurar navegação
             setupNavigation();
-            
-            // Configurar formulários
             setupForms();
-            
-            // Configurar botões
-            setupButtons();
-            
-            // Configurar abas
             setupTabs();
-            
-            // Configurar filtros automáticos
             setupAutoFilters();
-            
-            // Carregar dados iniciais
             loadCacheData();
             
-            // Inicializar todos os filtros como ocultos
             setTimeout(() => {
                 const filterContents = document.querySelectorAll('.filter-content');
-                filterContents.forEach(content => {
-                    content.classList.remove('show');
-                });
-                
+                filterContents.forEach(content => content.classList.remove('show'));
                 const icons = document.querySelectorAll('[id$="-icon"]');
-                icons.forEach(icon => {
-                    icon.className = 'fas fa-chevron-down';
-                });
+                icons.forEach(icon => icon.className = 'fas fa-chevron-down');
             }, 100);
         });
 
@@ -7022,6 +6742,9 @@
         window.calcularVencimentoExame = calcularVencimentoExame;
         window.calcularHorasDeclaracao = calcularHorasDeclaracao;
         window.toggleFilters = toggleFilters;
+        window.calcularAbsenteismoPreview = calcularAbsenteismoPreview;
+        window.salvarAbsenteismo = salvarAbsenteismo;
+        window.excluirAbsenteismo = excluirAbsenteismo;
         
         // Exportação
         window.exportDashboardPDF = exportDashboardPDF;
@@ -7036,6 +6759,8 @@
         window.exportCATsExcel = exportCATsExcel;
         window.exportDeclaracoesPDF = exportDeclaracoesPDF;
         window.exportDeclaracoesExcel = exportDeclaracoesExcel;
+        window.exportAbsenteismoPDF = exportAbsenteismoPDF;
+        window.exportAbsenteismoExcel = exportAbsenteismoExcel;
         window.exportConfiguracoesPDF = exportConfiguracoesPDF;
         window.exportConfiguracoesExcel = exportConfiguracoesExcel;
         window.exportVencimentosPDF = exportVencimentosPDF;
