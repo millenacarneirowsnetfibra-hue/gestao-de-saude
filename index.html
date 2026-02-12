@@ -2144,9 +2144,15 @@
                                 <input type="date" id="atestado-data-inicio" required>
                             </div>
                             <div class="form-group">
-                                <label for="atestado-data-final">Data Final *</label>
-                                <input type="date" id="atestado-data-final" required>
+                                <label for="atestado-dias-afastamento">Dias de Afastamento</label>
+                                <input type="number" id="atestado-dias-afastamento" min="1" placeholder="Digite os dias">
+                                <small style="color: #666; margin-top: 5px;">Digite os dias para calcular automaticamente a data final</small>
                             </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="atestado-data-final">Data Final *</label>
+                            <input type="date" id="atestado-data-final" required readonly>
+                            <small style="color: #666; margin-top: 5px;">Calculada automaticamente com base na data inicial e nos dias de afastamento</small>
                         </div>
                         
                         <!-- Seletor de unidade (dias/horas) -->
@@ -2872,7 +2878,7 @@
         function calcularVencimentoExame() {
             const dataExame = document.getElementById('exame-data').value;
             if (dataExame) {
-                const data = new Date(dataExame + 'T12:00:00'); // Usar meio-dia para evitar problemas de fuso horário
+                const data = new Date(dataExame + 'T12:00:00');
                 data.setFullYear(data.getFullYear() + 1);
                 
                 const ano = data.getFullYear();
@@ -2880,6 +2886,24 @@
                 const dia = String(data.getDate()).padStart(2, '0');
                 
                 document.getElementById('exame-vencimento').value = `${ano}-${mes}-${dia}`;
+            }
+        }
+
+        // Função para calcular a data final do atestado baseado na data de início e dias de afastamento
+        function calcularDataFinalAtestado() {
+            const dataInicio = document.getElementById('atestado-data-inicio').value;
+            const diasAfastamento = document.getElementById('atestado-dias-afastamento').value;
+            
+            if (dataInicio && diasAfastamento && parseInt(diasAfastamento) > 0) {
+                const data = new Date(dataInicio + 'T12:00:00');
+                data.setDate(data.getDate() + parseInt(diasAfastamento) - 1);
+                
+                const ano = data.getFullYear();
+                const mes = String(data.getMonth() + 1).padStart(2, '0');
+                const dia = String(data.getDate()).padStart(2, '0');
+                
+                document.getElementById('atestado-data-final').value = `${ano}-${mes}-${dia}`;
+                calcularAtestado();
             }
         }
 
@@ -4869,7 +4893,7 @@
                 
                 const declaracaoData = {
                     funcionario,
-                    data, // Mantém a data exata como inserida
+                    data,
                     horaInicio,
                     horaFinal,
                     horas,
@@ -4963,7 +4987,7 @@
                 
                 const colaboradorData = {
                     nome: nome.trim(),
-                    dataAdmissao, // Mantém a data exata como inserida
+                    dataAdmissao,
                     departamento,
                     empresa,
                     status,
@@ -5075,8 +5099,8 @@
                 const exameData = {
                     funcionario,
                     tipo,
-                    dataExame, // Mantém a data exata como inserida
-                    vencimento, // Mantém a data exata como inserida
+                    dataExame,
+                    vencimento,
                     status,
                     createdAt: new Date(),
                     updatedAt: new Date(),
@@ -5394,8 +5418,8 @@
                 const catData = {
                     funcionario,
                     tipo,
-                    dataAcidente, // Mantém a data exata como inserida
-                    dataRegistro, // Mantém a data exata como inserida
+                    dataAcidente,
+                    dataRegistro,
                     descricao,
                     local: local || '',
                     afastamentoInicio: afastamentoInicio || '',
@@ -5765,6 +5789,13 @@
                 document.getElementById('atestado-tipo').value = atestado.tipo || '';
                 document.getElementById('atestado-cid').value = atestado.cid || '';
                 document.getElementById('atestado-data-inicio').value = atestado.dataInicio || '';
+                
+                // Calcular e preencher os dias de afastamento baseado na data final
+                if (atestado.dataInicio && atestado.dataFinal) {
+                    const dias = calcularDiasAtestado(atestado.dataInicio, atestado.dataFinal);
+                    document.getElementById('atestado-dias-afastamento').value = dias;
+                }
+                
                 document.getElementById('atestado-data-final').value = atestado.dataFinal || '';
                 document.getElementById('atestado-unidade').value = atestado.unidade || 'dias';
                 
@@ -6140,7 +6171,8 @@
             if (!editMode) {
                 const hoje = new Date();
                 document.getElementById('atestado-data-inicio').value = hoje.toISOString().split('T')[0];
-                document.getElementById('atestado-data-final').value = hoje.toISOString().split('T')[0];
+                document.getElementById('atestado-dias-afastamento').value = '';
+                document.getElementById('atestado-data-final').value = '';
                 document.getElementById('atestado-unidade').value = 'dias';
                 
                 document.getElementById('campos-hora').classList.add('hidden');
@@ -6456,7 +6488,8 @@
                 document.getElementById('atestado-cid').value = '';
                 const hoje = new Date();
                 document.getElementById('atestado-data-inicio').value = hoje.toISOString().split('T')[0];
-                document.getElementById('atestado-data-final').value = hoje.toISOString().split('T')[0];
+                document.getElementById('atestado-dias-afastamento').value = '';
+                document.getElementById('atestado-data-final').value = '';
                 document.getElementById('atestado-unidade').value = 'dias';
                 
                 document.getElementById('campos-hora').classList.add('hidden');
@@ -6496,13 +6529,11 @@
         function formatDate(date) {
             if (!date) return 'N/A';
             try {
-                // Se for uma string ISO (YYYY-MM-DD), mantém como está
                 if (typeof date === 'string' && date.match(/^\d{4}-\d{2}-\d{2}$/)) {
                     const [ano, mes, dia] = date.split('-');
                     return `${dia}/${mes}/${ano}`;
                 }
                 
-                // Se for um objeto Date ou string com timestamp
                 const d = new Date(date);
                 if (isNaN(d.getTime())) return 'Data inválida';
                 
@@ -7022,10 +7053,23 @@
             
             // Eventos para cálculo automático no formulário de atestado
             const atestadoDataInicio = document.getElementById('atestado-data-inicio');
-            if (atestadoDataInicio) atestadoDataInicio.addEventListener('change', calcularAtestado);
+            if (atestadoDataInicio) {
+                atestadoDataInicio.addEventListener('change', function() {
+                    calcularDataFinalAtestado();
+                });
+            }
+            
+            const atestadoDiasAfastamento = document.getElementById('atestado-dias-afastamento');
+            if (atestadoDiasAfastamento) {
+                atestadoDiasAfastamento.addEventListener('input', function() {
+                    calcularDataFinalAtestado();
+                });
+            }
             
             const atestadoDataFinal = document.getElementById('atestado-data-final');
-            if (atestadoDataFinal) atestadoDataFinal.addEventListener('change', calcularAtestado);
+            if (atestadoDataFinal) {
+                atestadoDataFinal.addEventListener('change', calcularAtestado);
+            }
             
             const atestadoHoraInicio = document.getElementById('atestado-hora-inicio');
             if (atestadoHoraInicio) atestadoHoraInicio.addEventListener('change', calcularAtestado);
