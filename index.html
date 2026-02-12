@@ -1224,6 +1224,82 @@
             font-weight: bold;
         }
 
+        /* ESTILOS CORRIGIDOS PARA OS CARDS DAS ABAS */
+        .exame-cards, .atestado-stats-cards, .cat-stats-cards, .declaracao-stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .exame-stat-card, .atestado-stat-card, .cat-stat-card, .declaracao-stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: transform 0.3s;
+            border-left: 5px solid var(--accent);
+        }
+
+        .exame-stat-card.vencidos {
+            border-left-color: var(--danger);
+        }
+
+        .exame-stat-card.proximo-vencer {
+            border-left-color: var(--warning);
+        }
+
+        .exame-stat-card.em-dia {
+            border-left-color: var(--success);
+        }
+
+        .cat-stat-card.fora-prazo {
+            border-left-color: var(--danger);
+        }
+
+        .exame-stat-card:hover, .atestado-stat-card:hover, .cat-stat-card:hover, .declaracao-stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .exame-stat-icon, .atestado-stat-icon, .cat-stat-icon, .declaracao-stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--accent), var(--primary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.8rem;
+        }
+
+        .exame-stat-info, .atestado-stat-info, .cat-stat-info, .declaracao-stat-info {
+            flex: 1;
+        }
+
+        .exame-stat-info h3, .atestado-stat-info h3, .cat-stat-info h3, .declaracao-stat-info h3 {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .exame-value, .atestado-stat-info .value, .cat-stat-info .value, .declaracao-stat-info .value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .exame-percentual {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
         /* NOVOS ESTILOS PARA O FILTRO DE ABSENTEÍSMO */
         .absenteismo-filters {
             background-color: white;
@@ -1234,13 +1310,37 @@
             border: 1px solid #e0e0e0;
         }
 
-        .absenteismo-filters h3 {
+        .absenteismo-filters-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            padding: 10px;
+            background-color: var(--absenteismo-light);
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .absenteismo-filters-header h3 {
             color: var(--absenteismo);
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-bottom: 20px;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
+            margin: 0;
+        }
+
+        .absenteismo-filters-content {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .absenteismo-filters-content.show {
+            display: block;
+            animation: slideDown 0.3s ease-out;
         }
 
         .month-year-filters {
@@ -1257,7 +1357,7 @@
         }
 
         .month-year-group label {
-            color: var(--primary);
+            color: var(--absenteismo);
             font-size: 0.9rem;
             margin-bottom: 8px;
         }
@@ -1363,7 +1463,7 @@
             color: var(--absenteismo);
             font-weight: 600;
             border: 1px solid var(--absenteismo);
-            margin-bottom: 20px;
+            margin-top: 15px;
         }
 
         .filter-active-badge i {
@@ -1787,27 +1887,42 @@
                     </div>
                 </div>
 
-                <!-- Cards de Status de Exames -->
+                <!-- Cards de Status de Exames - CORRIGIDO -->
                 <div class="exame-cards">
                     <div class="exame-stat-card vencidos">
-                        <h4><i class="fas fa-exclamation-circle"></i> Exames Vencidos</h4>
-                        <div class="exame-value" id="totalExamesVencidos">0</div>
-                        <div class="exame-percentual">
-                            <span id="percentualVencidos">0%</span> do total
+                        <div class="exame-stat-icon">
+                            <i class="fas fa-exclamation-circle"></i>
+                        </div>
+                        <div class="exame-stat-info">
+                            <h3>Exames Vencidos</h3>
+                            <div class="exame-value" id="totalExamesVencidos">0</div>
+                            <div class="exame-percentual">
+                                <span id="percentualVencidos">0%</span> do total
+                            </div>
                         </div>
                     </div>
                     <div class="exame-stat-card proximo-vencer">
-                        <h4><i class="fas fa-clock"></i> Próximo a Vencer</h4>
-                        <div class="exame-value" id="totalExamesProximoVencer">0</div>
-                        <div class="exame-percentual">
-                            <span id="percentualProximoVencer">0%</span> do total
+                        <div class="exame-stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="exame-stat-info">
+                            <h3>Próximo a Vencer</h3>
+                            <div class="exame-value" id="totalExamesProximoVencer">0</div>
+                            <div class="exame-percentual">
+                                <span id="percentualProximoVencer">0%</span> do total
+                            </div>
                         </div>
                     </div>
                     <div class="exame-stat-card em-dia">
-                        <h4><i class="fas fa-check-circle"></i> Em Dia</h4>
-                        <div class="exame-value" id="totalExamesEmDia">0</div>
-                        <div class="exame-percentual">
-                            <span id="percentualEmDia">0%</span> do total
+                        <div class="exame-stat-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="exame-stat-info">
+                            <h3>Em Dia</h3>
+                            <div class="exame-value" id="totalExamesEmDia">0</div>
+                            <div class="exame-percentual">
+                                <span id="percentualEmDia">0%</span> do total
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1963,7 +2078,7 @@
                     </div>
                 </div>
 
-                <!-- Cards de Atestados - Total com Filtros -->
+                <!-- Cards de Atestados - CORRIGIDO -->
                 <div class="atestado-stats-cards">
                     <div class="atestado-stat-card">
                         <div class="atestado-stat-icon">
@@ -2171,7 +2286,7 @@
                     </div>
                 </div>
 
-                <!-- Cards de CATs - Total e Fora do Prazo com Filtros -->
+                <!-- Cards de CATs - CORRIGIDO -->
                 <div class="cat-stats-cards">
                     <div class="cat-stat-card total">
                         <div class="cat-stat-icon">
@@ -2376,7 +2491,7 @@
                     </div>
                 </div>
 
-                <!-- Cards de Declarações de Horas -->
+                <!-- Cards de Declarações de Horas - CORRIGIDO -->
                 <div class="declaracao-stats-cards">
                     <div class="declaracao-stat-card">
                         <div class="declaracao-stat-icon">
@@ -2526,7 +2641,7 @@
                 </div>
             </section>
 
-            <!-- Absenteísmo - Página Principal (AJUSTADA COM FILTRO MÊS/ANO E HISTÓRICO CORRIGIDO) -->
+            <!-- Absenteísmo - Página Principal (AJUSTADA COM FILTRO EXPANSÍVEL) -->
             <section id="absenteismo" class="page-content absenteismo-page">
                 <div class="page-title">
                     <h2><i class="fas fa-calendar-times"></i> Gestão de Absenteísmo</h2>
@@ -2552,65 +2667,70 @@
                     </div>
                 </div>
 
-                <!-- NOVO FILTRO POR PERÍODO (MÊS/ANO) -->
+                <!-- NOVO FILTRO POR PERÍODO (EXPANSÍVEL) -->
                 <div class="absenteismo-filters">
-                    <h3><i class="fas fa-filter"></i> Filtrar por Período</h3>
-                    <div class="month-year-filters">
-                        <div class="month-year-group">
-                            <label for="absenteismo-mes-inicio">Mês/Ano Início</label>
-                            <div style="display: flex; gap: 10px;">
-                                <select id="absenteismo-mes-inicio" class="month-year-select" style="flex: 1;" onchange="filtrarAbsenteismoPeriodo()">
-                                    <option value="">Mês</option>
-                                    <option value="1">Janeiro</option>
-                                    <option value="2">Fevereiro</option>
-                                    <option value="3">Março</option>
-                                    <option value="4">Abril</option>
-                                    <option value="5">Maio</option>
-                                    <option value="6">Junho</option>
-                                    <option value="7">Julho</option>
-                                    <option value="8">Agosto</option>
-                                    <option value="9">Setembro</option>
-                                    <option value="10">Outubro</option>
-                                    <option value="11">Novembro</option>
-                                    <option value="12">Dezembro</option>
-                                </select>
-                                <select id="absenteismo-ano-inicio" class="month-year-select" style="flex: 1;" onchange="filtrarAbsenteismoPeriodo()">
-                                    <option value="">Ano</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="month-year-group">
-                            <label for="absenteismo-mes-fim">Mês/Ano Fim</label>
-                            <div style="display: flex; gap: 10px;">
-                                <select id="absenteismo-mes-fim" class="month-year-select" style="flex: 1;" onchange="filtrarAbsenteismoPeriodo()">
-                                    <option value="">Mês</option>
-                                    <option value="1">Janeiro</option>
-                                    <option value="2">Fevereiro</option>
-                                    <option value="3">Março</option>
-                                    <option value="4">Abril</option>
-                                    <option value="5">Maio</option>
-                                    <option value="6">Junho</option>
-                                    <option value="7">Julho</option>
-                                    <option value="8">Agosto</option>
-                                    <option value="9">Setembro</option>
-                                    <option value="10">Outubro</option>
-                                    <option value="11">Novembro</option>
-                                    <option value="12">Dezembro</option>
-                                </select>
-                                <select id="absenteismo-ano-fim" class="month-year-select" style="flex: 1;" onchange="filtrarAbsenteismoPeriodo()">
-                                    <option value="">Ano</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div style="display: flex; gap: 10px; align-items: flex-end;">
-                            <button class="btn-filter-absenteismo" onclick="limparFiltroPeriodo()">
-                                <i class="fas fa-times"></i> Limpar Filtro
-                            </button>
-                        </div>
+                    <div class="absenteismo-filters-header" onclick="toggleAbsenteismoFilters()">
+                        <h3><i class="fas fa-filter"></i> Filtrar por Período</h3>
+                        <i class="fas fa-chevron-down" id="absenteismo-filters-icon"></i>
                     </div>
-                    <div id="filtroAtivoBadge" class="filter-active-badge" style="display: none; margin-top: 15px;">
-                        <i class="fas fa-calendar-alt"></i>
-                        <span id="filtroPeriodoTexto">Filtrando período: </span>
+                    <div id="absenteismo-filters-content" class="absenteismo-filters-content">
+                        <div class="month-year-filters">
+                            <div class="month-year-group">
+                                <label for="absenteismo-mes-inicio">Mês/Ano Início</label>
+                                <div style="display: flex; gap: 10px;">
+                                    <select id="absenteismo-mes-inicio" class="month-year-select" style="flex: 1;" onchange="filtrarAbsenteismoPeriodo()">
+                                        <option value="">Mês</option>
+                                        <option value="1">Janeiro</option>
+                                        <option value="2">Fevereiro</option>
+                                        <option value="3">Março</option>
+                                        <option value="4">Abril</option>
+                                        <option value="5">Maio</option>
+                                        <option value="6">Junho</option>
+                                        <option value="7">Julho</option>
+                                        <option value="8">Agosto</option>
+                                        <option value="9">Setembro</option>
+                                        <option value="10">Outubro</option>
+                                        <option value="11">Novembro</option>
+                                        <option value="12">Dezembro</option>
+                                    </select>
+                                    <select id="absenteismo-ano-inicio" class="month-year-select" style="flex: 1;" onchange="filtrarAbsenteismoPeriodo()">
+                                        <option value="">Ano</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="month-year-group">
+                                <label for="absenteismo-mes-fim">Mês/Ano Fim</label>
+                                <div style="display: flex; gap: 10px;">
+                                    <select id="absenteismo-mes-fim" class="month-year-select" style="flex: 1;" onchange="filtrarAbsenteismoPeriodo()">
+                                        <option value="">Mês</option>
+                                        <option value="1">Janeiro</option>
+                                        <option value="2">Fevereiro</option>
+                                        <option value="3">Março</option>
+                                        <option value="4">Abril</option>
+                                        <option value="5">Maio</option>
+                                        <option value="6">Junho</option>
+                                        <option value="7">Julho</option>
+                                        <option value="8">Agosto</option>
+                                        <option value="9">Setembro</option>
+                                        <option value="10">Outubro</option>
+                                        <option value="11">Novembro</option>
+                                        <option value="12">Dezembro</option>
+                                    </select>
+                                    <select id="absenteismo-ano-fim" class="month-year-select" style="flex: 1;" onchange="filtrarAbsenteismoPeriodo()">
+                                        <option value="">Ano</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 10px; align-items: flex-end;">
+                                <button class="btn-clear-filter" onclick="limparFiltroPeriodo()">
+                                    <i class="fas fa-times"></i> Limpar Filtro
+                                </button>
+                            </div>
+                        </div>
+                        <div id="filtroAtivoBadge" class="filter-active-badge" style="display: none; margin-top: 15px;">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span id="filtroPeriodoTexto">Filtrando período: </span>
+                        </div>
                     </div>
                 </div>
 
@@ -3029,6 +3149,22 @@
             }
         }
 
+        // NOVA FUNÇÃO PARA ABRIR/FECHAR FILTRO DE ABSENTEÍSMO
+        function toggleAbsenteismoFilters() {
+            const filterContent = document.getElementById('absenteismo-filters-content');
+            const icon = document.getElementById('absenteismo-filters-icon');
+            if (filterContent) {
+                filterContent.classList.toggle('show');
+                if (icon) {
+                    if (filterContent.classList.contains('show')) {
+                        icon.className = 'fas fa-chevron-up';
+                    } else {
+                        icon.className = 'fas fa-chevron-down';
+                    }
+                }
+            }
+        }
+
         // === FUNÇÕES DE CÁLCULO ===
         
         function calcularVencimentoExame() {
@@ -3192,14 +3328,12 @@
             }
         }
 
-        // === FUNÇÕES DE ABSENTEÍSMO (AJUSTADAS COM FILTRO PERÍODO E HISTÓRICO) ===
+        // === FUNÇÕES DE ABSENTEÍSMO (CORRIGIDAS) ===
         
         function carregarAnosAbsenteismo() {
             const selectAno = document.getElementById('absenteismo-ano');
             const selectAnoInicio = document.getElementById('absenteismo-ano-inicio');
             const selectAnoFim = document.getElementById('absenteismo-ano-fim');
-            
-            if (!selectAno) return;
             
             const anoAtual = new Date().getFullYear();
             
@@ -3255,7 +3389,7 @@
             
             filtroPeriodoAtivo = (mesInicioFiltro && anoInicioFiltro) || (mesFimFiltro && anoFimFiltro);
             
-            // Aplicar filtro automaticamente sem precisar clicar em botão
+            // Aplicar filtro automaticamente
             carregarHistoricoAbsenteismo();
             
             // Atualizar badge de filtro ativo
@@ -3391,11 +3525,11 @@
             
             // Calcular taxa de absenteísmo
             const totalColaboradoresAtivos = cache.colaboradores.filter(c => c.status === 'ativo').length || 1;
-            const diasUteis = 22; // Aproximação de dias úteis no mês
+            const diasUteis = 22;
             const horasPorDia = 8;
             const totalHorasEsperadas = totalColaboradoresAtivos * diasUteis * horasPorDia;
             
-            // Converter faltas manuais para horas (considerando 8h por dia)
+            // Converter faltas manuais para horas
             const horasFaltasManuais = faltasManuais * horasPorDia;
             
             // Total de horas perdidas
@@ -3442,9 +3576,9 @@
                     userId: currentUser ? currentUser.uid : 'demo-user'
                 };
 
-                await db.collection('absenteismo').add(absenteismoData);
+                const docRef = await db.collection('absenteismo').add(absenteismoData);
                 
-                cache.absenteismo.push({ id: Date.now().toString(), ...absenteismoData });
+                cache.absenteismo.push({ id: docRef.id, ...absenteismoData });
                 cache.absenteismo.sort((a, b) => {
                     if (a.ano !== b.ano) return b.ano - a.ano;
                     return b.mes - a.mes;
@@ -3481,9 +3615,7 @@
         async function carregarHistoricoAbsenteismo() {
             try {
                 const absenteismoRef = db.collection('absenteismo');
-                let query = absenteismoRef.orderBy('ano', 'desc').orderBy('mes', 'desc');
-                
-                const snapshot = await query.get();
+                const snapshot = await absenteismoRef.orderBy('ano', 'desc').orderBy('mes', 'desc').get();
                 
                 cache.absenteismo = snapshot.docs.map(doc => ({
                     id: doc.id,
@@ -3552,13 +3684,13 @@
                     </tr>
                 `).join('');
 
-                // Atualizar taxa total do dashboard e card de taxa total
+                // Atualizar taxa total
                 calcularTaxaTotalAbsenteismo();
                 atualizarTaxaAbsenteismoDashboard();
 
             } catch (error) {
                 console.error('Erro ao carregar histórico de absenteísmo:', error);
-                showNotification('Erro ao carregar histórico de absenteísmo', 'error');
+                showNotification('Erro ao carregar histórico de absenteísmo: ' + error.message, 'error');
             }
         }
 
@@ -7212,6 +7344,7 @@
         window.calcularVencimentoExame = calcularVencimentoExame;
         window.calcularHorasDeclaracao = calcularHorasDeclaracao;
         window.toggleFilters = toggleFilters;
+        window.toggleAbsenteismoFilters = toggleAbsenteismoFilters;
         window.calcularAbsenteismoPreview = calcularAbsenteismoPreview;
         window.calcularAbsenteismoComFaltas = calcularAbsenteismoComFaltas;
         window.salvarAbsenteismo = salvarAbsenteismo;
