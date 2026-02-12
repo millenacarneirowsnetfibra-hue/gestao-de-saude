@@ -2086,7 +2086,6 @@
                                 <th>Colaborador</th>
                                 <th>Tipo</th>
                                 <th>Data Início</th>
-                                <th>Data Final</th>
                                 <th>Período</th>
                                 <th>CID</th>
                                 <th>Ações</th>
@@ -2094,7 +2093,7 @@
                         </thead>
                         <tbody id="atestadosBody">
                             <tr>
-                                <td colspan="7" style="text-align: center; padding: 30px;">Carregando atestados...</td>
+                                <td colspan="6" style="text-align: center; padding: 30px;">Carregando atestados...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -2138,21 +2137,9 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="atestado-data-inicio">Data Início *</label>
-                                <input type="date" id="atestado-data-inicio" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="atestado-dias-afastamento">Dias de Afastamento</label>
-                                <input type="number" id="atestado-dias-afastamento" min="1" placeholder="Digite os dias">
-                                <small style="color: #666; margin-top: 5px;">Digite os dias para calcular automaticamente a data final</small>
-                            </div>
-                        </div>
                         <div class="form-group">
-                            <label for="atestado-data-final">Data Final *</label>
-                            <input type="date" id="atestado-data-final" required readonly>
-                            <small style="color: #666; margin-top: 5px;">Calculada automaticamente com base na data inicial e nos dias de afastamento</small>
+                            <label for="atestado-data-inicio">Data Início *</label>
+                            <input type="date" id="atestado-data-inicio" required onchange="calcularDataFinalAtestado()">
                         </div>
                         
                         <!-- Seletor de unidade (dias/horas) -->
@@ -2165,26 +2152,36 @@
                             </select>
                         </div>
                         
+                        <!-- Campo para Dias de Afastamento (quando unidade = dias) -->
+                        <div id="campo-dias-afastamento">
+                            <div class="form-group">
+                                <label for="atestado-dias-afastamento">Dias de Afastamento</label>
+                                <input type="number" id="atestado-dias-afastamento" min="1" placeholder="Digite os dias" oninput="calcularDataFinalAtestado()">
+                                <small style="color: #666; margin-top: 5px;">Digite os dias de afastamento</small>
+                            </div>
+                        </div>
+                        
                         <!-- Campos de hora (apenas se unidade = horas) -->
                         <div id="campos-hora" class="hidden">
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="atestado-hora-inicio">Hora Inicial *</label>
-                                    <input type="time" id="atestado-hora-inicio" step="300">
+                                    <input type="time" id="atestado-hora-inicio" step="300" onchange="calcularAtestado()">
                                 </div>
                                 <div class="form-group">
                                     <label for="atestado-hora-final">Hora Final *</label>
-                                    <input type="time" id="atestado-hora-final" step="300">
+                                    <input type="time" id="atestado-hora-final" step="300" onchange="calcularAtestado()">
                                 </div>
                             </div>
                         </div>
                         
+                        <!-- Data Final (oculta) -->
+                        <input type="hidden" id="atestado-data-final">
+                        
                         <!-- Resultado do cálculo -->
                         <div id="calc-resultado" class="calc-result hidden">
                             <h4><i class="fas fa-calculator"></i> Resultado do Cálculo</h4>
-                            <p id="calc-dias">Dias ausentes: <strong>0</strong></p>
-                            <p id="calc-horas">Horas ausentes: <strong>0</strong></p>
-                            <p id="calc-total">Total: <strong>0 dias ou horas</strong></p>
+                            <p id="calc-periodo">Período: <strong>0</strong></p>
                         </div>
                         
                         <div class="form-actions">
@@ -2341,11 +2338,11 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="cat-data-acidente">Data do Acidente/Diagnóstico *</label>
-                                <input type="date" id="cat-data-acidente" required>
+                                <input type="date" id="cat-data-acidente" required onchange="calcularPrazoCAT()">
                             </div>
                             <div class="form-group">
                                 <label for="cat-data-registro">Data de Registro *</label>
-                                <input type="date" id="cat-data-registro" required>
+                                <input type="date" id="cat-data-registro" required onchange="calcularPrazoCAT()">
                             </div>
                         </div>
                         
@@ -2368,11 +2365,11 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="cat-afastamento-inicio">Data Início do Afastamento</label>
-                                <input type="date" id="cat-afastamento-inicio">
+                                <input type="date" id="cat-afastamento-inicio" onchange="calcularDiasAfastamento()">
                             </div>
                             <div class="form-group">
                                 <label for="cat-afastamento-fim">Data Fim do Afastamento</label>
-                                <input type="date" id="cat-afastamento-fim">
+                                <input type="date" id="cat-afastamento-fim" onchange="calcularDiasAfastamento()">
                             </div>
                         </div>
                         
@@ -2893,8 +2890,9 @@
         function calcularDataFinalAtestado() {
             const dataInicio = document.getElementById('atestado-data-inicio').value;
             const diasAfastamento = document.getElementById('atestado-dias-afastamento').value;
+            const unidade = document.getElementById('atestado-unidade').value;
             
-            if (dataInicio && diasAfastamento && parseInt(diasAfastamento) > 0) {
+            if (dataInicio && diasAfastamento && parseInt(diasAfastamento) > 0 && unidade === 'dias') {
                 const data = new Date(dataInicio + 'T12:00:00');
                 data.setDate(data.getDate() + parseInt(diasAfastamento) - 1);
                 
@@ -2903,6 +2901,10 @@
                 const dia = String(data.getDate()).padStart(2, '0');
                 
                 document.getElementById('atestado-data-final').value = `${ano}-${mes}-${dia}`;
+                calcularAtestado();
+            } else if (unidade === 'horas') {
+                const hoje = new Date();
+                document.getElementById('atestado-data-final').value = dataInicio || hoje.toISOString().split('T')[0];
                 calcularAtestado();
             }
         }
@@ -2933,30 +2935,21 @@
                 return;
             }
             
-            const dias = calcularDiasAtestado(dataInicio, dataFinal);
-            let horas = 0;
+            const calcResultado = document.getElementById('calc-resultado');
+            calcResultado.classList.remove('hidden');
             
             if (unidade === 'horas') {
                 const horaInicio = document.getElementById('atestado-hora-inicio').value;
                 const horaFinal = document.getElementById('atestado-hora-final').value;
                 
                 if (horaInicio && horaFinal) {
-                    horas = calcularHorasAtestado(horaInicio, horaFinal);
+                    const horas = calcularHorasAtestado(horaInicio, horaFinal);
+                    const horasFormatadas = formatarHorasDecimal(horas);
+                    document.getElementById('calc-periodo').innerHTML = `Período: <strong>${horasFormatadas}</strong>`;
                 }
-            }
-            
-            const calcResultado = document.getElementById('calc-resultado');
-            calcResultado.classList.remove('hidden');
-            
-            document.getElementById('calc-dias').innerHTML = `Dias ausentes: <strong>${dias}</strong>`;
-            
-            if (unidade === 'horas') {
-                const horasFormatadas = formatarHorasDecimal(horas);
-                document.getElementById('calc-horas').innerHTML = `Horas ausentes: <strong>${horasFormatadas}</strong>`;
-                document.getElementById('calc-total').innerHTML = `Total: <strong>${horasFormatadas}</strong>`;
             } else {
-                document.getElementById('calc-horas').innerHTML = `Horas ausentes: <strong>0</strong>`;
-                document.getElementById('calc-total').innerHTML = `Total: <strong>${dias} ${dias === 1 ? 'dia' : 'dias'}</strong>`;
+                const dias = calcularDiasAtestado(dataInicio, dataFinal);
+                document.getElementById('calc-periodo').innerHTML = `Período: <strong>${dias} ${dias === 1 ? 'dia' : 'dias'}</strong>`;
             }
         }
 
@@ -3949,57 +3942,6 @@
                     }).join('');
                 }
                 
-                // Estatísticas de CATs - aplicar filtros do dashboard
-                let catsFiltrados = [...cache.cats];
-                
-                // Aplicar filtros de colaborador/departamento
-                if (dashboardFiltros.departamento !== 'todos' || dashboardFiltros.colaborador !== 'todos') {
-                    const colaboradoresFiltrados = cache.colaboradores.filter(c => {
-                        if (dashboardFiltros.departamento !== 'todos' && c.departamento !== dashboardFiltros.departamento) return false;
-                        if (dashboardFiltros.colaborador !== 'todos' && c.nome !== dashboardFiltros.colaborador) return false;
-                        return true;
-                    });
-                    
-                    const colaboradoresPermitidos = colaboradoresFiltrados.map(c => c.nome);
-                    catsFiltrados = catsFiltrados.filter(c => 
-                        colaboradoresPermitidos.includes(c.funcionario)
-                    );
-                }
-                
-                // Aplicar filtros de data
-                if (dashboardFiltros.dataInicio || dashboardFiltros.dataFim) {
-                    catsFiltrados = catsFiltrados.filter(c => 
-                        c.dataRegistro && catDentroFiltro(c.dataRegistro)
-                    );
-                }
-                
-                const totalCats = catsFiltrados.length;
-                const catsDentroPrazo = catsFiltrados.filter(cat => {
-                    if (!cat.dataAcidente || !cat.dataRegistro) return false;
-                    return verificarPrazoCAT(cat.dataAcidente, cat.dataRegistro);
-                }).length;
-                
-                const catsForaPrazo = totalCats - catsDentroPrazo;
-                
-                const catsAfastamentoINSS = catsFiltrados.filter(cat => {
-                    if (cat.afastamentoInicio && cat.afastamentoFim) {
-                        const dias = calcularDiasAtestado(cat.afastamentoInicio, cat.afastamentoFim);
-                        return dias > 15;
-                    }
-                    return false;
-                }).length;
-                
-                // Atualizar elementos do dashboard
-                const totalCatsMini = document.getElementById('totalCatsMini');
-                const totalCatsDentroPrazo = document.getElementById('totalCatsDentroPrazo');
-                const totalCatsForaPrazo = document.getElementById('totalCatsForaPrazo');
-                const totalCatsAfastamentoINSS = document.getElementById('totalCatsAfastamentoINSS');
-                
-                if (totalCatsMini) totalCatsMini.textContent = totalCats;
-                if (totalCatsDentroPrazo) totalCatsDentroPrazo.textContent = catsDentroPrazo;
-                if (totalCatsForaPrazo) totalCatsForaPrazo.textContent = catsForaPrazo;
-                if (totalCatsAfastamentoINSS) totalCatsAfastamentoINSS.textContent = catsAfastamentoINSS;
-                
             } catch (error) {
                 console.error('Erro ao carregar rankings do dashboard:', error);
             }
@@ -4468,7 +4410,7 @@
                 if (cache.atestados.length === 0) {
                     atestadosBody.innerHTML = `
                         <tr>
-                            <td colspan="7" style="text-align: center; padding: 30px;">
+                            <td colspan="6" style="text-align: center; padding: 30px;">
                                 <div class="empty-state">
                                     <i class="fas fa-file-medical"></i>
                                     <p>Nenhum atestado cadastrado</p>
@@ -4545,7 +4487,7 @@
             if (atestadosFiltradosResultado.length === 0) {
                 atestadosBody.innerHTML = `
                     <tr>
-                        <td colspan="7" style="text-align: center; padding: 30px;">
+                        <td colspan="6" style="text-align: center; padding: 30px;">
                             <div class="empty-state">
                                 <i class="fas fa-search"></i>
                                 <p>Nenhum atestado encontrado com os filtros selecionados</p>
@@ -4559,12 +4501,13 @@
             atestadosFiltradosResultado.forEach(atestadoInfo => {
                 const data = atestadoInfo.data;
                 
-                const dias = calcularDiasAtestado(data.dataInicio, data.dataFinal);
-                let periodoTexto = `${dias} ${dias === 1 ? 'dia' : 'dias'}`;
-                
+                let periodoTexto = '';
                 if (data.unidade === 'horas') {
                     const horas = calcularHorasAtestado(data.horaInicio, data.horaFinal);
                     periodoTexto = formatarHorasDecimal(horas);
+                } else {
+                    const dias = calcularDiasAtestado(data.dataInicio, data.dataFinal);
+                    periodoTexto = `${dias} ${dias === 1 ? 'dia' : 'dias'}`;
                 }
                 
                 atestadosBody.innerHTML += `
@@ -4575,7 +4518,6 @@
                         </td>
                         <td>${formatTipoAtestado(data.tipo)}</td>
                         <td>${formatDate(data.dataInicio)}</td>
-                        <td>${formatDate(data.dataFinal)}</td>
                         <td>${periodoTexto}</td>
                         <td>${data.cid || 'N/A'}</td>
                         <td>
@@ -5033,8 +4975,9 @@
                 editMode = false;
                 itemToEdit = null;
                 
-                loadDashboardData();
-                loadColaboradores();
+                await loadColaboradoresCache();
+                await loadDashboardData();
+                await loadColaboradores();
                 loadColaboradoresSelect();
                 loadColaboradoresAtestadoSelect();
                 loadColaboradoresCATSelect();
@@ -5132,8 +5075,8 @@
                 itemToEdit = null;
                 
                 await loadExamesCache();
-                loadDashboardData();
-                loadExames();
+                await loadDashboardData();
+                await loadExames();
                 
                 if (btn) btn.disabled = false;
                 if (btnSpan) btnSpan.textContent = originalText;
@@ -5365,8 +5308,8 @@
                 atestadoPendente = null;
                 
                 await loadAtestadosCache();
-                loadDashboardData();
-                loadAtestados();
+                await loadDashboardData();
+                await loadAtestados();
                 
                 if (btn) btn.disabled = false;
                 if (btnSpan) btnSpan.textContent = originalText;
@@ -5463,8 +5406,8 @@
                 itemToEdit = null;
                 
                 await loadCATsCache();
-                loadDashboardData();
-                loadCATs();
+                await loadDashboardData();
+                await loadCATs();
                 loadFiltrosCATs();
                 
                 if (btn) btn.disabled = false;
@@ -5538,7 +5481,8 @@
                 editMode = false;
                 itemToEdit = null;
                 
-                loadEmpresas();
+                await loadEmpresasCache();
+                await loadEmpresas();
                 loadEmpresasSelect();
                 loadFiltrosExames();
                 loadFiltrosAtestados();
@@ -5615,7 +5559,8 @@
                 editMode = false;
                 itemToEdit = null;
                 
-                loadDepartamentos();
+                await loadDepartamentosCache();
+                await loadDepartamentos();
                 loadDepartamentosSelect();
                 loadFiltrosExames();
                 loadDepartamentosFiltro();
@@ -5697,7 +5642,8 @@
                 editMode = false;
                 itemToEdit = null;
                 
-                loadCIDs();
+                await loadCIDsCache();
+                await loadCIDs();
                 loadCIDsSelect();
                 loadCIDsSelect('cat-cid');
                 
@@ -5789,22 +5735,23 @@
                 document.getElementById('atestado-tipo').value = atestado.tipo || '';
                 document.getElementById('atestado-cid').value = atestado.cid || '';
                 document.getElementById('atestado-data-inicio').value = atestado.dataInicio || '';
+                document.getElementById('atestado-data-final').value = atestado.dataFinal || '';
+                document.getElementById('atestado-unidade').value = atestado.unidade || 'dias';
                 
                 // Calcular e preencher os dias de afastamento baseado na data final
-                if (atestado.dataInicio && atestado.dataFinal) {
+                if (atestado.dataInicio && atestado.dataFinal && atestado.unidade === 'dias') {
                     const dias = calcularDiasAtestado(atestado.dataInicio, atestado.dataFinal);
                     document.getElementById('atestado-dias-afastamento').value = dias;
                 }
                 
-                document.getElementById('atestado-data-final').value = atestado.dataFinal || '';
-                document.getElementById('atestado-unidade').value = atestado.unidade || 'dias';
-                
                 if (atestado.unidade === 'horas') {
                     document.getElementById('campos-hora').classList.remove('hidden');
+                    document.getElementById('campo-dias-afastamento').classList.add('hidden');
                     document.getElementById('atestado-hora-inicio').value = atestado.horaInicio || '08:00';
                     document.getElementById('atestado-hora-final').value = atestado.horaFinal || '17:00';
                 } else {
                     document.getElementById('campos-hora').classList.add('hidden');
+                    document.getElementById('campo-dias-afastamento').classList.remove('hidden');
                 }
                 
                 calcularAtestado();
@@ -5983,10 +5930,11 @@
                 
                 showNotification('Item excluído com sucesso!', 'success');
                 
-                loadDashboardData();
+                await loadDashboardData();
                 
                 if (deleteCollection === 'colaboradores') {
-                    loadColaboradores();
+                    await loadColaboradoresCache();
+                    await loadColaboradores();
                     loadColaboradoresSelect();
                     loadColaboradoresAtestadoSelect();
                     loadColaboradoresCATSelect();
@@ -5997,23 +5945,29 @@
                     loadFiltrosCATs();
                     loadFiltrosDeclaracoes();
                 } else if (deleteCollection === 'exames') {
-                    loadExames();
+                    await loadExamesCache();
+                    await loadExames();
                 } else if (deleteCollection === 'atestados') {
-                    loadAtestados();
+                    await loadAtestadosCache();
+                    await loadAtestados();
                 } else if (deleteCollection === 'cats') {
-                    loadCATs();
+                    await loadCATsCache();
+                    await loadCATs();
                     loadFiltrosCATs();
                 } else if (deleteCollection === 'declaracoes') {
-                    loadDeclaracoes();
+                    await loadDeclaracoesCache();
+                    await loadDeclaracoes();
                     loadFiltrosDeclaracoes();
                 } else if (deleteCollection === 'empresas') {
-                    loadEmpresas();
+                    await loadEmpresasCache();
+                    await loadEmpresas();
                     loadEmpresasSelect();
                     loadFiltrosExames();
                     loadFiltrosAtestados();
                     loadFiltrosDeclaracoes();
                 } else if (deleteCollection === 'departamentos') {
-                    loadDepartamentos();
+                    await loadDepartamentosCache();
+                    await loadDepartamentos();
                     loadDepartamentosSelect();
                     loadFiltrosExames();
                     loadDepartamentosFiltro();
@@ -6022,7 +5976,8 @@
                     loadFiltrosCATs();
                     loadFiltrosDeclaracoes();
                 } else if (deleteCollection === 'cids') {
-                    loadCIDs();
+                    await loadCIDsCache();
+                    await loadCIDs();
                     loadCIDsSelect();
                     loadCIDsSelect('cat-cid');
                 }
@@ -6176,6 +6131,7 @@
                 document.getElementById('atestado-unidade').value = 'dias';
                 
                 document.getElementById('campos-hora').classList.add('hidden');
+                document.getElementById('campo-dias-afastamento').classList.remove('hidden');
                 
                 calcularAtestado();
             }
@@ -6493,6 +6449,7 @@
                 document.getElementById('atestado-unidade').value = 'dias';
                 
                 document.getElementById('campos-hora').classList.add('hidden');
+                document.getElementById('campo-dias-afastamento').classList.remove('hidden');
                 document.getElementById('atestado-hora-inicio').value = '08:00';
                 document.getElementById('atestado-hora-final').value = '17:00';
                 
@@ -7082,13 +7039,19 @@
                 atestadoUnidade.addEventListener('change', function() {
                     const unidade = this.value;
                     const camposHora = document.getElementById('campos-hora');
+                    const campoDias = document.getElementById('campo-dias-afastamento');
                     
                     if (unidade === 'horas') {
                         camposHora.classList.remove('hidden');
+                        campoDias.classList.add('hidden');
                         document.getElementById('atestado-hora-inicio').value = '08:00';
                         document.getElementById('atestado-hora-final').value = '17:00';
+                        
+                        const hoje = new Date();
+                        document.getElementById('atestado-data-final').value = hoje.toISOString().split('T')[0];
                     } else {
                         camposHora.classList.add('hidden');
+                        campoDias.classList.remove('hidden');
                     }
                     
                     calcularAtestado();
