@@ -1469,6 +1469,30 @@
         .filter-active-badge i {
             color: var(--absenteismo);
         }
+
+        .index-error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            color: #721c24;
+        }
+
+        .index-error a {
+            color: #721c24;
+            font-weight: bold;
+        }
+
+        .index-error button {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -2138,11 +2162,11 @@
                             <div class="date-range">
                                 <div class="form-group">
                                     <label for="filtro-data-inicio-atestado">Data Início:</label>
-                                    <input type="date" id="filtro-data-inicio-atestado" placeholder="dd/mm/aaaa">
+                                    <input type="date" id="filtro-data-inicio-atestado">
                                 </div>
                                 <div class="form-group">
                                     <label for="filtro-data-fim-atestado">Data Fim:</label>
-                                    <input type="date" id="filtro-data-fim-atestado" placeholder="dd/mm/aaaa">
+                                    <input type="date" id="filtro-data-fim-atestado">
                                 </div>
                                 <div class="form-group clear-filters">
                                     <button class="btn btn-warning" onclick="limparFiltrosAtestados()">
@@ -2643,6 +2667,12 @@
 
             <!-- Absenteísmo - Página Principal (AJUSTADA COM FILTRO EXPANSÍVEL) -->
             <section id="absenteismo" class="page-content absenteismo-page">
+                <div id="indexErrorContainer" class="index-error" style="display: none;">
+                    <strong><i class="fas fa-exclamation-triangle"></i> Índice necessário para exibir o histórico de absenteísmo.</strong>
+                    <p id="indexErrorMessage"></p>
+                    <button onclick="createAbsenteismoIndex()">Clique aqui para criar o índice automaticamente</button>
+                </div>
+
                 <div class="page-title">
                     <h2><i class="fas fa-calendar-times"></i> Gestão de Absenteísmo</h2>
                     <div style="display: flex; gap: 10px;">
@@ -3614,13 +3644,48 @@
 
         async function carregarHistoricoAbsenteismo() {
             try {
+                // Verificar se o índice existe
                 const absenteismoRef = db.collection('absenteismo');
-                const snapshot = await absenteismoRef.orderBy('ano', 'desc').orderBy('mes', 'desc').get();
+                let snapshot;
+                
+                try {
+                    // Tentar ordenar por ano e mês
+                    snapshot = await absenteismoRef
+                        .orderBy('ano', 'desc')
+                        .orderBy('mes', 'desc')
+                        .get();
+                    
+                    // Esconder mensagem de erro de índice se estiver visível
+                    document.getElementById('indexErrorContainer').style.display = 'none';
+                    
+                } catch (indexError) {
+                    if (indexError.message && indexError.message.includes('requires an index')) {
+                        // Extrair URL do índice
+                        const urlMatch = indexError.message.match(/https:\/\/console\.firebase\.google\.com[^\s]*/);
+                        if (urlMatch) {
+                            document.getElementById('indexErrorMessage').innerHTML = 
+                                `É necessário criar um índice composto para ordenar os registros de absenteísmo por ano e mês. 
+                                <br><br><a href="${urlMatch[0]}" target="_blank" style="color: var(--accent);">Clique aqui para criar o índice automaticamente</a>`;
+                            document.getElementById('indexErrorContainer').style.display = 'block';
+                        }
+                        
+                        // Fallback: carregar sem ordenação e ordenar localmente
+                        snapshot = await absenteismoRef.get();
+                    } else {
+                        throw indexError;
+                    }
+                }
                 
                 cache.absenteismo = snapshot.docs.map(doc => ({
                     id: doc.id,
                     ...doc.data()
                 }));
+
+                // Ordenar localmente
+                cache.absenteismo.sort((a, b) => {
+                    if (a.ano !== b.ano) return (b.ano || 0) - (a.ano || 0);
+                    return (b.mes || 0) - (a.mes || 0);
+                });
 
                 const historyBody = document.getElementById('absenteismoHistoryBody');
                 if (!historyBody) return;
@@ -3630,6 +3695,7 @@
                 
                 if (filtroPeriodoAtivo) {
                     absenteismoFiltrado = absenteismoFiltrado.filter(reg => {
+                        if (!reg.ano || !reg.mes) return false;
                         const dataReg = new Date(reg.ano, reg.mes - 1);
                         let dataInicio = null;
                         let dataFim = null;
@@ -3669,10 +3735,10 @@
                 historyBody.innerHTML = absenteismoFiltrado.map(reg => `
                     <tr>
                         <td><strong>${getNomeMes(reg.mes)}/${reg.ano}</strong></td>
-                        <td>${reg.totalAtestados} (${reg.totalDiasAtestado || 0} dias)</td>
-                        <td>${reg.totalDeclaracoes} (${formatarHorasDecimal(reg.totalHorasDeclaracao || 0)})</td>
+                        <td>${reg.totalAtestados || 0} (${reg.totalDiasAtestado || 0} dias)</td>
+                        <td>${reg.totalDeclaracoes || 0} (${formatarHorasDecimal(reg.totalHorasDeclaracao || 0)})</td>
                         <td>${reg.faltasManuais || reg.totalFaltas || 0}</td>
-                        <td><span style="color: var(--absenteismo); font-weight: bold;">${reg.taxaAbsenteismo}%</span></td>
+                        <td><span style="color: var(--absenteismo); font-weight: bold;">${reg.taxaAbsenteismo || 0}%</span></td>
                         <td>${formatDate(reg.dataRegistro)}</td>
                         <td>
                             <div class="actions-cell">
@@ -3691,6 +3757,33 @@
             } catch (error) {
                 console.error('Erro ao carregar histórico de absenteísmo:', error);
                 showNotification('Erro ao carregar histórico de absenteísmo: ' + error.message, 'error');
+            }
+        }
+
+        // Função para criar o índice automaticamente
+        async function createAbsenteismoIndex() {
+            try {
+                // Tentar fazer uma consulta que requer o índice
+                await db.collection('absenteismo')
+                    .orderBy('ano', 'desc')
+                    .orderBy('mes', 'desc')
+                    .limit(1)
+                    .get();
+                
+                showNotification('Índice criado com sucesso!', 'success');
+                document.getElementById('indexErrorContainer').style.display = 'none';
+                await carregarHistoricoAbsenteismo();
+                
+            } catch (error) {
+                if (error.message && error.message.includes('requires an index')) {
+                    const urlMatch = error.message.match(/https:\/\/console\.firebase\.google\.com[^\s]*/);
+                    if (urlMatch) {
+                        window.open(urlMatch[0], '_blank');
+                        showNotification('Redirecionado para criar o índice no Firebase Console', 'info');
+                    }
+                } else {
+                    showNotification('Erro ao criar índice: ' + error.message, 'error');
+                }
             }
         }
 
@@ -7351,6 +7444,7 @@
         window.excluirAbsenteismo = excluirAbsenteismo;
         window.filtrarAbsenteismoPeriodo = filtrarAbsenteismoPeriodo;
         window.limparFiltroPeriodo = limparFiltroPeriodo;
+        window.createAbsenteismoIndex = createAbsenteismoIndex;
         
         // Exportação
         window.exportDashboardPDF = exportDashboardPDF;
