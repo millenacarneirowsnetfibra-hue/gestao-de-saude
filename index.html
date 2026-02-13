@@ -1493,6 +1493,32 @@
             cursor: pointer;
             margin-top: 10px;
         }
+
+        /* Estilos para o botão de reset */
+        .reset-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+        }
+
+        .btn-reset {
+            background: linear-gradient(to right, #d32f2f, #b71c1c);
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .btn-reset:hover {
+            background: linear-gradient(to right, #b71c1c, #8e0000);
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 <body>
@@ -1543,6 +1569,37 @@
             </div>
             <div id="catDetailsContent">
                 <!-- Conteúdo carregado dinamicamente -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Reset do Banco de Dados -->
+    <div id="resetModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-exclamation-triangle"></i> ⚠️ ATENÇÃO - RESET DO BANCO DE DADOS</h3>
+                <button class="close-modal" onclick="closeResetModal()">&times;</button>
+            </div>
+            <div style="margin-bottom: 25px;">
+                <div style="background-color: #f8d7da; border-left: 4px solid #d32f2f; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                    <h4 style="color: #d32f2f; margin-bottom: 10px;"><i class="fas fa-exclamation-circle"></i> ESTA AÇÃO É IRREVERSÍVEL!</h4>
+                    <p style="color: #721c24;">Você está prestes a EXCLUIR PERMANENTEMENTE todos os dados de teste das seguintes coleções:</p>
+                    <ul style="color: #721c24; margin-top: 10px; margin-left: 20px;">
+                        <li><strong>atestados</strong> - Todos os atestados cadastrados</li>
+                        <li><strong>declaracoes</strong> - Todas as declarações de horas</li>
+                        <li><strong>cats</strong> - Todas as CATs registradas</li>
+                        <li><strong>exames</strong> - Todos os exames ocupacionais</li>
+                        <li><strong>absenteismo</strong> - Todos os registros de absenteísmo</li>
+                    </ul>
+                    <p style="color: #721c24; margin-top: 15px;"><strong>Os dados de colaboradores, empresas, departamentos e CIDs serão MANTIDOS.</strong></p>
+                    <p style="color: #721c24; margin-top: 10px;">Após este reset, o sistema começará do zero com dados reais.</p>
+                </div>
+                <p><strong>Digite "RESETAR" no campo abaixo para confirmar:</strong></p>
+                <input type="text" id="resetConfirmInput" placeholder="Digite RESETAR aqui" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px;">
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-danger" onclick="executeReset()" id="resetConfirmBtn" disabled>Confirmar Reset</button>
+                <button class="btn" onclick="closeResetModal()">Cancelar</button>
             </div>
         </div>
     </div>
@@ -1609,6 +1666,13 @@
                     </a>
                 </li>
             </ul>
+            <!-- Botão de Reset (visível apenas para administradores) -->
+            <div style="padding: 20px; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 20px;">
+                <button class="btn-reset" onclick="openResetModal()" style="width: 100%;">
+                    <i class="fas fa-exclamation-triangle"></i> Resetar Dados de Teste
+                </button>
+                <small style="color: rgba(255,255,255,0.6); display: block; text-align: center; margin-top: 10px;">Use apenas para limpar dados de teste</small>
+            </div>
         </aside>
 
         <main class="main-content">
@@ -1706,7 +1770,7 @@
                         <h3><i class="fas fa-trophy"></i> Top 5 - Colaboradores com mais Atestados</h3>
                         <ul class="ranking-list" id="topAtestadosColaboradores">
                             <li class="ranking-item">
-                                <div class="loading" style="margin: 20px auto;"></div>
+                                <span style="color: #666;">Nenhum atestado cadastrado</span>
                             </li>
                         </ul>
                     </div>
@@ -1716,7 +1780,7 @@
                         <h3><i class="fas fa-file-medical-alt"></i> Top 5 - CIDs mais Frequentes</h3>
                         <ul class="ranking-list" id="topCIDs">
                             <li class="ranking-item">
-                                <div class="loading" style="margin: 20px auto;"></div>
+                                <span style="color: #666;">Nenhum CID registrado</span>
                             </li>
                         </ul>
                     </div>
@@ -1726,7 +1790,7 @@
                         <h3><i class="fas fa-building"></i> Top 5 - Setores com mais Atestados</h3>
                         <ul class="ranking-list" id="topSetores">
                             <li class="ranking-item">
-                                <div class="loading" style="margin: 20px auto;"></div>
+                                <span style="color: #666;">Nenhum setor com atestados</span>
                             </li>
                         </ul>
                     </div>
@@ -1736,7 +1800,7 @@
                         <h3><i class="fas fa-clock"></i> Top 5 - Colaboradores com mais Horas</h3>
                         <ul class="ranking-list" id="topHorasColaboradores">
                             <li class="ranking-item">
-                                <div class="loading" style="margin: 20px auto;"></div>
+                                <span style="color: #666;">Nenhuma declaração de horas</span>
                             </li>
                         </ul>
                     </div>
@@ -1769,7 +1833,7 @@
                             </thead>
                             <tbody id="vencimentosBody">
                                 <tr>
-                                    <td colspan="7" style="text-align: center; padding: 30px;">Carregando dados...</td>
+                                    <td colspan="7" style="text-align: center; padding: 30px;">Nenhum exame cadastrado</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -2029,7 +2093,7 @@
                         </thead>
                         <tbody id="examesBody">
                             <tr>
-                                <td colspan="7" style="text-align: center; padding: 30px;">Carregando exames...</td>
+                                <td colspan="7" style="text-align: center; padding: 30px;">Nenhum exame cadastrado</td>
                             </tr>
                         </tbody>
                     </table>
@@ -2192,7 +2256,7 @@
                         </thead>
                         <tbody id="atestadosBody">
                             <tr>
-                                <td colspan="6" style="text-align: center; padding: 30px;">Carregando atestados...</td>
+                                <td colspan="6" style="text-align: center; padding: 30px;">Nenhum atestado cadastrado</td>
                             </tr>
                         </tbody>
                     </table>
@@ -2398,7 +2462,7 @@
                         </thead>
                         <tbody id="catsBody">
                             <tr>
-                                <td colspan="7" style="text-align: center; padding: 30px;">Carregando CATs...</td>
+                                <td colspan="7" style="text-align: center; padding: 30px;">Nenhuma CAT registrada</td>
                             </tr>
                         </tbody>
                     </table>
@@ -2690,7 +2754,7 @@
                     <div class="taxa-total-info">
                         <h3><i class="fas fa-chart-line"></i> Taxa de Absenteísmo Total</h3>
                         <div class="taxa-total-value" id="taxaAbsenteismoTotal">0%</div>
-                        <div class="taxa-total-periodo" id="periodoAbsenteismoTotal">Todos os períodos</div>
+                        <div class="taxa-total-periodo" id="periodoAbsenteismoTotal">Nenhum registro</div>
                     </div>
                     <div style="background-color: var(--absenteismo-light); padding: 15px; border-radius: 8px;">
                         <i class="fas fa-info-circle" style="color: var(--absenteismo); font-size: 2rem;"></i>
@@ -3107,6 +3171,67 @@
             }
         };
 
+        // === FUNÇÕES DE RESET DO BANCO DE DADOS ===
+        function openResetModal() {
+            document.getElementById('resetConfirmInput').value = '';
+            document.getElementById('resetConfirmBtn').disabled = true;
+            document.getElementById('resetModal').style.display = 'flex';
+        }
+
+        function closeResetModal() {
+            document.getElementById('resetModal').style.display = 'none';
+        }
+
+        // Monitorar campo de confirmação
+        document.getElementById('resetConfirmInput')?.addEventListener('input', function(e) {
+            const btn = document.getElementById('resetConfirmBtn');
+            btn.disabled = e.target.value !== 'RESETAR';
+        });
+
+        async function executeReset() {
+            try {
+                const btn = document.getElementById('resetConfirmBtn');
+                btn.disabled = true;
+                btn.innerHTML = '<span class="loading"></span> Resetando...';
+
+                // Coleções a serem limpas (apenas dados de teste)
+                const colecoesParaReset = ['atestados', 'declaracoes', 'cats', 'exames', 'absenteismo'];
+                let totalDeletados = 0;
+
+                for (const colecao of colecoesParaReset) {
+                    const snapshot = await db.collection(colecao).get();
+                    const batch = db.batch();
+                    
+                    snapshot.docs.forEach(doc => {
+                        batch.delete(doc.ref);
+                        totalDeletados++;
+                    });
+                    
+                    if (snapshot.docs.length > 0) {
+                        await batch.commit();
+                    }
+                    
+                    // Limpar cache
+                    cache[colecao] = [];
+                }
+
+                showNotification(`✅ Reset concluído! ${totalDeletados} registros de teste foram removidos.`, 'success');
+                
+                // Recarregar todas as interfaces
+                await loadCacheData();
+                
+                closeResetModal();
+                
+            } catch (error) {
+                console.error('Erro durante reset:', error);
+                showNotification('Erro ao resetar dados: ' + error.message, 'error');
+            } finally {
+                const btn = document.getElementById('resetConfirmBtn');
+                btn.disabled = false;
+                btn.innerHTML = 'Confirmar Reset';
+            }
+        }
+
         // === FUNÇÕES AUXILIARES DE FORMATAÇÃO ===
         
         function formatarHorasDecimal(horas) {
@@ -3393,6 +3518,7 @@
         function calcularTaxaTotalAbsenteismo() {
             if (cache.absenteismo.length === 0) {
                 document.getElementById('taxaAbsenteismoTotal').textContent = '0%';
+                document.getElementById('periodoAbsenteismoTotal').textContent = 'Nenhum registro';
                 return '0%';
             }
             
@@ -4198,7 +4324,7 @@
                 
                 const topColaboradoresHTML = document.getElementById('topAtestadosColaboradores');
                 if (topColaboradores.length === 0) {
-                    topColaboradoresHTML.innerHTML = `<li class="ranking-item"><span style="color: #666;">Nenhum atestado encontrado</span></li>`;
+                    topColaboradoresHTML.innerHTML = `<li class="ranking-item"><span style="color: #666;">Nenhum atestado cadastrado</span></li>`;
                 } else {
                     topColaboradoresHTML.innerHTML = topColaboradores.map((item, index) => {
                         const colaborador = cache.colaboradores.find(c => c.nome === item.nome);
@@ -4265,7 +4391,7 @@
                 
                 const topSetoresHTML = document.getElementById('topSetores');
                 if (topSetores.length === 0) {
-                    topSetoresHTML.innerHTML = `<li class="ranking-item"><span style="color: #666;">Nenhum setor encontrado</span></li>`;
+                    topSetoresHTML.innerHTML = `<li class="ranking-item"><span style="color: #666;">Nenhum setor com atestados</span></li>`;
                 } else {
                     topSetoresHTML.innerHTML = topSetores.map((item, index) => `
                         <li class="ranking-item">
@@ -4293,7 +4419,7 @@
                 
                 const topHorasHTML = document.getElementById('topHorasColaboradores');
                 if (topHoras.length === 0) {
-                    topHorasHTML.innerHTML = `<li class="ranking-item"><span style="color: #666;">Nenhuma declaração encontrada</span></li>`;
+                    topHorasHTML.innerHTML = `<li class="ranking-item"><span style="color: #666;">Nenhuma declaração de horas</span></li>`;
                 } else {
                     topHorasHTML.innerHTML = topHoras.map((item, index) => {
                         const colaborador = cache.colaboradores.find(c => c.nome === item.nome);
@@ -4332,7 +4458,7 @@
                             <td colspan="7" style="text-align: center; padding: 30px;">
                                 <div class="empty-state">
                                     <i class="fas fa-calendar-check"></i>
-                                    <p>Nenhum vencimento próximo</p>
+                                    <p>Nenhum exame cadastrado</p>
                                 </div>
                             </td>
                         </tr>
@@ -7445,6 +7571,11 @@
         window.filtrarAbsenteismoPeriodo = filtrarAbsenteismoPeriodo;
         window.limparFiltroPeriodo = limparFiltroPeriodo;
         window.createAbsenteismoIndex = createAbsenteismoIndex;
+        
+        // Funções de reset
+        window.openResetModal = openResetModal;
+        window.closeResetModal = closeResetModal;
+        window.executeReset = executeReset;
         
         // Exportação
         window.exportDashboardPDF = exportDashboardPDF;
