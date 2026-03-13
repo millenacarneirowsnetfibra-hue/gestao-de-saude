@@ -5412,14 +5412,14 @@
                     return;
                 }
                 
-                const dataAdmissaoDate = new Date(dataAdmissao + 'T12:00:00');
-                const hoje = new Date();
-                hoje.setHours(0, 0, 0, 0);
-                
-                if (dataAdmissaoDate > hoje) {
-                    showNotification('A data de admissão não pode ser futura', 'warning');
-                    return;
-                }
+                // Validação de data futura removida para permitir cadastro de colaboradores que ainda não iniciaram
+                // const dataAdmissaoDate = new Date(dataAdmissao + 'T12:00:00');
+                // const hoje = new Date();
+                // hoje.setHours(0, 0, 0, 0);
+                // if (dataAdmissaoDate > hoje) {
+                //     showNotification('A data de admissão não pode ser futura', 'warning');
+                //     return;
+                // }
                 
                 const btn = document.getElementById('btn-salvar-colaborador');
                 const btnSpan = document.getElementById('btn-colaborador-text');
@@ -5500,13 +5500,14 @@
                 
                 const dataExameDate = new Date(dataExame + 'T12:00:00');
                 const vencimentoDate = new Date(vencimento + 'T12:00:00');
-                const hoje = new Date();
-                hoje.setHours(0, 0, 0, 0);
                 
-                if (dataExameDate > hoje) {
-                    showNotification('A data do exame não pode ser futura', 'warning');
-                    return;
-                }
+                // Validação de data futura removida para permitir cadastro de exames futuros
+                // const hoje = new Date();
+                // hoje.setHours(0, 0, 0, 0);
+                // if (dataExameDate > hoje) {
+                //     showNotification('A data do exame não pode ser futura', 'warning');
+                //     return;
+                // }
                 
                 if (vencimentoDate <= dataExameDate) {
                     showNotification('A data de vencimento deve ser posterior à data do exame', 'warning');
